@@ -174,13 +174,13 @@ EMAIL_USE_SSL = False
 
 FILTERS_EMPTY_CHOICE_LABEL='Any'
 
-DEFAULT_AUTO_FIELD='django.db.models.AutoField' 
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 # Django Q
 Q_CLUSTER = {
     'workers': 4,
-    'timeout': 90,
-    'retry': 120,
+    'timeout': 300,
+    'retry': 360,
     'queue_limit': 50,
     'bulk': 10,
     'orm': 'default'
