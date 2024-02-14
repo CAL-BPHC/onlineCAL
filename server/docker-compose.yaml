@@ -1,0 +1,25 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: onlinecal-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: onlinecal
+      MYSQL_USER: onlinecal
+      MYSQL_PASSWORD: onlinecal
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - data:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+  adminer:
+    image: adminer:4.8.1
+    container_name: onlinecal-adminer
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      ADMINER_DESIGN: dracula
+volumes:
+  data:
