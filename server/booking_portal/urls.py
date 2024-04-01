@@ -8,7 +8,7 @@ urlpatterns = [
     path('email/', views.email, name='email'),
     path('instrument-list/', views.instrument_list, name='instrument-list'),
     path('view-slots/', views.slot_list, name='slot-list'),
-    path('faculty/', views.faculty_portal, name='faculty_portal'),
+    path('faculty/student-requests/', views.faculty_portal, name='faculty_portal'),
     path('lab-assistant/', views.lab_assistant_portal, name='lab_assistant'),
     path('student/', views.student_portal, name='student'),
     path('requests_faculty/accept/<int:id>',
