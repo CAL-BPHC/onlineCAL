@@ -6,7 +6,6 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.utils.timezone import now
 
 from .slot import Slot
