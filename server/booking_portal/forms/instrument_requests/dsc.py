@@ -23,13 +23,13 @@ class DSCForm(UserDetailsForm, UserRemarkForm):
              'temp_range',
              'atmosphere',
              'heating_rate',
-            ) + \
+             ) + \
             UserRemarkForm.Meta.fields
 
         labels = dict(
-          ** UserDetailsForm.Meta.labels,
-          ** UserRemarkForm.Meta.labels,
-          ** {
+            ** UserDetailsForm.Meta.labels,
+            ** UserRemarkForm.Meta.labels,
+            ** {
                 'sample_code': 'Sample Code',
                 'chemical_composition': 'Chemical Composition',
                 'sample_amount': 'Amount of Sample / mg',
@@ -41,9 +41,9 @@ class DSCForm(UserDetailsForm, UserRemarkForm):
         )
 
         widgets = dict(
-          ** UserDetailsForm.Meta.widgets,
-          ** UserRemarkForm.Meta.widgets,
-          ** {
+            ** UserDetailsForm.Meta.widgets,
+            ** UserRemarkForm.Meta.widgets,
+            ** {
                 'sample_code': forms.TextInput(attrs={
                     'class': 'form-control',
                 }

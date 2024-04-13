@@ -12,7 +12,8 @@ from ..slot import Slot
 
 class InstrumentManager(models.Manager):
     def export_instrument_usage_report(self, file, instruments, start_date, end_date):
-        headers = ('Instrument Name', 'Approved Bookings', 'Total Utilisation (hours:minutes)')
+        headers = ('Instrument Name', 'Approved Bookings',
+                   'Total Utilisation (hours:minutes)')
         writer = csv.DictWriter(file, headers)
         writer.writeheader()
 
@@ -39,6 +40,7 @@ class InstrumentManager(models.Manager):
                 'Total Utilisation (hours:minutes)': "%s:%s" % (int(util_hours), int(util_minutes)),
             }
             writer.writerow(row)
+
 
 class Instrument(models.Model):
     name = models.CharField(max_length=50, unique=True, null=False)

@@ -6,7 +6,7 @@ from ..models import EmailModel
 
 @login_required
 def email(request):
-    ## returns emails of all users.
+    # returns emails of all users.
     emails = EmailModel.objects.all()
     context = {
         'emails': emails,

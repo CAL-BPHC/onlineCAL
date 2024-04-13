@@ -56,8 +56,10 @@ class CustomUserAdmin(UserAdmin):
             return update_wrapper(wrapper, view)
 
         my_urls = [
-            path('import-csv/', wrap(self.import_csv), name='%s_%s_import-csv' % info),
-            path('import-csv/sample/', wrap(self.import_csv_sample), name='%s_%s_import-csv-sample' % info)
+            path('import-csv/', wrap(self.import_csv),
+                 name='%s_%s_import-csv' % info),
+            path('import-csv/sample/', wrap(self.import_csv_sample),
+                 name='%s_%s_import-csv-sample' % info)
         ]
         return my_urls + urls
 
@@ -74,7 +76,8 @@ class CustomUserAdmin(UserAdmin):
         """
         headers = self.get_csv_headers()
         if set(records.fieldnames) != set(headers):
-            raise Exception(f"Invalid CSV headers/columns. Expected: {headers}")
+            raise Exception(
+                f"Invalid CSV headers/columns. Expected: {headers}")
 
         created_users = []
         for record in records:
@@ -88,7 +91,8 @@ class CustomUserAdmin(UserAdmin):
 
             if user_type.objects.filter(email=record['email']).exists():
                 if not skip_existing:
-                    raise ObjectDoesNotExist(f"User with username \"{record['email']}\" already exists.")
+                    raise ObjectDoesNotExist(
+                        f"User with username \"{record['email']}\" already exists.")
                 else:
                     continue
 
@@ -125,16 +129,19 @@ class CustomUserAdmin(UserAdmin):
         if request.method == "POST":
             form = forms.BulkImportForm(request.POST, request.FILES)
             if not form.is_valid():
-                self.message_user(request, "Error: Invalid form", level=messages.ERROR)
+                self.message_user(
+                    request, "Error: Invalid form", level=messages.ERROR)
                 return self.render_bulk_import_form(request, form)
 
             try:
-                csv_file = TextIOWrapper(form.cleaned_data['csv_file'], encoding=request.encoding)
+                csv_file = TextIOWrapper(
+                    form.cleaned_data['csv_file'], encoding=request.encoding)
                 dialect = csv.Sniffer().sniff(csv_file.read())
                 csv_file.seek(0)
                 reader = csv.DictReader(csv_file, dialect=dialect)
             except Exception as err:
-                self.message_user(request, "Error: {}".format(err), level=messages.ERROR)
+                self.message_user(request, "Error: {}".format(
+                    err), level=messages.ERROR)
                 return self.render_bulk_import_form(request, form)
 
             try:
@@ -144,14 +151,17 @@ class CustomUserAdmin(UserAdmin):
                 user_type = self.get_user_type(request)
                 staff = self.is_user_staff()
 
-                created_users = self.create_users(user_type, reader, staff, send_email, skip_existing=ignore_existing)
+                created_users = self.create_users(
+                    user_type, reader, staff, send_email, skip_existing=ignore_existing)
             except Exception as err:
-                self.message_user(request, f"Error on row number {reader.line_num}: {err}", level=messages.ERROR)
+                self.message_user(
+                    request, f"Error on row number {reader.line_num}: {err}", level=messages.ERROR)
                 return self.render_bulk_import_form(request, form)
             else:
                 created_users = [escape(x) for x in created_users]
                 names = '<br/>'.join(created_users)
-                self.message_user(request, mark_safe("{} users have been created:<br/>{}".format(len(created_users), names)))
+                self.message_user(request, mark_safe(
+                    "{} users have been created:<br/>{}".format(len(created_users), names)))
                 return redirect("..")
 
         else:
@@ -175,7 +185,8 @@ class CustomUserAdmin(UserAdmin):
         return FileResponse(bio, as_attachment=True, filename=f'import_{user_type}.csv')
 
     def get_user_type(self, request):
-        raise NotImplementedError("Derived classes should return a Model for the user type")
+        raise NotImplementedError(
+            "Derived classes should return a Model for the user type")
 
     def is_user_staff(self):
         raise NotImplementedError("Derived classes should return a boolean")

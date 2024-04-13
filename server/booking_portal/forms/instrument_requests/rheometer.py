@@ -15,20 +15,20 @@ class RheometerForm(UserDetailsForm, UserRemarkForm):
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
         model = Rheometer
         fields = UserDetailsForm.Meta.fields + \
-              (
+            (
                 'sample_code',
                 'ingredient_details',
                 'physical_characteristics',
                 'chemical_nature',
                 'origin',
                 'analysis_required',
-              ) + \
-                UserRemarkForm.Meta.fields
+            ) + \
+            UserRemarkForm.Meta.fields
 
         labels = dict(
-          ** UserDetailsForm.Meta.labels,
-          ** UserRemarkForm.Meta.labels,
-          **             {
+            ** UserDetailsForm.Meta.labels,
+            ** UserRemarkForm.Meta.labels,
+            ** {
                 'sample_code': 'Sample Code',
                 'ingredient_details': 'Details of ingredients (Solute + Solvent or Solute + Solvent + additives etc.)',
                 'physical_characteristics': 'Details of Pyhsical Characteristics [Concentration, gel/crystallization temperature and approx viscosity (mPa.s)]',
@@ -39,9 +39,9 @@ class RheometerForm(UserDetailsForm, UserRemarkForm):
         )
 
         widgets = dict(
-          ** UserDetailsForm.Meta.widgets,
-          ** UserRemarkForm.Meta.widgets,
-          ** {
+            ** UserDetailsForm.Meta.widgets,
+            ** UserRemarkForm.Meta.widgets,
+            ** {
                 'sample_code': forms.TextInput(attrs={
                     'class': 'form-control',
                 }

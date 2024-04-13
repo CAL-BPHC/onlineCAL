@@ -13,7 +13,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Announcement',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=100)),
                 ('text', models.CharField(max_length=300)),
                 ('date', models.DateTimeField(auto_now_add=True)),
@@ -22,6 +23,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='instrument',
             name='status',
-            field=models.BooleanField(default=True, help_text="'No' will cancel all pending requests and slots for this machine", verbose_name='Available for Booking?'),
+            field=models.BooleanField(
+                default=True, help_text="'No' will cancel all pending requests and slots for this machine", verbose_name='Available for Booking?'),
         ),
     ]

@@ -10,16 +10,17 @@ class FTIRForm(UserDetailsForm, UserRemarkForm):
     subtitle = "Fourier Transform Infrared Spectrometer"
     help_text = '''Note: the minimum amount of the sample should be 2 mg.
     '''
+
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
         model = FTIR
         fields = UserDetailsForm.Meta.fields + \
-                (
-                    'sample_code',
-                    'composition',
-                    'state',
-                    'solvent',
-                ) + \
-                 UserRemarkForm.Meta.fields
+            (
+                'sample_code',
+                'composition',
+                'state',
+                'solvent',
+            ) + \
+            UserRemarkForm.Meta.fields
 
         labels = dict(
             ** UserDetailsForm.Meta.labels,
@@ -37,20 +38,20 @@ class FTIRForm(UserDetailsForm, UserRemarkForm):
             ** UserRemarkForm.Meta.widgets,
             ** {
                 'sample_code': forms.TextInput(attrs={
-                                                'class': 'form-control',
-                                            }
+                    'class': 'form-control',
+                }
                 ),
                 'composition': forms.TextInput(attrs={
-                                                'class': 'form-control',
-                                            }
+                    'class': 'form-control',
+                }
                 ),
                 'state': forms.Select(attrs={
-                                        'class': 'form-control',
-                                    }
+                    'class': 'form-control',
+                }
                 ),
                 'solvent': forms.TextInput(attrs={
-                                            'class': 'form-control',
-                                        }
+                    'class': 'form-control',
+                }
                 ),
             }
         )

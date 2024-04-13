@@ -4,6 +4,7 @@ from booking_portal.models.instrument.requests import SAXS_WAXS
 
 from .base import UserDetailsForm, UserRemarkForm
 
+
 class SAXSWAXSForm(UserDetailsForm, UserRemarkForm):
     title = "SAXS/WAXS"
     subtitle = "Small Angle X ray Scattering"

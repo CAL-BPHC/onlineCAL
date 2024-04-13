@@ -15,16 +15,16 @@ class NMRForm(UserDetailsForm, UserRemarkForm):
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
         model = NMR
         fields = UserDetailsForm.Meta.fields + \
-                 (
-                  'sample_code',
-                  'sample_nature',
-                  'quantity',
-                  'solvent',
-                  'analysis',
-                  'experiment',
-                  'spectral_range',
-                ) + \
-                 UserRemarkForm.Meta.fields
+            (
+                'sample_code',
+                'sample_nature',
+                'quantity',
+                'solvent',
+                'analysis',
+                'experiment',
+                'spectral_range',
+            ) + \
+            UserRemarkForm.Meta.fields
 
         labels = dict(
             ** UserDetailsForm.Meta.labels,
@@ -44,36 +44,36 @@ class NMRForm(UserDetailsForm, UserRemarkForm):
 
         )
         widgets = dict(
-          ** UserDetailsForm.Meta.widgets,
-          ** UserRemarkForm.Meta.widgets,
-          ** {
+            ** UserDetailsForm.Meta.widgets,
+            ** UserRemarkForm.Meta.widgets,
+            ** {
                 'sample_code': forms.TextInput(attrs={
-                                                 'class': 'form-control',
-                                               }
+                    'class': 'form-control',
+                }
                 ),
                 'sample_nature': forms.Select(attrs={
-                                                'class': 'form-control',
-                                              }
+                    'class': 'form-control',
+                }
                 ),
                 'quantity': forms.TextInput(attrs={
-                                              'class': 'form-control',
-                                            }
+                    'class': 'form-control',
+                }
                 ),
                 'solvent': forms.TextInput(attrs={
-                                             'class': 'form-control',
-                                           }
+                    'class': 'form-control',
+                }
                 ),
                 'analysis': forms.TextInput(attrs={
-                                              'class': 'form-control',
-                                            }
+                    'class': 'form-control',
+                }
                 ),
                 'experiment': forms.TextInput(attrs={
-                                                'class': 'form-control',
-                                              }
+                    'class': 'form-control',
+                }
                 ),
                 'spectral_range': forms.TextInput(attrs={
-                                                    'class': 'form-control',
-                                                  }
+                    'class': 'form-control',
+                }
                 ),
             }
         )

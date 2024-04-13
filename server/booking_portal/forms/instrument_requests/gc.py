@@ -12,25 +12,26 @@ class GCForm(UserDetailsForm, UserRemarkForm):
     <b>Note:</b> User is requested to adopt standard techniques for preparation of samples before giving them. <br>
         The sample should be filtered through 0.2 micrometer PTFE filter.
     '''
+
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
         model = GC
         fields = UserDetailsForm.Meta.fields + \
-                (
-                  'sample_code',
-                  'appearance',
-                  'no_of_gc_peaks',
-                  'solvent_solubility',
-                  'column_details',
-                  'exp_mol_wt',
-                  'mp_bp',
-                  'sample_source',
-                ) + \
-                 UserRemarkForm.Meta.fields
+            (
+                'sample_code',
+                'appearance',
+                'no_of_gc_peaks',
+                'solvent_solubility',
+                'column_details',
+                'exp_mol_wt',
+                'mp_bp',
+                'sample_source',
+            ) + \
+            UserRemarkForm.Meta.fields
 
         labels = dict(
-          ** UserDetailsForm.Meta.labels,
-          ** UserRemarkForm.Meta.labels,
-          ** {
+            ** UserDetailsForm.Meta.labels,
+            ** UserRemarkForm.Meta.labels,
+            ** {
                 'sample_code': 'Sample Code',
                 'appearance': 'Color and Appearance',
                 'no_of_gc_peaks': 'No. of GC Peaks',
@@ -43,9 +44,9 @@ class GCForm(UserDetailsForm, UserRemarkForm):
         )
 
         widgets = dict(
-          ** UserDetailsForm.Meta.widgets,
-          ** UserRemarkForm.Meta.widgets,
-          ** {
+            ** UserDetailsForm.Meta.widgets,
+            ** UserRemarkForm.Meta.widgets,
+            ** {
                 'sample_code': forms.TextInput(attrs={
                     'class': 'form-control',
                 }

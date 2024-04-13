@@ -31,7 +31,8 @@ class InstrumentAdmin(admin.ModelAdmin):
         info = Instrument._meta.app_label, Instrument._meta.model_name
         instruments = request.GET.get('instruments', '')
         try:
-            instruments = Instrument.objects.filter(pk__in=instruments.split(','))
+            instruments = Instrument.objects.filter(
+                pk__in=instruments.split(','))
         except ValidationError as e:
             messages.error(request, "Invalid instruments")
             return redirect(reverse('admin:%s_%s_changelist' % info))
@@ -45,8 +46,10 @@ class InstrumentAdmin(admin.ModelAdmin):
             end_date = form.cleaned_data['end_date']
 
             csv_file = StringIO()
-            Instrument.objects.export_instrument_usage_report(csv_file, instruments, start_date, end_date)
-            response = HttpResponse(csv_file.getvalue(), content_type='text/csv')
+            Instrument.objects.export_instrument_usage_report(
+                csv_file, instruments, start_date, end_date)
+            response = HttpResponse(
+                csv_file.getvalue(), content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="Usage Report.csv"'
 
             csv_file.close()
@@ -60,7 +63,8 @@ class InstrumentAdmin(admin.ModelAdmin):
         info = self.model._meta.app_label, self.model._meta.model_name
 
         my_urls = [
-            path("usage-report/", InstrumentAdmin.instrument_usage_report_form, name='%s_%s_usage-report' % info)
+            path("usage-report/", InstrumentAdmin.instrument_usage_report_form,
+                 name='%s_%s_usage-report' % info)
         ]
         return my_urls + urls
 
@@ -68,14 +72,14 @@ class InstrumentAdmin(admin.ModelAdmin):
     def instrument_usage_report_action(self, request, queryset):
         selected = queryset.values_list('pk', flat=True)
         opts = self.model._meta
-        url = '%s?instruments=%s' %(
+        url = '%s?instruments=%s' % (
             reverse(
                 'admin:%s_%s_usage-report' % (opts.app_label, opts.model_name),
             ),
             ",".join([str(pk) for pk in selected])
         )
         return redirect(url)
-    instrument_usage_report_action.short_description='Download Instrument Usage Report'
+    instrument_usage_report_action.short_description = 'Download Instrument Usage Report'
 
     @staticmethod
     def render_instrument_usage_report_form(request, form):

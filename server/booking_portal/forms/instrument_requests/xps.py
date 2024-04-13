@@ -24,12 +24,12 @@ class XPSForm(UserDetailsForm, UserRemarkForm):
                 'analysed_elements',
                 'scan_details',
             ) + \
-              UserRemarkForm.Meta.fields
+            UserRemarkForm.Meta.fields
 
         labels = dict(
-          ** UserDetailsForm.Meta.labels,
-          ** UserRemarkForm.Meta.labels,
-          ** {
+            ** UserDetailsForm.Meta.labels,
+            ** UserRemarkForm.Meta.labels,
+            ** {
                 'sample_name': 'Sample Name',
                 'sample_nature': 'Nature of Sample (pellet: 1cm dia with 2-3mm thickness or Thin Film: 1 x 1 cm^2)',
                 'chemical_composition': 'Chemical Composition',
@@ -40,9 +40,9 @@ class XPSForm(UserDetailsForm, UserRemarkForm):
         )
 
         widgets = dict(
-          ** UserDetailsForm.Meta.widgets,
-          ** UserRemarkForm.Meta.widgets,
-          **             {
+            ** UserDetailsForm.Meta.widgets,
+            ** UserRemarkForm.Meta.widgets,
+            ** {
                 'sample_name': forms.TextInput(attrs={
                     'class': 'form-control',
                 }

@@ -18,13 +18,15 @@ class RequestManager(models.Manager):
         with transaction.atomic():
             slot, instr = Slot.objects.get_instr_from_slot_id(slot_id, True)
             if not instr or not slot:
-                raise ObjectDoesNotExist("Requested slot or instrument does not exist.")
+                raise ObjectDoesNotExist(
+                    "Requested slot or instrument does not exist.")
 
             if not slot.is_available_for_booking():
                 raise ValueError("Slot is not available for booking.")
 
             if Request.objects.has_student_booked_upcoming_instrument_slot(instr, student):
-                raise ValueError("Upcoming slot for instrument already booked.")
+                raise ValueError(
+                    "Upcoming slot for instrument already booked.")
 
             form_saved = form_instance.save()
             self.create(
@@ -42,9 +44,9 @@ class RequestManager(models.Manager):
         """Check if a student has booked an upcoming slot for an instrument"""
         return Request.objects.filter(
             ~(
-                    Q(status=Request.REJECTED) |
-                    Q(status=Request.CANCELLED) |
-                    Q(status=Request.APPROVED)
+                Q(status=Request.REJECTED) |
+                Q(status=Request.CANCELLED) |
+                Q(status=Request.APPROVED)
             ),
             instrument=instr,
             student=student,
@@ -77,8 +79,8 @@ class Request(models.Model):
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
 
-    ## To keep a reference of different form types
-    ## against a request
+    # To keep a reference of different form types
+    # against a request
     content_type = models.ForeignKey(
         ContentType, on_delete=models.PROTECT, blank=True, null=True)
     object_id = models.PositiveIntegerField()

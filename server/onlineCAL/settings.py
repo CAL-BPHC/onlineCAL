@@ -172,9 +172,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
-FILTERS_EMPTY_CHOICE_LABEL='Any'
+FILTERS_EMPTY_CHOICE_LABEL = 'Any'
 
-DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Django Q
 Q_CLUSTER = {

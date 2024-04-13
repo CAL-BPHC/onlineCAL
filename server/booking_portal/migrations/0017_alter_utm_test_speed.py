@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='utm',
             name='test_speed',
-            field=models.DecimalField(decimal_places=2, max_digits=7, help_text='<small>Precision upto 2 decimal places</small>'),
+            field=models.DecimalField(
+                decimal_places=2, max_digits=7, help_text='<small>Precision upto 2 decimal places</small>'),
         ),
     ]

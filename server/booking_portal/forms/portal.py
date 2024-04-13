@@ -30,7 +30,8 @@ class InstrumentList(forms.Form):
         self.helper.layout = Layout(
             'instruments',
             ButtonHolder(
-                Submit('proceed', value="Proceed", css_class='btn-primary btn-md')
+                Submit('proceed', value="Proceed",
+                       css_class='btn-primary btn-md')
             )
         )
 
@@ -38,6 +39,7 @@ class InstrumentList(forms.Form):
 class SlotList(forms.Form):
     """Form for selecting an empty slot of a given
     instrument"""
+
     def __init__(self, instr, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['slots'] = SlotModelChoiceField(
@@ -50,11 +52,13 @@ class SlotList(forms.Form):
 
         self.helper = FormHelper(self)
         self.helper.form_show_labels = False
-        self.helper.form_action = reverse('book-machine', kwargs={'instr_id': instr.pk})
+        self.helper.form_action = reverse(
+            'book-machine', kwargs={'instr_id': instr.pk})
         self.helper.form_method = 'GET'
         self.helper.layout = Layout(
             'slots',
             ButtonHolder(
-                Submit('proceed', value="Proceed", css_class='btn-primary btn-md')
+                Submit('proceed', value="Proceed",
+                       css_class='btn-primary btn-md')
             )
         )

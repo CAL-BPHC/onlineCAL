@@ -12,7 +12,6 @@ def get_pagintion_nav_range(page_obj):
     end = page_obj.number + 4
     offset = -begin+1 if begin < 1 else 1
 
-
     begin += offset
     end += offset
     end = page_obj.paginator.num_pages if end > page_obj.paginator.num_pages else end
@@ -65,7 +64,8 @@ class BasePortalFilter(FilterSet):
             'to_date',
             'order',
             ButtonHolder(
-                Submit('apply', value='Apply', css_class='btn btn-primary mx-auto d-block')
+                Submit('apply', value='Apply',
+                       css_class='btn btn-primary mx-auto d-block')
             )
         )
         form.helper = helper

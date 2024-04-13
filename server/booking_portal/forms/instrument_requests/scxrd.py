@@ -15,18 +15,18 @@ class SCXRDForm(UserDetailsForm, UserRemarkForm):
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
         model = SCXRD
         fields = UserDetailsForm.Meta.fields + \
-                 (
-                  'sample_code',
-                  'chemical_composition',
-                  'scanning_rate',
-                  'source',
-                 ) + \
-                 UserRemarkForm.Meta.fields
+            (
+                'sample_code',
+                'chemical_composition',
+                'scanning_rate',
+                'source',
+            ) + \
+            UserRemarkForm.Meta.fields
 
         labels = dict(
-          ** UserDetailsForm.Meta.labels,
-          ** UserRemarkForm.Meta.labels,
-          ** {
+            ** UserDetailsForm.Meta.labels,
+            ** UserRemarkForm.Meta.labels,
+            ** {
                 'sample_code': 'Sample Code',
                 'chemical_composition': 'Chemical Composition',
                 'scanning_rate': 'Scanning Rate',
@@ -35,24 +35,24 @@ class SCXRDForm(UserDetailsForm, UserRemarkForm):
         )
 
         widgets = dict(
-          ** UserDetailsForm.Meta.widgets,
-          ** UserRemarkForm.Meta.widgets,
-          ** {
+            ** UserDetailsForm.Meta.widgets,
+            ** UserRemarkForm.Meta.widgets,
+            ** {
                 'sample_code': forms.TextInput(attrs={
-                                                 'class': 'form-control',
-                                               }
+                    'class': 'form-control',
+                }
                 ),
                 'chemical_composition': forms.TextInput(attrs={
-                                                          'class': 'form-control',
-                                                        }
+                    'class': 'form-control',
+                }
                 ),
                 'scanning_rate': forms.TextInput(attrs={
-                                                   'class': 'form-control',
-                                                 }
+                    'class': 'form-control',
+                }
                 ),
                 'source': forms.Select(attrs={
-                                         'class': 'form-control',
-                                       }
+                    'class': 'form-control',
+                }
                 ),
             }
         )

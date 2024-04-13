@@ -16,14 +16,14 @@ class HPLC_FDForm(HPLCForm):
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
         model = HPLC_FD
         fields = UserDetailsForm.Meta.fields + \
-                 (
-                     'sample_code',
-                     'sample_information',
-                     'mobile_phase',
-                     'column_for_lc',
-                     'detection_wavelength',
-                 ) + \
-                 UserRemarkForm.Meta.fields
+            (
+                'sample_code',
+                'sample_information',
+                'mobile_phase',
+                'column_for_lc',
+                'detection_wavelength',
+            ) + \
+            UserRemarkForm.Meta.fields
 
         labels = dict(
             **UserDetailsForm.Meta.labels,

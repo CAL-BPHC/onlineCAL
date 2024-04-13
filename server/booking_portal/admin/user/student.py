@@ -21,7 +21,7 @@ class StudentAdmin(CustomUserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('supervisor',)}
-        ),
+         ),
     )
 
     def _validate_record(self, record):
@@ -32,7 +32,8 @@ class StudentAdmin(CustomUserAdmin):
 
         obj = Faculty.objects.filter(email=record['supervisor']).first()
         if not obj:
-            raise ObjectDoesNotExist(f"Supervisor doesn't exist: \"{record['supervisor']}\"")
+            raise ObjectDoesNotExist(
+                f"Supervisor doesn't exist: \"{record['supervisor']}\"")
 
         record['supervisor'] = obj
         return record

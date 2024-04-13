@@ -29,12 +29,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='UTM',
             fields=[
-                ('userremark_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, to='booking_portal.userremark')),
-                ('userdetail_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='booking_portal.userdetail')),
+                ('userremark_ptr', models.OneToOneField(auto_created=True,
+                 on_delete=django.db.models.deletion.CASCADE, parent_link=True, to='booking_portal.userremark')),
+                ('userdetail_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE,
+                 parent_link=True, primary_key=True, serialize=False, to='booking_portal.userdetail')),
                 ('material', models.CharField(max_length=75)),
-                ('test_type', models.CharField(choices=[('tensile', 'Tensile'), ('compression', 'Compression'), ('3-point-bending', '3 Point Bending'), ('ilss', 'ILSS'), ('double-cant-beam', 'Double Cantilever Beam')], max_length=75)),
+                ('test_type', models.CharField(choices=[('tensile', 'Tensile'), ('compression', 'Compression'), (
+                    '3-point-bending', '3 Point Bending'), ('ilss', 'ILSS'), ('double-cant-beam', 'Double Cantilever Beam')], max_length=75)),
                 ('test_speed', models.IntegerField()),
-                ('temperature', models.IntegerField(help_text='Ranges:Room Temperature = 25°CTemperature Chamber = -70°C - 250°CFurnace = 250°C - 1200°CAny additional remarks can be specified in the box below.')),
+                ('temperature', models.IntegerField(
+                    help_text='Ranges:Room Temperature = 25°CTemperature Chamber = -70°C - 250°CFurnace = 250°C - 1200°CAny additional remarks can be specified in the box below.')),
             ],
             bases=('booking_portal.userdetail', 'booking_portal.userremark'),
         ),

@@ -2,6 +2,7 @@ from ... import forms
 from .user import CustomUserAdmin
 from ...models import Faculty
 
+
 class FacultyAdmin(CustomUserAdmin):
     CSV_HEADERS_FACULTY = ('department',)
 
@@ -11,13 +12,13 @@ class FacultyAdmin(CustomUserAdmin):
     list_filter = CustomUserAdmin.list_filter + ('department',)
     list_display = CustomUserAdmin.list_display + ('department',)
     fieldsets = CustomUserAdmin.fieldsets + (
-        (None, {'fields' : ('department',)},),
+        (None, {'fields': ('department',)},),
     )
     add_fieldsets = CustomUserAdmin.add_fieldsets + (
         (None, {
-            'classes' : ('wide',),
-            'fields' : ('department',)}
-        ),
+            'classes': ('wide',),
+            'fields': ('department',)}
+         ),
     )
 
     def _validate_record(self, record):

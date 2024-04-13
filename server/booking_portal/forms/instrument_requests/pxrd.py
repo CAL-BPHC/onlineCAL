@@ -27,7 +27,7 @@ class PXRDForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             ** UserDetailsForm.Meta.labels,
             ** UserRemarkForm.Meta.labels,
-            **             {
+            ** {
                 'sample_code': 'Sample Code',
                 'chemical_composition': 'Chemical Composition',
                 'sample_description': 'Sample Description (Film/ Powder/ Pellet)',
@@ -39,7 +39,7 @@ class PXRDForm(UserDetailsForm, UserRemarkForm):
         widgets = dict(
             ** UserDetailsForm.Meta.widgets,
             ** UserRemarkForm.Meta.widgets,
-            **  {
+            ** {
                 'sample_code': forms.TextInput(attrs={
                     'class': 'form-control',
                 }

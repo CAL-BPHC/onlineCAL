@@ -1,7 +1,7 @@
 from django.core.mail import get_connection, EmailMultiAlternatives
 
 
-def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None, 
+def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,
                         connection=None):
     """
     Given a datatuple of (subject, text_content, html_content, from_email,

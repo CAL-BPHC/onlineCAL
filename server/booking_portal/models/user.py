@@ -24,19 +24,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def has_perm(self, perm, obj=None):
-        
+
         if (self.is_superuser):
             return True
         if (
-            self.is_staff and
-            (
-                'student' in perm or
-                'faculty' in perm or
-                'labassistant' in perm or
-                'slot' in perm or
-                'instrument' in perm or
-                'announcement' in perm
-            )):
+                self.is_staff and
+                (
+                    'student' in perm or
+                    'faculty' in perm or
+                    'labassistant' in perm or
+                    'slot' in perm or
+                    'instrument' in perm or
+                    'announcement' in perm
+                )):
             # Models accessible by lab assistants
             # TODO: Find a better way to add these permissions
             return True
@@ -47,7 +47,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.is_staff
 
     def _create_email_obj(self, subject, message, html_message):
-        EmailModel(receiver=self.email, text=message, text_html=html_message, subject=subject, sent=False).save()
+        EmailModel(receiver=self.email, text=message,
+                   text_html=html_message, subject=subject, sent=False).save()
 
     def send_email(self, subject, message, html_message):
         self._create_email_obj(subject, message, html_message)

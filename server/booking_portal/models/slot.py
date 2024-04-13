@@ -15,7 +15,8 @@ class SlotManager(models.Manager):
     @staticmethod
     def get_valid_slot_days(start_date: datetime.date, day_count: int) -> List[datetime.date]:
         # get the next `num_of_days`, skipping sundays
-        next_days = [start_date + datetime.timedelta(days=var) for var in range(0, day_count)]
+        next_days = [
+            start_date + datetime.timedelta(days=var) for var in range(0, day_count)]
         return [day for day in next_days if not day.weekday() == 6]
 
     def is_slot_overlapping(self, slot: Slot) -> bool:
@@ -103,24 +104,24 @@ class Slot(models.Model):
 
     objects = SlotManager()
 
-    ## TODO: Update Duration to TimeField
+    # TODO: Update Duration to TimeField
     instrument = models.ForeignKey("Instrument", on_delete=models.PROTECT)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
 
-    ## Remove date and time and combine it to DateTimeField
+    # Remove date and time and combine it to DateTimeField
 
     def is_available_for_booking(self):
         return self.status == Slot.STATUS_1
 
     def update_status(self, status):
         assert status in (
-                Slot.STATUS_1,
-                Slot.STATUS_2,
-                Slot.STATUS_3,
-                Slot.STATUS_4
+            Slot.STATUS_1,
+            Slot.STATUS_2,
+            Slot.STATUS_3,
+            Slot.STATUS_4
         )
         self.status = status
         self.save(update_fields=['status'])

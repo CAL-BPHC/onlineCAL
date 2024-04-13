@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='instrument',
             name='status',
-            field=models.BooleanField(default=True, help_text='Will cancel all slot of this instrument', verbose_name='Current Status'),
+            field=models.BooleanField(
+                default=True, help_text='Will cancel all slot of this instrument', verbose_name='Current Status'),
         ),
     ]

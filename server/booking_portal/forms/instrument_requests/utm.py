@@ -21,10 +21,10 @@ class UTMForm(UserDetailsForm, UserRemarkForm):
         model = UTM
         fields = UserDetailsForm.Meta.fields + \
             (
-                 'material',
-                 'test_type',
-                 'test_speed',
-                 'temperature',
+                'material',
+                'test_type',
+                'test_speed',
+                'temperature',
             ) + \
             UserRemarkForm.Meta.fields
 

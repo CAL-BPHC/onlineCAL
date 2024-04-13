@@ -13,9 +13,10 @@ def calc_end_time_from_duration(apps, schema_editor):
         if duration:
             duration = datetime.strptime(duration, "%H:%M:%S")
             duration = timedelta(hours=duration.hour,
-                                      minutes=duration.minute,
-                                      seconds=duration.second)
-            slot.end_time = (datetime.combine(now_date, slot.start_time) + duration).time()
+                                 minutes=duration.minute,
+                                 seconds=duration.second)
+            slot.end_time = (datetime.combine(
+                now_date, slot.start_time) + duration).time()
             slot.save()
 
 

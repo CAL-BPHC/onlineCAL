@@ -108,12 +108,14 @@ class BulkCreateSlotsFormTestCase(TestCase):
 
         self.assertIn('slot_duration', form.errors)
         self.assertEqual(
-            form.errors['slot_duration'], ["The duration in minutes must be a positive integer."]
+            form.errors['slot_duration'], [
+                "The duration in minutes must be a positive integer."]
         )
 
     def test_start_time_after_end_time(self):
         form = self.form
-        form.data['start_time'] = str((self.now + timedelta(minutes=31)).time())
+        form.data['start_time'] = str(
+            (self.now + timedelta(minutes=31)).time())
 
         self.assertIn('start_time', form.errors)
         self.assertEqual(
@@ -122,7 +124,8 @@ class BulkCreateSlotsFormTestCase(TestCase):
 
     def test_start_date_before_today(self):
         form = self.form
-        form.data['start_date'] = str((datetime.datetime.now() - timedelta(days=1)).date())
+        form.data['start_date'] = str(
+            (datetime.datetime.now() - timedelta(days=1)).date())
 
         self.assertIn('start_date', form.errors)
         self.assertEqual(
@@ -168,9 +171,11 @@ class BulkCreateSlotsTestCase(TestCase):
             }
         )
 
-        message_list = [(x.message, x.level_tag) for x in get_messages(response.wsgi_request)]
+        message_list = [(x.message, x.level_tag)
+                        for x in get_messages(response.wsgi_request)]
         self.assertIn(
-            ("All slots were created successfully.", settings.MESSAGE_TAGS[messages.SUCCESS]),
+            ("All slots were created successfully.",
+             settings.MESSAGE_TAGS[messages.SUCCESS]),
             message_list,
         )
 
@@ -197,12 +202,14 @@ class BulkCreateSlotsTestCase(TestCase):
                 'for_the_next': 7,
             }
         )
-        expected_total_slots = 36  # 6 slots a day for 6 days (no slots on Sunday)
+        # 6 slots a day for 6 days (no slots on Sunday)
+        expected_total_slots = 36
         expected_created_slots = 30  # everything clashes on day 1
         expected_message = (f"{expected_created_slots} out of {expected_total_slots} slots created. Some slots may not "
                             f"have been created due to clashes with existing slots.")
 
-        message_list = [(x.message, x.level_tag) for x in get_messages(response.wsgi_request)]
+        message_list = [(x.message, x.level_tag)
+                        for x in get_messages(response.wsgi_request)]
         self.assertIn(
             (expected_message, settings.MESSAGE_TAGS[messages.WARNING]),
             message_list,
@@ -236,7 +243,8 @@ class BulkCreateSlotsTestCase(TestCase):
         expected_message = (f"{expected_created_slots} out of {expected_total_slots} slots created. Some slots may not "
                             f"have been created due to clashes with existing slots.")
 
-        message_list = [(x.message, x.level_tag) for x in get_messages(response.wsgi_request)]
+        message_list = [(x.message, x.level_tag)
+                        for x in get_messages(response.wsgi_request)]
         self.assertIn(
             (expected_message, settings.MESSAGE_TAGS[messages.WARNING]),
             message_list,

@@ -41,7 +41,8 @@ def book_machine(request, instr_id):
     """View for booking machine"""
 
     # Retrieve form/form_model from template_dict
-    form_class, form_model_class = config.form_template_dict.get(instr_id, (None, None))
+    form_class, form_model_class = config.form_template_dict.get(
+        instr_id, (None, None))
     if not form_class or not form_model_class:
         messages.error(request, "Bad Request")
         return HttpResponseRedirect(reverse('instrument-list'))
@@ -51,7 +52,8 @@ def book_machine(request, instr_id):
         messages.error(request, "Bad Request")
         return HttpResponseRedirect(reverse('instrument-list'))
 
-    student = Student.objects.select_related('supervisor').get(id=request.user.id)
+    student = Student.objects.select_related(
+        'supervisor').get(id=request.user.id)
     supervisor = student.supervisor
 
     default_context = {
@@ -71,7 +73,8 @@ def book_machine(request, instr_id):
             return HttpResponseRedirect(reverse('instrument-list'))
 
         if not slot.is_available_for_booking():
-            messages.error(request, "Sorry, This slot is not available anymore.")
+            messages.error(
+                request, "Sorry, This slot is not available anymore.")
             return HttpResponseRedirect(reverse('instrument-list'))
 
         if Request.objects.has_student_booked_upcoming_instrument_slot(instr, student):

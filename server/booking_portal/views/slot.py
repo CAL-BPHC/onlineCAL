@@ -24,7 +24,8 @@ def slot_list(request):
     instr = form.cleaned_data['instruments']
     if not instr.status:
         # Instrument not available
-        messages.error(request, "Instrument unavailable due to technica/maintenance reasons.")
+        messages.error(
+            request, "Instrument unavailable due to technica/maintenance reasons.")
         return render(
             request,
             'booking_portal/portal_forms/instrument_list.html',
@@ -33,7 +34,8 @@ def slot_list(request):
             }
         )
     if Request.objects.has_student_booked_upcoming_instrument_slot(instr, request.user):
-        messages.error(request, "You already have pending request for this instrument.")
+        messages.error(
+            request, "You already have pending request for this instrument.")
         return render(
             request,
             'booking_portal/portal_forms/instrument_list.html',

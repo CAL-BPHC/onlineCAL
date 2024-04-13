@@ -12,15 +12,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='faculty',
-            options={'default_related_name': 'faculties', 'verbose_name': 'Faculty', 'verbose_name_plural': 'Faculties'},
+            options={'default_related_name': 'faculties',
+                     'verbose_name': 'Faculty', 'verbose_name_plural': 'Faculties'},
         ),
         migrations.AlterModelOptions(
             name='labassistant',
-            options={'default_related_name': 'labassistants', 'verbose_name': 'Lab Assistant'},
+            options={'default_related_name': 'labassistants',
+                     'verbose_name': 'Lab Assistant'},
         ),
         migrations.AlterModelOptions(
             name='student',
-            options={'default_related_name': 'students', 'verbose_name': 'Student'},
+            options={'default_related_name': 'students',
+                     'verbose_name': 'Student'},
         ),
         migrations.AddField(
             model_name='emailmodel',

@@ -15,7 +15,8 @@ class Command(BaseCommand):
         print('Sleeping for 60 seconds')
         time.sleep(60)
         print('Slept for 60 seconds')
-        emails = EmailModel.objects.filter(sent=False).order_by('date_time')[:MAX_EMAIL_PER_COMMAND]
+        emails = EmailModel.objects.filter(sent=False).order_by('date_time')[
+            :MAX_EMAIL_PER_COMMAND]
         print(f'Sending {len(emails)} emails')
         start = time.time()
         datatuple = []

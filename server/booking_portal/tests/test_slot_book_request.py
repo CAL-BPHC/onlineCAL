@@ -48,11 +48,11 @@ class SlotBookRequestTestCase(TestCase):
         )
 
         self.assertTrue(Request.objects.has_student_booked_upcoming_instrument_slot(self.instrument, self.student,
-                                                                                     _VALID_DATE_TIME.date()))
+                                                                                    _VALID_DATE_TIME.date()))
 
     def test_student_booking_when_no_request_exists(self):
         self.assertFalse(Request.objects.has_student_booked_upcoming_instrument_slot(self.instrument, self.student,
-                                                                                    _VALID_DATE_TIME.date()))
+                                                                                     _VALID_DATE_TIME.date()))
 
     def test_student_booking_when_slot_not_unavailable(self):
         self.slot.status = Slot.STATUS_2

@@ -76,7 +76,8 @@ class BulkImportForm(forms.Form):
         help_text='<a href=sample/>Download a sample CSV</a>'
     )
     send_email = forms.BooleanField(label='Send password details to users?')
-    ignore_existing = forms.BooleanField(initial=True, label='Ignore if user exists?')
+    ignore_existing = forms.BooleanField(
+        initial=True, label='Ignore if user exists?')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -240,7 +241,7 @@ class InstrumentChangeForm(forms.ModelForm):
         model = Instrument
         fields = ('name', 'desc', 'status',)
         widgets = {
-            'status' : forms.Select(
+            'status': forms.Select(
                 choices=BOOL_CHOICES
             ),
         }

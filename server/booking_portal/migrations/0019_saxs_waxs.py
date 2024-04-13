@@ -14,10 +14,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SAXS_WAXS',
             fields=[
-                ('userremark_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, to='booking_portal.userremark')),
-                ('userdetail_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='booking_portal.userdetail')),
+                ('userremark_ptr', models.OneToOneField(auto_created=True,
+                 on_delete=django.db.models.deletion.CASCADE, parent_link=True, to='booking_portal.userremark')),
+                ('userdetail_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE,
+                 parent_link=True, primary_key=True, serialize=False, to='booking_portal.userdetail')),
                 ('sample_code', models.CharField(max_length=75)),
-                ('nature_of_samples', models.CharField(choices=[('Film', 'Film'), ('Liquid', 'Liquid'), ('Powder', 'Powder'), ('Other', 'Other')], max_length=10)),
+                ('nature_of_samples', models.CharField(choices=[
+                 ('Film', 'Film'), ('Liquid', 'Liquid'), ('Powder', 'Powder'), ('Other', 'Other')], max_length=10)),
             ],
             options={
                 'verbose_name': 'SAXS/WAXS',

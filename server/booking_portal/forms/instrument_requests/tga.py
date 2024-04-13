@@ -25,7 +25,7 @@ class TGAForm(UserDetailsForm, UserRemarkForm):
                 'heating_rate',
                 'sample_solubility',
             ) + \
-              UserRemarkForm.Meta.fields
+            UserRemarkForm.Meta.fields
 
         labels = dict(
             ** UserDetailsForm.Meta.labels,
@@ -43,9 +43,9 @@ class TGAForm(UserDetailsForm, UserRemarkForm):
         )
 
         widgets = dict(
-          ** UserDetailsForm.Meta.widgets,
-          ** UserRemarkForm.Meta.widgets,
-          ** {
+            ** UserDetailsForm.Meta.widgets,
+            ** UserRemarkForm.Meta.widgets,
+            ** {
                 'sample_code': forms.TextInput(attrs={
                     'class': 'form-control',
                 }

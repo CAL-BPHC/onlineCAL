@@ -26,13 +26,13 @@ class CDSpectrophotometerForm(UserDetailsForm, UserRemarkForm):
              'temp_range_fixed',
              'concentration',
              'cell_path_length',
-            ) + \
-              UserRemarkForm.Meta.fields
+             ) + \
+            UserRemarkForm.Meta.fields
 
         labels = dict(
-          ** UserDetailsForm.Meta.labels,
-          ** UserRemarkForm.Meta.labels,
-          ** {
+            ** UserDetailsForm.Meta.labels,
+            ** UserRemarkForm.Meta.labels,
+            ** {
                 'sample_code': 'Sample Code',
                 'wavelength_scan_start': 'Wavalength Range - Scan - Start',
                 'wavelength_scan_end': 'Wavelength Range - Scan - End',
@@ -45,9 +45,9 @@ class CDSpectrophotometerForm(UserDetailsForm, UserRemarkForm):
             }
         )
         widgets = dict(
-          ** UserDetailsForm.Meta.widgets,
-          ** UserRemarkForm.Meta.widgets,
-          ** {
+            ** UserDetailsForm.Meta.widgets,
+            ** UserRemarkForm.Meta.widgets,
+            ** {
                 'sample_code': forms.TextInput(attrs={
                     'class': 'form-control',
                 }

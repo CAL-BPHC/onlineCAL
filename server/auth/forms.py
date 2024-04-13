@@ -43,7 +43,8 @@ class CustomPasswordResetForm(PasswordResetForm):
                 prepended_text='<i class="fas fa-envelope"></i>'
             ),
             ButtonHolder(
-                Submit('submit', value="Reset Password", css_class='btn-lg btn-block')
+                Submit('submit', value="Reset Password",
+                       css_class='btn-lg btn-block')
             ),
         )
 
@@ -67,7 +68,8 @@ class CustomSetPasswordForm(SetPasswordForm):
                 prepended_text='<i class="fas fa-key"></i>'
             ),
             ButtonHolder(
-                Submit('submit', value="Set New Password", css_class='btn-lg btn-block')
+                Submit('submit', value="Set New Password",
+                       css_class='btn-lg btn-block')
             ),
         )
 
@@ -96,6 +98,7 @@ class CustomPasswordChangeForm(PasswordChangeForm):
                 prepended_text='<i class="fas fa-key"></i>'
             ),
             ButtonHolder(
-                Submit('submit', value="Set New Password", css_class='btn-lg btn-block')
+                Submit('submit', value="Set New Password",
+                       css_class='btn-lg btn-block')
             ),
         )

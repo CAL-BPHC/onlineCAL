@@ -5,6 +5,7 @@ from crispy_forms.exceptions import CrispyError
 
 register = template.Library()
 
+
 @register.simple_tag()
 def bs4_appended_prepended_text(field, append="", prepend="", form_show_labels=True):
     """
@@ -14,7 +15,8 @@ def bs4_appended_prepended_text(field, append="", prepend="", form_show_labels=T
 
     template_pack = get_template_pack()
     if template_pack != "bootstrap4":
-        raise CrispyError("bs4_appended_prepended_text can only be used with Bootstrap 4")
+        raise CrispyError(
+            "bs4_appended_prepended_text can only be used with Bootstrap 4")
 
     if field:
         attributes = {
@@ -27,7 +29,8 @@ def bs4_appended_prepended_text(field, append="", prepend="", form_show_labels=T
             attributes.update(helper.get_attributes(get_template_pack()))
 
         context = Context(attributes)
-        template = loader.get_template("%s/layout/prepended_appended_text.html" % get_template_pack())
+        template = loader.get_template(
+            "%s/layout/prepended_appended_text.html" % get_template_pack())
         context["crispy_prepended_text"] = prepend
         context["crispy_appended_text"] = append
 
