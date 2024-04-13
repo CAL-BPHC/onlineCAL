@@ -16,13 +16,13 @@ django-q = "^1.3.9"
 mysqlclient = "^2.1.0"
 setuptools = "^69.0.3"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^5.2"
 pylint = "^2.4.4"
-autopep8 = "^1.5.4"
 coverage = "~5.5"
 isort = "^5.9.3"
-flake8 = "^3.9.2"
+flake8 = "^7.0.0"
+autopep8 = "^2.1.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
