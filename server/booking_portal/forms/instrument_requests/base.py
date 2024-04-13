@@ -41,6 +41,16 @@ class UserDetailsForm(forms.ModelForm):
         self.fields['duration'].widget.attrs['readonly'] = True
         self.fields['sup_dept'].widget.attrs['readonly'] = True
 
+        is_student = (kwargs.get('initial').get('is_student'))
+        if is_student:
+            self.fields['user_name'].queryset = Student.objects.all()
+        else:
+            self.fields['user_name'].queryset = Faculty.objects.all()
+            self.fields['sup_name'].required = False
+            self.fields['sup_name'].widget = forms.HiddenInput()
+            self.fields['sup_dept'].required = False
+            self.fields['sup_dept'].widget = forms.HiddenInput()
+
     class Meta:
         model = UserDetail
         fields = (

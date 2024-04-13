@@ -1,3 +1,4 @@
+import random
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
@@ -120,8 +121,10 @@ class FacultyRequestManager(models.Manager):
                 faculty=faculty,
                 instrument=instr,
                 slot=slot,
-                status=FacultyRequest.WAITING_FOR_FACULTY,
+                status=FacultyRequest.WAITING_FOR_LAB_ASST,
                 content_object=form_saved,
+                lab_assistant=random.choice(
+                    LabAssistant.objects.all())
             )
             slot.update_status(Slot.STATUS_2)
 
@@ -218,6 +221,23 @@ def send_email_after_save(sender, instance, **kwargs):
         instance.student.send_email(subject, text, text_html)
     elif instance.status == Request.WAITING_FOR_LAB_ASST:
         subject = "Waiting for Lab Assistant Approval"
+
+        if isinstance(instance, FacultyRequest):
+            text = render_to_string('email/lab_assistant_pending.txt', {
+                'receipent_name': instance.lab_assistant.name,
+                'student_name': instance.faculty.name,
+                'instrument_name': instance.instrument.name,
+                'slot': instance.slot.description,
+            })
+            text_html = render_to_string('email/lab_assistant_pending.html', {
+                'receipent_name': instance.lab_assistant.name,
+                'student_name': instance.faculty.name,
+                'instrument_name': instance.instrument.name,
+                'slot': instance.slot.description,
+            })
+            instance.lab_assistant.send_email(subject, text, text_html)
+            return
+
         text = render_to_string('email/lab_assistant_pending.txt', {
             'receipent_name': instance.lab_assistant.name,
             'student_name': instance.student.name,

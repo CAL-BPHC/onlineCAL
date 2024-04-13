@@ -5,6 +5,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
+from booking_portal.models.request import FacultyRequest
+from booking_portal.models.user import Faculty
+
 from .portal import BasePortalFilter
 from ... import config
 from ... import permissions
@@ -36,7 +39,7 @@ def student_portal(request):
 
 
 @login_required
-@user_passes_test(permissions.is_student)
+@user_passes_test(lambda user: permissions.is_student(user) or permissions.is_faculty(user))
 def book_machine(request, instr_id):
     """View for booking machine"""
 
@@ -52,10 +55,7 @@ def book_machine(request, instr_id):
         messages.error(request, "Bad Request")
         return HttpResponseRedirect(reverse('instrument-list'))
 
-    student = Student.objects.select_related(
-        'supervisor').get(id=request.user.id)
-    supervisor = student.supervisor
-
+    is_student = permissions.is_student(request.user)
     default_context = {
         'edit': True,
         'instrument_title': form_class.title,
@@ -65,6 +65,14 @@ def book_machine(request, instr_id):
         'user_type': 'student',
         'status': Request.WAITING_FOR_FACULTY,
     }
+
+    if is_student:
+        student = Student.objects.select_related(
+            'supervisor').get(id=request.user.id)
+        supervisor = student.supervisor
+    else:
+        faculty = Faculty.objects.get(id=request.user.id)
+        default_context['status'] = FacultyRequest.WAITING_FOR_LAB_ASST
 
     if request.method == 'GET':
         slot, instr = Slot.objects.get_instr_from_slot_id(slot_id)
@@ -77,7 +85,7 @@ def book_machine(request, instr_id):
                 request, "Sorry, This slot is not available anymore.")
             return HttpResponseRedirect(reverse('instrument-list'))
 
-        if Request.objects.has_student_booked_upcoming_instrument_slot(instr, student):
+        if is_student and Request.objects.has_student_booked_upcoming_instrument_slot(instr, student):
             messages.error(
                 request,
                 "You already have an ongoing application for this machine."
@@ -85,24 +93,37 @@ def book_machine(request, instr_id):
             return HttpResponseRedirect(reverse('instrument-list'))
 
         # Render form with initial data
-        return render(
-            request,
-            'booking_portal/instrument_form.html',
-            {
+        if is_student:
+            return render(
+                request,
+                'booking_portal/instrument_form.html',
+                {
+                    'form': form_class(initial={
+                        'user_name': student.id,
+                        'sup_name': supervisor.id,
+                        'sup_dept': supervisor.department,
+                        'date': slot.date,
+                        'time': slot.start_time,
+                        'duration': slot.duration,
+                        'is_student': is_student
+                    }),
+                    **default_context,
+                }
+            )
+        else:
+            return render(request, 'booking_portal/instrument_form.html', {
                 'form': form_class(initial={
-                    'user_name': student.id,
-                    'sup_name': supervisor.id,
-                    'sup_dept': supervisor.department,
+                    'user_name': faculty.id,
                     'date': slot.date,
                     'time': slot.start_time,
-                    'duration': slot.duration_verbose,
+                    'duration': slot.duration,
+                    'is_student': is_student
                 }),
                 **default_context,
-            }
-        )
+            })
     elif request.method == "POST":
         # Validate and process the form
-        form = form_class(request.POST)
+        form = form_class(request.POST, initial={'is_student': is_student})
         if not form.is_valid():
             return render(
                 request,
@@ -114,9 +135,14 @@ def book_machine(request, instr_id):
             )
 
         try:
-            Request.objects.create_request(form, slot_id, student)
-            messages.success(request, "Slot booked successfully.")
-            return HttpResponseRedirect(reverse('student'))
+            if is_student:
+                Request.objects.create_request(form, slot_id, student)
+                messages.success(request, "Slot booked successfully.")
+                return HttpResponseRedirect(reverse('student'))
+            else:
+                FacultyRequest.objects.create_request(form, slot_id, faculty)
+                messages.success(request, "Slot booked successfully.")
+                return HttpResponseRedirect(reverse('index'))
         except (ObjectDoesNotExist, ValueError) as e:
             # \\n to escape Javascript
             messages.error(request,

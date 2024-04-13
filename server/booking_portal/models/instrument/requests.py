@@ -1,16 +1,22 @@
 import calendar
 
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 
 class UserDetail(models.Model):
-    user_name = models.ForeignKey('Student', on_delete=models.CASCADE)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    user = GenericForeignKey('content_type', 'object_id',)
     phone_number = models.CharField(max_length=10)
     date = models.DateField()
     time = models.TimeField()
     duration = models.CharField(max_length=75)
-    sup_name = models.ForeignKey('Faculty', on_delete=models.CASCADE)
-    sup_dept = models.CharField(max_length=75)
+    sup_name = models.ForeignKey(
+        'Faculty', on_delete=models.CASCADE, null=True)
+    sup_dept = models.CharField(max_length=75, null=True)
     number_of_samples = models.IntegerField()
     sample_from_outside = models.CharField(max_length=3, choices=[('Yes', 'Yes'),
                                                                   ('No', 'No')])
