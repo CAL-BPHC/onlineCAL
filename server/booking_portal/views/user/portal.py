@@ -1,7 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, ButtonHolder, Submit
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django_filters import FilterSet, DateFilter, OrderingFilter, DateRangeFilter, DateFromToRangeFilter
+from django_filters import FilterSet, DateFilter, OrderingFilter
 
 from ... import models
 from ... import forms
