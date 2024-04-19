@@ -5,7 +5,8 @@ from .faculty import (
 )
 from .student import student_portal, book_machine
 from .lab_assistant import (
-    lab_assistant_portal,
+    lab_assistant_portal_student,
+    lab_assistant_portal_faculty,
     lab_assistant_accept,
     lab_assistant_reject
 )

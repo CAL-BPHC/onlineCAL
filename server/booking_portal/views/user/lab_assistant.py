@@ -9,10 +9,33 @@ from ... import models, permissions
 
 @login_required
 @user_passes_test(permissions.is_lab_assistant)
-def lab_assistant_portal(request):
+def lab_assistant_portal_student(request):
     f = BasePortalFilter(
         request.GET,
         queryset=models.Request.objects.order_by('-slot__date', '-pk')
+    )
+    page_obj = f.paginate()
+
+    return render(
+        request,
+        'booking_portal/portal_forms/base_portal.html',
+        {
+            'page_obj': page_obj,
+            'nav_range': get_pagintion_nav_range(page_obj),
+            'filter_form': f.form,
+            'user_type': 'assistant',
+            'user_is_student': False,
+            'modifiable_request_status': models.Request.WAITING_FOR_LAB_ASST,
+        }
+    )
+
+
+@login_required
+@user_passes_test(permissions.is_lab_assistant)
+def lab_assistant_portal_faculty(request):
+    f = BasePortalFilter(
+        request.GET,
+        queryset=models.FacultyRequest.objects.order_by('-slot__date', '-pk')
     )
     page_obj = f.paginate()
 

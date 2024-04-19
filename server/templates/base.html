@@ -43,11 +43,17 @@
           {% elif user_type == 'student' %}
             <a class="nav-link" href="{% url 'student' %}">Requests<span class="sr-only"> (current)</span></a>
           {% elif user_type == 'assistant' %}
-            <a class="nav-link" href="{% url 'lab_assistant' %}">Requests<span class="sr-only"> (current)</span></a>
+            <a class="nav-link" href="{% url 'lab_assistant_student' %}">Student Requests<span class="sr-only"> (current)</span></a>
           {% else %}
             <a class="nav-link" href="{% url 'index' %}">Requests<span class="sr-only"> (current)</span></a>
           {% endif %}
         </li>
+        
+        {% if user_type == 'assistant' %}
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'lab_assistant_faculty' %}">Faculty Requests<span class="sr-only"> (current)</span></a>
+          </li>
+        {% endif %}
 
         <li class="nav-item active">
           <a class="nav-link" href="{% url 'announcements' %}">Announcements<span class="sr-only"> (current)</span></a>
