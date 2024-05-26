@@ -485,6 +485,7 @@ class SAXS_WAXS(UserDetail, UserRemark):
         verbose_name = 'SAXS/WAXS'
         verbose_name_plural = 'SAXS/WAXS'
 
+
 class SCXRD(UserDetail, UserRemark):
     sample_code = models.CharField(max_length=75)
     chemical_composition = models.CharField(max_length=75)
@@ -571,7 +572,7 @@ class UTM(UserDetail, UserRemark):
         (TEST_TYPE_COMPRESSION, 'Compression'),
         (TEST_TYPE_3POINT_BENDING, '3 Point Bending'),
         (TEST_TYPE_ILSS, 'ILSS'),
-        (TEST_TYPE_DOUBLE_CANT_BEAM ,'Double Cantilever Beam'),
+        (TEST_TYPE_DOUBLE_CANT_BEAM, 'Double Cantilever Beam'),
     )
 
     material = models.CharField(max_length=75)
@@ -595,3 +596,25 @@ class UTM(UserDetail, UserRemark):
         verbose_name = 'UTM'
         verbose_name_plural = 'UTM'
 
+
+class VSM(UserDetail, UserRemark):
+    sample_code = models.CharField(max_length=75)
+    sample_nature = models.CharField(max_length=10, choices=[
+        ('Powder', 'Powder'),
+        ('Pellet', 'Pellet'),
+        ('Liquid', 'Liquid'),
+    ])
+    field = models.CharField(max_length=75)
+    step_size = models.CharField(max_length=75)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "VSM",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'VSM'
+        verbose_name_plural = 'VSM'

@@ -39,6 +39,7 @@ form_template_dict = {
     20: (HPLC_FDForm, HPLC_FD),
     21: (UTMForm, UTM),
     22: (SAXSWAXSForm, SAXS_WAXS),
+    23: (VSMForm, VSM),
 }
 
 view_application_dict = {model: form
