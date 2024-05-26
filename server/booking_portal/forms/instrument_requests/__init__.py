@@ -21,3 +21,4 @@ from .uvspectrophotometer import UVSpectrophotometerForm
 from .xps import XPSForm
 from .utm import UTMForm
 from .vsm import VSMForm
+from .epr_esr import EPR_ESRForm

@@ -618,3 +618,25 @@ class VSM(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'VSM'
         verbose_name_plural = 'VSM'
+
+
+class EPR_ESR(UserDetail, UserRemark):
+    sample_code = models.CharField(max_length=75)
+    sample_nature = models.CharField(max_length=10, choices=[
+        ('Liquid', 'Liquid'),
+        ('Powder', 'Powder'),
+    ])
+    field = models.CharField(max_length=75)
+    temperature_series = models.CharField(max_length=75)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "EPR/ESR",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'EPR/ESR'
+        verbose_name_plural = 'EPR/ESR'

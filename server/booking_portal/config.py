@@ -40,6 +40,7 @@ form_template_dict = {
     21: (UTMForm, UTM),
     22: (SAXSWAXSForm, SAXS_WAXS),
     23: (VSMForm, VSM),
+    24: (EPR_ESRForm, EPR_ESR),
 }
 
 view_application_dict = {model: form
