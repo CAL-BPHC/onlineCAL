@@ -22,3 +22,5 @@ from .xps import XPSForm
 from .utm import UTMForm
 from .vsm import VSMForm
 from .epr_esr import EPR_ESRForm
+from .gpc import GPCForm
+from .chns import CHNSForm

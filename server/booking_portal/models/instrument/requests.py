@@ -640,3 +640,42 @@ class EPR_ESR(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'EPR/ESR'
         verbose_name_plural = 'EPR/ESR'
+
+
+class GPC(UserDetail, UserRemark):
+    sample_code = models.CharField(max_length=75)
+    solvent_column = models.CharField(max_length=100)
+    parameters = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "GPC",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'GPC'
+        verbose_name_plural = 'GPC'
+
+
+class CHNS(UserDetail, UserRemark):
+    sample_code = models.CharField(max_length=75)
+    sample_nature = models.CharField(max_length=10, choices=[
+        ('Liquid', 'Liquid'),
+        ('Powder', 'Powder'),
+    ])
+    parameters = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "CHNS",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'CHNS'
+        verbose_name_plural = 'CHNS'

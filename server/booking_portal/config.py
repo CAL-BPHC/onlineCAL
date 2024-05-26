@@ -41,6 +41,8 @@ form_template_dict = {
     22: (SAXSWAXSForm, SAXS_WAXS),
     23: (VSMForm, VSM),
     24: (EPR_ESRForm, EPR_ESR),
+    25: (GPCForm, GPC),
+    26: (CHNSForm, CHNS),
 }
 
 view_application_dict = {model: form
