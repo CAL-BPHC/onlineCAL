@@ -43,6 +43,7 @@ form_template_dict = {
     24: (EPR_ESRForm, EPR_ESR),
     25: (GPCForm, GPC),
     26: (CHNSForm, CHNS),
+    27: (RT_PCRForm, RT_PCR),
 }
 
 view_application_dict = {model: form

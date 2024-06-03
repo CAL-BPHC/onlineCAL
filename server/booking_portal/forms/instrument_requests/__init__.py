@@ -24,3 +24,4 @@ from .vsm import VSMForm
 from .epr_esr import EPR_ESRForm
 from .gpc import GPCForm
 from .chns import CHNSForm
+from .rt_pcr import RT_PCRForm

@@ -679,3 +679,22 @@ class CHNS(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'CHNS'
         verbose_name_plural = 'CHNS'
+
+
+class RT_PCR(UserDetail, UserRemark):
+    sample_type = models.CharField(max_length=75)
+    slot_duration = models.CharField(max_length=75)
+    fluorophore = models.CharField(max_length=75)
+    strips_plate = models.CharField(max_length=75)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "RT-PCR",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'RT-PCR'
+        verbose_name_plural = 'RT-PCR'
