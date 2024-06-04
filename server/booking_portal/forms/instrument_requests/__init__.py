@@ -26,3 +26,4 @@ from .gpc import GPCForm
 from .chns import CHNSForm
 from .rt_pcr import RT_PCRForm
 from .quantachrome import QuantachromeForm
+from .dls import DLSForm

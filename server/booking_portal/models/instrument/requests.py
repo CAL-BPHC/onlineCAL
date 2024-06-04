@@ -718,3 +718,29 @@ class Quantachrome(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'Quantachrome'
         verbose_name_plural = 'Quantachrome'
+
+
+class DLS(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    slot_duration = models.CharField(max_length=75)
+    cuvettes = models.CharField(max_length=10, choices=[
+        ('Disposable', 'Disposable'),
+        ('Glass', 'Glass'),
+        ('Quartz', 'Quartz'),
+        ('Omega', 'Omega'),
+        ('Univette', 'Univette'),
+    ])
+    solvent = models.CharField(max_length=75)
+    additional_info = models.CharField(max_length=300)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "DLS",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'DLS'
+        verbose_name_plural = 'DLS'

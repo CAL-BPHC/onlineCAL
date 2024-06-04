@@ -44,7 +44,8 @@ form_template_dict = {
     25: (GPCForm, GPC),
     26: (CHNSForm, CHNS),
     27: (RT_PCRForm, RT_PCR),
-    28: (QuantachromeForm, Quantachrome)
+    28: (QuantachromeForm, Quantachrome),
+    29: (DLSForm, DLS),
 }
 
 view_application_dict = {model: form
