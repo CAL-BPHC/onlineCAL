@@ -744,3 +744,24 @@ class DLS(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'DLS'
         verbose_name_plural = 'DLS'
+
+
+class BDFACS(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    slot_duration = models.CharField(max_length=75)
+    lasers = models.CharField(max_length=75)
+    excitation_emission = models.CharField(max_length=75)
+    analysis_cell_sorting = models.CharField(max_length=75)
+    additional_info = models.CharField(max_length=300)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "BD-FACS",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'BD-FACS'
+        verbose_name_plural = 'BD-FACS'
