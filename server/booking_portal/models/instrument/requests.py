@@ -698,3 +698,23 @@ class RT_PCR(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'RT-PCR'
         verbose_name_plural = 'RT-PCR'
+
+
+class Quantachrome(UserDetail, UserRemark):
+    sample_code = models.CharField(max_length=75)
+    pretreatment_conditions = models.CharField(max_length=200)
+    precautions = models.CharField(max_length=200)
+    adsorption = models.CharField(max_length=75)
+    surface_area_pore_size = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "Quantachrome",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'Quantachrome'
+        verbose_name_plural = 'Quantachrome'
