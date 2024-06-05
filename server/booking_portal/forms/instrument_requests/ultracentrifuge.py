@@ -10,7 +10,7 @@ class UltracentrifugeForm(UserDetailsForm, UserRemarkForm):
     subtitle = "Ultracentrifuge (Optima - XPN-100)"
     help_text = '''
         <b>Please provide any other information in other remarks (eg. toxic samples).</b> <br>
-        <b>Note: Note: Clean Quartz Cuvettes with utmost care and inform Technical staff before and after the analysis.</b>
+        <b>Note: Clean Quartz Cuvettes with utmost care and inform Technical staff before and after the analysis.</b>
     '''
 
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
