@@ -48,6 +48,7 @@ form_template_dict = {
     29: (DLSForm, DLS),
     30: (BDFACSForm, BDFACS),
     31: (ContactAngleForm, ContactAngle),
+    32: (DigitalPolarimeterForm, DigitalPolarimeter),
 }
 
 view_application_dict = {model: form

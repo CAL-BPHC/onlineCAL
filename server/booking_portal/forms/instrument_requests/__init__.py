@@ -29,3 +29,4 @@ from .quantachrome import QuantachromeForm
 from .dls import DLSForm
 from .bdfacs import BDFACSForm
 from .contact_angle import ContactAngleForm
+from .digital_polarimeter import DigitalPolarimeterForm

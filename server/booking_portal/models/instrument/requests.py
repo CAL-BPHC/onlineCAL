@@ -786,3 +786,25 @@ class ContactAngle(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'Contact Angle'
         verbose_name_plural = 'Contact Angle'
+
+
+class DigitalPolarimeter(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    slot_duration = models.CharField(max_length=75)
+    filters_used = models.CharField(max_length=75)
+    measurement_type = models.CharField(max_length=75)
+    solvent = models.CharField(max_length=75)
+    cuvette_path_length = models.CharField(max_length=300)
+    additional_info = models.CharField(max_length=300)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "Digital Polarimeter",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'Digital Polarimeter'
+        verbose_name_plural = 'Digital Polarimeter'
