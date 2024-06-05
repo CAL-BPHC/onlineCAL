@@ -33,7 +33,7 @@ class SpectraFluorimeterForm(UserDetailsForm, UserRemarkForm):
             **UserRemarkForm.Meta.labels,
             **{
                 "sample_codes": "Sample Codes",
-                "slot_duration": "Slot Duration(4hr)",
+                "slot_duration": "Slot Duration(3hr)",
                 "solvent": "Solvent Used",
                 "excitation_emission": "Excitation/Emission",
                 "sample_type": "Type of Sample",
