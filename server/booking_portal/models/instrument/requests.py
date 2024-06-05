@@ -874,3 +874,28 @@ class SpectraFluorimeter(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'Spectra Fluorimeter'
         verbose_name_plural = 'Spectra Fluorimeter'
+
+class Ultracentrifuge(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    slot_duration = models.CharField(max_length=75)
+    rotor_used = models.CharField(max_length=25, choices=[
+    ('SW-41-Ti', 'SW-41-Ti'),
+    ('70-Ti', '70-Ti'),
+    ('100-Ti', '100-Ti'),
+])
+    solvent = models.CharField(max_length=75)
+    tubes_used = models.CharField(max_length=75)
+    utilization_of_rotor = models.CharField(max_length=300)
+    additional_info = models.CharField(max_length=300)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "Ultracentrifuge",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = "Ultracentrifuge"
+        verbose_name_plural = "Ultracentrifuge"

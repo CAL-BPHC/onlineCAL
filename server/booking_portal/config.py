@@ -51,7 +51,8 @@ form_template_dict = {
     32: (DigitalPolarimeterForm, DigitalPolarimeter),
     33: (Fluorolog3Form, Fluorolog3),
     34: (Fluorolog3Form, Fluoromax),
-    35: (SpectraFluorimeterForm, SpectraFluorimeter)
+    35: (SpectraFluorimeterForm, SpectraFluorimeter),
+    36: (UltracentrifugeForm, Ultracentrifuge)
 }
 
 view_application_dict = {model: form

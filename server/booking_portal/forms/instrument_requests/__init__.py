@@ -33,3 +33,4 @@ from .digital_polarimeter import DigitalPolarimeterForm
 from .fluorolog3 import Fluorolog3Form
 from .fluoromax import Fluoromax
 from .spectrafluorimeter import SpectraFluorimeterForm
+from .ultracentrifuge import UltracentrifugeForm
