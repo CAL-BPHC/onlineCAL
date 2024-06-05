@@ -30,3 +30,4 @@ from .dls import DLSForm
 from .bdfacs import BDFACSForm
 from .contact_angle import ContactAngleForm
 from .digital_polarimeter import DigitalPolarimeterForm
+from .fluorolog3 import Fluorolog3Form
