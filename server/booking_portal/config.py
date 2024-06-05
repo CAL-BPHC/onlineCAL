@@ -49,7 +49,8 @@ form_template_dict = {
     30: (BDFACSForm, BDFACS),
     31: (ContactAngleForm, ContactAngle),
     32: (DigitalPolarimeterForm, DigitalPolarimeter),
-    33: (Fluorolog3Form, Fluorolog3)
+    33: (Fluorolog3Form, Fluorolog3),
+    34: (Fluorolog3Form, Fluoromax)
 }
 
 view_application_dict = {model: form

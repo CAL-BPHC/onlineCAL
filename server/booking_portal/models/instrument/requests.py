@@ -830,3 +830,25 @@ class Fluorolog3(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'Fluorolog3'
         verbose_name_plural = 'Fluorolog3'
+
+
+class Fluoromax(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    slot_duration = models.CharField(max_length=75)
+    lasers = models.CharField(max_length=75)
+    excitation_emission = models.CharField(max_length=75)
+    sample_type = models.CharField(max_length=75)
+    utilization_of_source = models.CharField(max_length=300)
+    additional_info = models.CharField(max_length=300)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "Fluoromax",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'Fluoromax'
+        verbose_name_plural = 'Fluoromax'
