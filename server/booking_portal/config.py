@@ -46,7 +46,8 @@ form_template_dict = {
     27: (RT_PCRForm, RT_PCR),
     28: (QuantachromeForm, Quantachrome),
     29: (DLSForm, DLS),
-    30: (BDFACSForm, BDFACS)
+    30: (BDFACSForm, BDFACS),
+    31: (ContactAngleForm, ContactAngle),
 }
 
 view_application_dict = {model: form

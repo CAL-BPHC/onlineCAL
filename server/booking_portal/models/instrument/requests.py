@@ -765,3 +765,24 @@ class BDFACS(UserDetail, UserRemark):
     class Meta:
         verbose_name = 'BD-FACS'
         verbose_name_plural = 'BD-FACS'
+
+
+class ContactAngle(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    slot_duration = models.CharField(max_length=75)
+    temperature = models.CharField(max_length=75)
+    parameters = models.CharField(max_length=75)
+    analysis_type = models.CharField(max_length=75)
+    additional_info = models.CharField(max_length=300)
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "Contact Angle",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year)
+        )
+
+    class Meta:
+        verbose_name = 'Contact Angle'
+        verbose_name_plural = 'Contact Angle'
