@@ -2,11 +2,11 @@ import random
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
-from django.http import HttpResponse, Http404
-from django.shortcuts import render, redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import redirect, render
 
-from .portal import BasePortalFilter
 from ... import models, permissions
+from .portal import BasePortalFilter
 
 
 @login_required
