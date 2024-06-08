@@ -8,8 +8,9 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 
-from .slot import Slot
-from .user import Faculty, LabAssistant, Student
+from booking_portal.models.department import Department
+from booking_portal.models.slot import Slot
+from booking_portal.models.user import Faculty, LabAssistant, Student
 
 
 class RequestManager(models.Manager):
