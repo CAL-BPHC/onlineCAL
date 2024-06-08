@@ -11,3 +11,7 @@ class Department(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    class Meta:
+        verbose_name = "Departments"
+        default_related_name = "departments"
