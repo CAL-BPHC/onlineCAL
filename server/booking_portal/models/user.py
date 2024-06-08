@@ -3,6 +3,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
 
+from booking_portal.models.department import Department
+
 from .email import EmailModel
 from .manager import CustomUserManager
 
@@ -60,7 +62,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class Faculty(CustomUser):
-    department = models.CharField(max_length=20, null=True)
+    department = models.ForeignKey(
+        Department, on_delete=models.SET_NULL, null=True)
+    balance = models.IntegerField()
 
     class Meta:
         verbose_name = "Faculty"
