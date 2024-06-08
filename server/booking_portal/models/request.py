@@ -59,10 +59,12 @@ class Request(models.Model):
     APPROVED = "R3"
     REJECTED = "R4"
     CANCELLED = "R5"
+    WAITING_FOR_DEPARTMENT = "R6"
 
     STATUS_CHOICES = [
         (WAITING_FOR_FACULTY, "Waiting for faculty approval."),
         (WAITING_FOR_LAB_ASST, "Waiting for lab assistant approval."),
+        (WAITING_FOR_DEPARTMENT, "Waiting for department approval."),
         (APPROVED, "Approved"),
         (REJECTED, "Rejected"),
         (CANCELLED, "Cancelled")
@@ -89,6 +91,7 @@ class Request(models.Model):
         assert status in (
             Request.WAITING_FOR_FACULTY,
             Request.WAITING_FOR_LAB_ASST,
+            Request.WAITING_FOR_DEPARTMENT,
             Request.APPROVED,
             Request.REJECTED,
             Request.CANCELLED,
