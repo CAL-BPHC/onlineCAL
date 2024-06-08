@@ -14,7 +14,7 @@ from booking_portal.models.user import Faculty, LabAssistant, Student
 
 
 class RequestManager(models.Manager):
-    def create_request(self, form_instance, slot_id, student):
+    def create_request(self, form_instance, slot_id, requester: Student | Faculty, for_faculty: bool, needs_department_approval: bool = False):
         with transaction.atomic():
             slot, instr = Slot.objects.get_instr_from_slot_id(slot_id, True)
             if not instr or not slot:
@@ -24,19 +24,43 @@ class RequestManager(models.Manager):
             if not slot.is_available_for_booking():
                 raise ValueError("Slot is not available for booking.")
 
-            if Request.objects.has_student_booked_upcoming_instrument_slot(instr, student):
-                raise ValueError(
-                    "Upcoming slot for instrument already booked.")
+            if for_faculty:
+                if Request.objects.has_faculty_booked_upcoming_instrument_slot(instr, requester):
+                    raise ValueError(
+                        "Upcoming slot for instrument already booked.")
+                form_saved = form_instance.save()
 
-            form_saved = form_instance.save()
-            self.create(
-                student=student,
-                faculty=student.supervisor,
-                instrument=instr,
-                slot=slot,
-                status=Request.WAITING_FOR_FACULTY,
-                content_object=form_saved,
-            )
+                if needs_department_approval:
+                    self.create(
+                        student=None,
+                        faculty=requester,
+                        slot=slot,
+                        status=Request.WAITING_FOR_DEPARTMENT,
+                        content_object=form_saved,
+                    )
+                else:
+                    self.create(
+                        student=None,
+                        faculty=requester,
+                        slot=slot,
+                        status=Request.WAITING_FOR_LAB_ASST,
+                        content_object=form_saved,
+                    )
+
+            else:
+                if Request.objects.has_student_booked_upcoming_instrument_slot(instr, requester):
+                    raise ValueError(
+                        "Upcoming slot for instrument already booked.")
+                form_saved = form_instance.save()
+                self.create(
+                    student=requester,
+                    faculty=requester.supervisor,
+                    instrument=instr,
+                    slot=slot,
+                    status=Request.WAITING_FOR_FACULTY,
+                    content_object=form_saved,
+                )
+
             slot.update_status(Slot.STATUS_2)
 
     @staticmethod
@@ -50,6 +74,21 @@ class RequestManager(models.Manager):
             ),
             instrument=instr,
             student=student,
+            slot__date__gte=date,
+        ).exists()
+
+    @staticmethod
+    def has_faculty_booked_upcoming_instrument_slot(instr, faculty, date=now().date()):
+        """Check if a faculty has booked an upcoming slot for an instrument"""
+        return Request.objects.filter(
+            ~(
+                Q(status=Request.REJECTED) |
+                Q(status=Request.CANCELLED) |
+                Q(status=Request.APPROVED)
+            ),
+            instrument=instr,
+            student=None,
+            faculty=faculty,
             slot__date__gte=date,
         ).exists()
 
@@ -71,12 +110,16 @@ class Request(models.Model):
         (CANCELLED, "Cancelled")
     ]
 
-    objects = RequestManager()
+    objects: RequestManager = RequestManager()
 
-    student = models.ForeignKey(Student, on_delete=models.PROTECT)
-    faculty = models.ForeignKey(Faculty, on_delete=models.PROTECT)
+    student = models.ForeignKey(
+        Student, on_delete=models.PROTECT, null=True, blank=True)
+    faculty = models.ForeignKey(
+        Faculty, on_delete=models.PROTECT, null=True, blank=True)
     lab_assistant = models.ForeignKey(LabAssistant, on_delete=models.PROTECT,
                                       blank=True, null=True)
+    department = models.ForeignKey(
+        Department, on_delete=models.PROTECT, blank=True, null=True)
     instrument = models.ForeignKey("Instrument", on_delete=models.PROTECT)
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
