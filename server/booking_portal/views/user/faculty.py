@@ -45,7 +45,7 @@ def faculty_request_accept(request, id):
             if (faculty == models.Faculty.objects.get(id=request.user.id)):
                 request_object.status = models.Request.WAITING_FOR_LAB_ASST
                 request_object.lab_assistant = random.choice(
-                    models.LabAssistant.objects.all())
+                    models.LabAssistant.objects.filter(is_active=True))
                 request_object.save()
                 return redirect('faculty_portal')
             else:
