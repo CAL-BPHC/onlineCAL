@@ -42,7 +42,7 @@ def faculty_portal(request):
 def faculty_request_accept(request, id):
     try:
         with transaction.atomic():
-            request_object = models.Request.objects.get(
+            request_object: models.Request = models.Request.objects.get(
                 id=id, status=models.Request.WAITING_FOR_FACULTY
             )
             faculty = request_object.faculty
@@ -51,7 +51,9 @@ def faculty_request_accept(request, id):
                 request_object.lab_assistant = random.choice(
                     models.LabAssistant.objects.filter(is_active=True)
                 )
+                faculty.balance -= request_object.total_cost
                 request_object.save()
+                faculty.save()
                 return redirect("faculty_portal")
             else:
                 return HttpResponse("Bad Request")
