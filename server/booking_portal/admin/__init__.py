@@ -6,8 +6,17 @@ from .request import RequestAdmin
 from .slot import SlotAdmin
 from .user import CustomUserAdmin, FacultyAdmin, StudentAdmin
 from .announcement import AnnouncementAdmin
-from ..models import (Announcement, CustomUser, EmailModel, Faculty,
-                      Instrument, LabAssistant, Request, Slot, Student)
+from ..models import (
+    Announcement,
+    CustomUser,
+    EmailModel,
+    Faculty,
+    Instrument,
+    LabAssistant,
+    Request,
+    Slot,
+    Student,
+)
 from ..models.instrument.requests import *
 
 admin.site.register(Student, StudentAdmin)
