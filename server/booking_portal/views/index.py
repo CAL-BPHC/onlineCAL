@@ -1,8 +1,10 @@
+from typing import cast
 from django.http import Http404
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from ..models import Faculty, Student, LabAssistant, Request
+
+from ..models import Faculty, Student, LabAssistant, Request, UserDetail
 from ..config import view_application_dict
 from ..permissions import get_user_type, is_faculty, is_lab_assistant
 
@@ -30,10 +32,10 @@ def show_application(request, id):
     """Displays application details of a user.
     Can be accessed from the Requests Page"""
     try:
-        request_obj = Request.objects.get(id=id)
+        request_obj: Request = Request.objects.get(id=id)
     except Exception:
         raise Http404()
-    content_object = request_obj.content_object
+    content_object = cast(UserDetail, request_obj.content_object)
     form = view_application_dict[content_object._meta.model]
 
     data = content_object.__dict__
@@ -74,6 +76,8 @@ def show_application(request, id):
             "instrument_verbose_name": content_object._meta.verbose_name,
             "form_notes": form.help_text,
             "status": request_obj.status,
+            "cost_per_sample": request_obj.slot.instrument.cost_per_sample,
+            "total_cost": request_obj.total_cost,
         },
     )
 

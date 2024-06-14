@@ -43,7 +43,9 @@
         <p>Total cost: <span id="id_total_cost"></span></p>
         <input type="submit" class="btn btn-primary" value="Submit">
     {% else %}
-      <input type="submt" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
+        <p>Cost per sample: {{ cost_per_sample }}</p>
+        <p>Total cost: {{ total_cost }}</p>
+        <input type="submt" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
     {% endif %}
 
     {% if user_type != 'student' %}
@@ -55,8 +57,9 @@
 
 {% block facility %} {{ instrument_verbose_name }} {% endblock %}
 {% block script %}
+{% if edit %}
 <script>
-    function calculateTotalPrice() {        
+    function calculateTotalPrice() {
         var numberOfSamples = parseFloat(document.getElementById('id_number_of_samples').value);
         var costPerSample = parseFloat(document.getElementById('id_cost_per_sample').textContent);
         var totalPriceField = document.getElementById('id_total_cost');
@@ -75,4 +78,5 @@
     document.getElementById('id_number_of_samples').addEventListener('input', calculateTotalPrice);
     document.getElementById('id_number_of_samples').addEventListener('change', calculateTotalPrice);
 </script>
+{% endif%}
 {% endblock script %}
