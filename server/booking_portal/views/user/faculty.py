@@ -2,8 +2,9 @@ import random
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
+
 
 from .portal import BasePortalFilter
 from ... import models, permissions
@@ -20,6 +21,8 @@ def faculty_portal(request):
     )
     page_obj = f.paginate()
 
+    faculty: models.Faculty = models.Faculty.objects.get(id=request.user.id)
+
     return render(
         request,
         "booking_portal/portal_forms/base_portal.html",
@@ -29,6 +32,7 @@ def faculty_portal(request):
             "user_type": "faculty",
             "user_is_student": False,
             "modifiable_request_status": models.Request.WAITING_FOR_FACULTY,
+            "balance": faculty.balance,
         },
     )
 
@@ -45,13 +49,14 @@ def faculty_request_accept(request, id):
             if faculty == models.Faculty.objects.get(id=request.user.id):
                 request_object.status = models.Request.WAITING_FOR_LAB_ASST
                 request_object.lab_assistant = random.choice(
-                    models.LabAssistant.objects.all()
+                    models.LabAssistant.objects.filter(is_active=True)
                 )
                 request_object.save()
                 return redirect("faculty_portal")
             else:
                 return HttpResponse("Bad Request")
-    except Exception:
+    except Exception as e:
+        print(e)
         raise Http404("Page Not Found")
 
 

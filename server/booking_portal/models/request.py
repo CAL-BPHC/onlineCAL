@@ -87,6 +87,10 @@ class Request(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
 
+    @property
+    def total_cost(self):
+        return self.instrument.cost_per_sample * self.content_object.number_of_samples
+
     def update_status(self, status):
         assert status in (
             Request.WAITING_FOR_FACULTY,
