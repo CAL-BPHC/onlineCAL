@@ -1,3 +1,4 @@
+from typing import cast
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
@@ -5,10 +6,11 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
+
 from .portal import BasePortalFilter
 from ... import config
 from ... import permissions
-from ...models import Slot, Request, Student
+from ...models import Slot, Request, Student, Instrument
 
 
 @login_required
@@ -65,7 +67,9 @@ def book_machine(request, instr_id):
     }
 
     if request.method == "GET":
-        slot, instr = Slot.objects.get_instr_from_slot_id(slot_id)
+        slot, instr = cast(
+            tuple[Slot, Instrument], Slot.objects.get_instr_from_slot_id(slot_id)
+        )
         if not instr or not slot:
             messages.error(request, "Invalid slot or instrument.")
             return HttpResponseRedirect(reverse("instrument-list"))
@@ -81,6 +85,7 @@ def book_machine(request, instr_id):
             return HttpResponseRedirect(reverse("instrument-list"))
 
         # Render form with initial data
+        default_context["cost_per_sample"] = instr.cost_per_sample
         return render(
             request,
             "booking_portal/instrument_form.html",
