@@ -20,6 +20,7 @@ class InstrumentAdmin(admin.ModelAdmin):
     form = InstrumentChangeForm
     add_form = InstrumentCreateForm
     list_filter = admin.ModelAdmin.list_filter + ("status",)
+    list_display = admin.ModelAdmin.list_display + ("status", "cost_per_sample")
     actions = ("instrument_usage_report_action",)
 
     # only superuser has permission to add instruments
