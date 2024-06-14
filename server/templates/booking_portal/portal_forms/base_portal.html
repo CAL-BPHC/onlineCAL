@@ -41,6 +41,7 @@
                     <th scope="col">Slot</th>
                     <th scope="col">Status</th>
                     <th scope="col">Application</th>
+                    <th scope="col">Total Cost</th>
                     {% if not user_is_student %}
                       <th scope="col" colspan="2">Actions</th>
                     {% endif %}
@@ -67,6 +68,7 @@
                       <td>Cancelled</td>
                     {% endif %}
                     <td><a href={% url 'view-application' id=request.id %} target="_blank"> View Application </a></td>
+                    <td>{{ request.total_cost }}</td>
                     {% if not user_is_student %}
                       {% if request.status == modifiable_request_status %}
                       <td>
