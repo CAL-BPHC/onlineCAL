@@ -10,7 +10,7 @@ class FacultyAdmin(CustomUserAdmin):
     add_form = forms.FacultyCreationForm
 
     list_filter = CustomUserAdmin.list_filter + ("department",)
-    list_display = CustomUserAdmin.list_display + ("department",)
+    list_display = CustomUserAdmin.list_display + ("department", "balance")
     fieldsets = CustomUserAdmin.fieldsets + (
         (
             None,
