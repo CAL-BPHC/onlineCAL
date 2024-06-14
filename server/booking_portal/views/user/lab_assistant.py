@@ -51,10 +51,19 @@ def lab_assistant_accept(request, id):
 @login_required
 @user_passes_test(permissions.is_lab_assistant)
 def lab_assistant_reject(request, id):
-    request_object = models.Request.objects.get(
-        id=id, status=models.Request.WAITING_FOR_LAB_ASST
-    )
-    request_object.lab_assistant = models.LabAssistant.objects.get(id=request.user.id)
-    request_object.status = models.Request.REJECTED
-    request_object.save()
-    return redirect("lab_assistant")
+    try:
+        with transaction.atomic():
+            request_object = models.Request.objects.get(
+                id=id, status=models.Request.WAITING_FOR_LAB_ASST
+            )
+            faculty = request_object.faculty
+            faculty.balance += request_object.total_cost
+            request_object.lab_assistant = models.LabAssistant.objects.get(
+                id=request.user.id
+            )
+            request_object.status = models.Request.REJECTED
+            request_object.save()
+            faculty.save()
+            return redirect("lab_assistant")
+    except Exception:
+        raise Http404("Page Not Found")
