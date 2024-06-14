@@ -1,11 +1,11 @@
 from django import forms
 
 from booking_portal.models import UserDetail, UserRemark
-from booking_portal.models import Faculty, Student
+from booking_portal.models import Faculty, Student, CustomUser
 
 
 class MyModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
+    def label_from_instance(self, obj: CustomUser):
         return "{} ({})".format(obj.name, obj.email)
 
 
