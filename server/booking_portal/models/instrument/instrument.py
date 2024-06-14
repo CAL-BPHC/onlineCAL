@@ -54,6 +54,7 @@ class Instrument(models.Model):
         verbose_name="Available for Booking?",
         default=True,
     )
+    cost_per_sample = models.IntegerField(default=0)
 
     objects: InstrumentManager = InstrumentManager()
 

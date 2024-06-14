@@ -223,7 +223,7 @@ class FacultyChangeForm(CustomUserChangeForm):
 class InstrumentCreateForm(forms.ModelForm):
     class Meta:
         model = Instrument
-        fields = ("name", "desc", "status")
+        fields = ("name", "desc", "status", "cost_per_sample")
         widgets = {
             "status": forms.Select(choices=BOOL_CHOICES),
         }
@@ -232,11 +232,7 @@ class InstrumentCreateForm(forms.ModelForm):
 class InstrumentChangeForm(forms.ModelForm):
     class Meta:
         model = Instrument
-        fields = (
-            "name",
-            "desc",
-            "status",
-        )
+        fields = ("name", "desc", "status", "cost_per_sample")
         widgets = {
             "status": forms.Select(choices=BOOL_CHOICES),
         }
