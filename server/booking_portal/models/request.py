@@ -83,6 +83,7 @@ class Request(models.Model):
     instrument = models.ForeignKey("Instrument", on_delete=models.PROTECT)
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
+    needs_department_approval = models.BooleanField(default=False)
 
     # To keep a reference of different form types
     # against a request

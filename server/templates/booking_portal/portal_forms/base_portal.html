@@ -110,7 +110,7 @@
                             </div>
                           </div>
                         </div>
-                      {% elif user_type == 'assistant' %}
+                      {% elif user_type == 'assistant' or user_type == 'department' %}
                         <td><a href="/requests_{{ user_type }}/accept/{{request.id}}">
                           <button type="button" class="btn btn-success">Accept</button>
                         </a></td>

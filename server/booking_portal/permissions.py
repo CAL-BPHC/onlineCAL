@@ -1,4 +1,4 @@
-from .models import Student, Faculty, LabAssistant
+from .models import Department, Faculty, LabAssistant, Student
 
 
 def is_faculty(user):
@@ -19,6 +19,12 @@ def is_lab_assistant(user):
     return False
 
 
+def is_department(user):
+    if (len(Department.objects.filter(email=user.username))) > 0:
+        return True
+    return False
+
+
 def get_user_type(user):
     return (
         "faculty"
@@ -27,5 +33,7 @@ def get_user_type(user):
         if is_lab_assistant(user)
         else "student"
         if is_student(user)
+        else "department"
+        if is_department(user)
         else None
     )

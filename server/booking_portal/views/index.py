@@ -1,11 +1,11 @@
 from typing import cast
+
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import Http404
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
 
-
-from ..models import Faculty, Student, LabAssistant, Request, UserDetail
 from ..config import view_application_dict
+from ..models import Department, Faculty, LabAssistant, Request, Student, UserDetail
 from ..permissions import get_user_type, is_faculty, is_lab_assistant
 
 
@@ -15,12 +15,16 @@ def index(request):
     faculty_instance = Faculty.objects.filter(id=request.user.id).first()
     student_instance = Student.objects.filter(id=request.user.id).first()
     lab_instance = LabAssistant.objects.filter(id=request.user.id).first()
+    department_instance = Department.objects.filter(id=request.user.id).first()
+
     if faculty_instance:
         context = "faculty"
     elif student_instance:
         context = "student"
     elif lab_instance:
         context = "assistant"
+    elif department_instance:
+        context = "department"
     else:
         context = "none"
 

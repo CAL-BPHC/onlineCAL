@@ -1,10 +1,12 @@
+from typing import cast
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.http import Http404
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 
-from .portal import BasePortalFilter, get_pagintion_nav_range
 from ... import models, permissions
+from .portal import BasePortalFilter, get_pagintion_nav_range
 
 
 @login_required
@@ -53,17 +55,25 @@ def lab_assistant_accept(request, id):
 def lab_assistant_reject(request, id):
     try:
         with transaction.atomic():
-            request_object = models.Request.objects.get(
+            request_object: models.Request = models.Request.objects.get(
                 id=id, status=models.Request.WAITING_FOR_LAB_ASST
             )
-            faculty = request_object.faculty
-            faculty.balance += request_object.total_cost
-            request_object.lab_assistant = models.LabAssistant.objects.get(
-                id=request.user.id
-            )
+            if request_object.needs_department_approval:
+                department = cast(models.Department, request_object.faculty.department)
+                department.balance += request_object.total_cost
+                request_object.lab_assistant = models.LabAssistant.objects.get(
+                    id=request.user.id
+                )
+                department.save()
+            else:
+                faculty = request_object.faculty
+                faculty.balance += request_object.total_cost
+                request_object.lab_assistant = models.LabAssistant.objects.get(
+                    id=request.user.id
+                )
+                faculty.save()
             request_object.status = models.Request.REJECTED
             request_object.save()
-            faculty.save()
             return redirect("lab_assistant")
     except Exception:
         raise Http404("Page Not Found")

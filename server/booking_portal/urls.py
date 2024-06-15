@@ -9,9 +9,9 @@ urlpatterns = [
     path("instrument-list/", views.instrument_list, name="instrument-list"),
     path("view-slots/", views.slot_list, name="slot-list"),
     path("faculty/", views.faculty_portal, name="faculty_portal"),
-    path("faculty/", views.faculty_portal, name="faculty_portal"),
     path("lab-assistant/", views.lab_assistant_portal, name="lab_assistant"),
     path("student/", views.student_portal, name="student"),
+    path("department/", views.department_portal, name="department_portal"),
     path(
         "requests_faculty/accept/<int:id>",
         views.faculty_request_accept,
@@ -31,6 +31,16 @@ urlpatterns = [
         "requests_assistant/reject/<int:id>",
         views.lab_assistant_reject,
         name="lab_assistant_request_reject",
+    ),
+    path(
+        "requests_department/accept/<int:id>",
+        views.department_accept,
+        name="department_request_accept",
+    ),
+    path(
+        "requests_department/reject/<int:id>",
+        views.department_reject,
+        name="department_request_reject",
     ),
     path("application/view/<int:id>", views.show_application, name="view-application"),
     path("application/edit/remarks/<int:id>", views.add_remarks, name="add_remarks"),

@@ -49,15 +49,13 @@ def faculty_request_accept(request, id):
                 faculty = request_object.faculty
                 if faculty == models.Faculty.objects.get(id=request.user.id):
                     if needs_department_approval:
-                        request_object.status = models.Request.WAITING_FOR_DEPARTMENT
-                        if faculty.department:
-                            faculty.department.balance -= request_object.total_cost
-                            faculty.department.save()
-                        else:
+                        if not faculty.department:
                             # TODO: Handle if no department is present
                             raise NotImplementedError(
                                 "Handle if department is not present."
                             )
+                        request_object.needs_department_approval = True
+                        request_object.status = models.Request.WAITING_FOR_DEPARTMENT
                     else:
                         request_object.status = models.Request.WAITING_FOR_LAB_ASST
                         faculty.balance -= request_object.total_cost
