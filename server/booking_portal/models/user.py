@@ -15,6 +15,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
+    class Role(models.TextChoices):
+        STAFF = "STAFF", "Staff"
+        STUDENT = "STUDENT", "Student"
+        FACULTY = "FACULTY", "Faculty"
+        LAB_ASSISTANT = "LAB_ASSISTANT", "Lab Assistant"
+        DEPARTMENT = "DEPARTMENT", "Department"
+
+    role = models.CharField(max_length=50, choices=Role.choices)
+    default_role = Role.STAFF
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["name"]
 
@@ -52,6 +62,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def send_email(self, subject, message, html_message):
         self._create_email_obj(subject, message, html_message)
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.role = self.default_role
+        return super().save(*args, **kwargs)
+
     @property
     def username(self):
         return self.email
@@ -61,6 +76,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class Faculty(CustomUser):
+    default_role = CustomUser.Role.FACULTY
     department = models.CharField(max_length=20, null=True)
     balance = models.IntegerField(default=0)
 
@@ -71,6 +87,7 @@ class Faculty(CustomUser):
 
 
 class Student(CustomUser):
+    default_role = CustomUser.Role.STUDENT
     supervisor = models.ForeignKey(Faculty, on_delete=models.PROTECT, null=False)
 
     class Meta:
@@ -79,6 +96,8 @@ class Student(CustomUser):
 
 
 class LabAssistant(CustomUser):
+    default_role = CustomUser.Role.LAB_ASSISTANT
+
     class Meta:
         verbose_name = "Lab Assistant"
         default_related_name = "labassistants"

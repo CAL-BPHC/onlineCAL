@@ -1,11 +1,5 @@
 from django.contrib import admin
 
-from .email import EmailAdmin
-from .instrument import InstrumentAdmin
-from .request import RequestAdmin
-from .slot import SlotAdmin
-from .user import CustomUserAdmin, FacultyAdmin, StudentAdmin
-from .announcement import AnnouncementAdmin
 from ..models import (
     Announcement,
     CustomUser,
@@ -18,11 +12,17 @@ from ..models import (
     Student,
 )
 from ..models.instrument.requests import *
+from .announcement import AnnouncementAdmin
+from .email import EmailAdmin
+from .instrument import InstrumentAdmin
+from .request import RequestAdmin
+from .slot import SlotAdmin
+from .user import CustomUserAdmin, FacultyAdmin, LabAssistantAdmin, StudentAdmin
 
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Faculty, FacultyAdmin)
 admin.site.register(EmailModel, EmailAdmin)
-admin.site.register(LabAssistant, CustomUserAdmin)
+admin.site.register(LabAssistant, LabAssistantAdmin)
 admin.site.register(Instrument, InstrumentAdmin)
 admin.site.register(Request, RequestAdmin)
 admin.site.register(Slot, SlotAdmin)

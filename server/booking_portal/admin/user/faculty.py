@@ -1,6 +1,6 @@
 from ... import forms
+from ...models import CustomUser, Faculty
 from .user import CustomUserAdmin
-from ...models import Faculty
 
 
 class FacultyAdmin(CustomUserAdmin):
@@ -32,3 +32,10 @@ class FacultyAdmin(CustomUserAdmin):
 
     def get_csv_headers(self):
         return super().get_csv_headers() + self.CSV_HEADERS_FACULTY
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if obj is None:
+            form.base_fields["role"].initial = CustomUser.Role.FACULTY
+            form.base_fields["role"].disabled = True
+        return form
