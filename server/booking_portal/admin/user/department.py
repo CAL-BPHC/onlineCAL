@@ -3,6 +3,17 @@ from .user import CustomUserAdmin
 
 
 class DepartmentAdmin(CustomUserAdmin):
+    list_display = CustomUserAdmin.list_display + ("balance",)
+    fieldsets = CustomUserAdmin.fieldsets + (
+        (
+            None,
+            {"fields": ("balance",)},
+        ),
+    )
+    add_fieldsets = CustomUserAdmin.add_fieldsets + (
+        (None, {"classes": ("wide",), "fields": ("balance",)}),
+    )
+
     def get_user_type(self, request):
         return Department
 

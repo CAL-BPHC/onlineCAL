@@ -77,6 +77,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class Department(CustomUser):
     default_role = CustomUser.Role.DEPARTMENT
+    balance = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "Department"
