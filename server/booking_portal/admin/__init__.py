@@ -3,6 +3,7 @@ from django.contrib import admin
 from ..models import (
     Announcement,
     CustomUser,
+    Department,
     EmailModel,
     Faculty,
     Instrument,
@@ -17,7 +18,13 @@ from .email import EmailAdmin
 from .instrument import InstrumentAdmin
 from .request import RequestAdmin
 from .slot import SlotAdmin
-from .user import CustomUserAdmin, FacultyAdmin, LabAssistantAdmin, StudentAdmin
+from .user import (
+    CustomUserAdmin,
+    DepartmentAdmin,
+    FacultyAdmin,
+    LabAssistantAdmin,
+    StudentAdmin,
+)
 
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Faculty, FacultyAdmin)
@@ -27,6 +34,7 @@ admin.site.register(Instrument, InstrumentAdmin)
 admin.site.register(Request, RequestAdmin)
 admin.site.register(Slot, SlotAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Department, DepartmentAdmin)
 admin.site.register(UserDetail)
 admin.site.register(FTIR)
 admin.site.register(FESEM)

@@ -75,9 +75,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return "{} ({})".format(self.name, self.email[: self.email.find("@")].lower())
 
 
+class Department(CustomUser):
+    default_role = CustomUser.Role.DEPARTMENT
+
+    class Meta:
+        verbose_name = "Department"
+        default_related_name = "departments"
+
+
 class Faculty(CustomUser):
     default_role = CustomUser.Role.FACULTY
-    department = models.CharField(max_length=20, null=True)
+    department = models.ForeignKey(Department, on_delete=models.PROTECT, null=True)
     balance = models.IntegerField(default=0)
 
     class Meta:
