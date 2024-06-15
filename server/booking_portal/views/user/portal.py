@@ -1,14 +1,9 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, ButtonHolder, Submit
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django_filters import (
-    FilterSet,
-    DateFilter,
-    OrderingFilter,
-)
+from crispy_forms.layout import ButtonHolder, Layout, Submit
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django_filters import DateFilter, FilterSet, OrderingFilter
 
-from ... import models
-from ... import forms
+from ... import forms, models
 
 
 def get_pagintion_nav_range(page_obj):
@@ -76,7 +71,7 @@ class BasePortalFilter(FilterSet):
             return paginator.page(paginator.num_pages)
 
     class Meta:
-        model = models.Request
+        model = models.StudentRequest
         fields = {
             "status": ["exact"],
             "instrument": ["exact"],

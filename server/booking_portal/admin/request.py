@@ -1,8 +1,6 @@
 from django.contrib import admin
 from rangefilter.filter import DateRangeFilter
 
-from ..models import Request
-
 
 class RequestAdmin(admin.ModelAdmin):
     list_filter = (

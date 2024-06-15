@@ -5,7 +5,14 @@ from django.http import Http404
 from django.shortcuts import render
 
 from ..config import view_application_dict
-from ..models import Department, Faculty, LabAssistant, Request, Student, UserDetail
+from ..models import (
+    Department,
+    Faculty,
+    LabAssistant,
+    Student,
+    StudentRequest,
+    UserDetail,
+)
 from ..permissions import get_user_type, is_faculty, is_lab_assistant
 
 
@@ -36,7 +43,7 @@ def show_application(request, id):
     """Displays application details of a user.
     Can be accessed from the Requests Page"""
     try:
-        request_obj: Request = Request.objects.get(id=id)
+        request_obj: StudentRequest = StudentRequest.objects.get(id=id)
     except Exception:
         raise Http404()
     content_object = cast(UserDetail, request_obj.content_object)
@@ -95,7 +102,7 @@ def add_remarks(request, id):
     :returns
         HttpResponse object from `show_applicaton` view"""
     try:
-        request_obj = Request.objects.get(id=id)
+        request_obj = StudentRequest.objects.get(id=id)
     except Exception:
         raise Http404()
     content_object = request_obj.content_object

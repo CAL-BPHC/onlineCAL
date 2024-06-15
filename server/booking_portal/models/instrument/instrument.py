@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from ..request import Request
+from ..request import StudentRequest
 from ..slot import Slot
 
 
@@ -21,11 +21,11 @@ class InstrumentManager(models.Manager):
         writer.writeheader()
 
         for instr in instruments:
-            requests = Request.objects.filter(
+            requests = StudentRequest.objects.filter(
                 instrument=instr,
                 slot__date__gte=start_date,
                 slot__date__lte=end_date,
-                status=Request.APPROVED,
+                status=StudentRequest.APPROVED,
             ).select_related("slot")
             approved_count = requests.count()
 
@@ -88,8 +88,8 @@ def handle_requests(sender, instance, **kwargs):
             date__gte=datetime.datetime.today(),
         )
 
-        req_objects = Request.objects.filter(
-            ~(Q(status=Request.REJECTED) | Q(status=Request.CANCELLED)),
+        req_objects = StudentRequest.objects.filter(
+            ~(Q(status=StudentRequest.REJECTED) | Q(status=StudentRequest.CANCELLED)),
             instrument=instance,
             slot__date__gte=datetime.datetime.today(),
         )
@@ -99,7 +99,7 @@ def handle_requests(sender, instance, **kwargs):
             slot.save()
 
         for req in req_objects:
-            req.status = Request.CANCELLED
+            req.status = StudentRequest.CANCELLED
 
             previous_remarks = req.content_object.lab_assistant_remarks
             new_remarks = (

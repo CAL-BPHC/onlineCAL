@@ -15,7 +15,7 @@ from .portal import BasePortalFilter
 def faculty_portal(request):
     f = BasePortalFilter(
         request.GET,
-        queryset=models.Request.objects.filter(faculty=request.user)
+        queryset=models.StudentRequest.objects.filter(faculty=request.user)
         .select_related("slot")
         .order_by("-slot__date"),
     )
@@ -31,7 +31,7 @@ def faculty_portal(request):
             "filter_form": f.form,
             "user_type": "faculty",
             "user_is_student": False,
-            "modifiable_request_status": models.Request.WAITING_FOR_FACULTY,
+            "modifiable_request_status": models.StudentRequest.WAITING_FOR_FACULTY,
             "balance": faculty.balance,
             "department": faculty.department,
         },
@@ -44,8 +44,10 @@ def faculty_request_accept(request, id):
     if request.method == "POST":
         try:
             with transaction.atomic():
-                request_object: models.Request = models.Request.objects.get(
-                    id=id, status=models.Request.WAITING_FOR_FACULTY
+                request_object: models.StudentRequest = (
+                    models.StudentRequest.objects.get(
+                        id=id, status=models.StudentRequest.WAITING_FOR_FACULTY
+                    )
                 )
                 needs_department_approval = request.POST.get("departmentRoute", False)
                 faculty = request_object.faculty
@@ -58,9 +60,13 @@ def faculty_request_accept(request, id):
                             )
                             return redirect("faculty_portal")
                         request_object.needs_department_approval = True
-                        request_object.status = models.Request.WAITING_FOR_DEPARTMENT
+                        request_object.status = (
+                            models.StudentRequest.WAITING_FOR_DEPARTMENT
+                        )
                     else:
-                        request_object.status = models.Request.WAITING_FOR_LAB_ASST
+                        request_object.status = (
+                            models.StudentRequest.WAITING_FOR_LAB_ASST
+                        )
                         faculty.balance -= request_object.total_cost
                     request_object.lab_assistant = random.choice(
                         models.LabAssistant.objects.filter(is_active=True)
@@ -82,12 +88,12 @@ def faculty_request_accept(request, id):
 def faculty_request_reject(request, id):
     try:
         with transaction.atomic():
-            request_object = models.Request.objects.get(
-                id=id, status=models.Request.WAITING_FOR_FACULTY
+            request_object = models.StudentRequest.objects.get(
+                id=id, status=models.StudentRequest.WAITING_FOR_FACULTY
             )
             faculty = request_object.faculty
             if faculty == models.Faculty.objects.get(id=request.user.id):
-                request_object.status = models.Request.REJECTED
+                request_object.status = models.StudentRequest.REJECTED
                 request_object.save()
                 return redirect("faculty_portal")
             else:

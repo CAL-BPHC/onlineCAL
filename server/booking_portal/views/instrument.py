@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from ..config import form_template_dict
 from ..forms.portal import InstrumentList
-from ..models import Faculty, Instrument, Request, Slot, Student
+from ..models import Faculty, Instrument, Slot, Student, StudentRequest
 from ..permissions import is_student
 
 
@@ -11,4 +11,6 @@ from ..permissions import is_student
 @user_passes_test(is_student)
 def instrument_list(request):
     form = InstrumentList()
-    return render(request, 'booking_portal/portal_forms/instrument_list.html', {'form': form})
+    return render(
+        request, "booking_portal/portal_forms/instrument_list.html", {"form": form}
+    )

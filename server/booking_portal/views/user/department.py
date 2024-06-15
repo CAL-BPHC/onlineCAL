@@ -12,7 +12,7 @@ from .portal import BasePortalFilter
 def department_portal(request):
     f = BasePortalFilter(
         request.GET,
-        queryset=models.Request.objects.filter(faculty__department=request.user)
+        queryset=models.StudentRequest.objects.filter(faculty__department=request.user)
         .select_related("slot")
         .order_by("-slot__date"),
     )
@@ -26,7 +26,7 @@ def department_portal(request):
             "filter_form": f.form,
             "user_type": "department",
             "user_is_student": False,
-            "modifiable_request_status": models.Request.WAITING_FOR_DEPARTMENT,
+            "modifiable_request_status": models.StudentRequest.WAITING_FOR_DEPARTMENT,
         },
     )
 
@@ -36,12 +36,12 @@ def department_portal(request):
 def department_accept(request, id):
     try:
         with transaction.atomic():
-            request_object: models.Request = models.Request.objects.get(
-                id=id, status=models.Request.WAITING_FOR_DEPARTMENT
+            request_object: models.StudentRequest = models.StudentRequest.objects.get(
+                id=id, status=models.StudentRequest.WAITING_FOR_DEPARTMENT
             )
             department = models.Department.objects.get(id=request.user.id)
             if department == request_object.faculty.department:
-                request_object.status = models.Request.WAITING_FOR_LAB_ASST
+                request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
                 department.balance -= request_object.total_cost
                 department.save()
                 request_object.save()
@@ -57,12 +57,12 @@ def department_accept(request, id):
 def department_reject(request, id):
     try:
         with transaction.atomic():
-            request_object = models.Request.objects.get(
-                id=id, status=models.Request.WAITING_FOR_DEPARTMENT
+            request_object = models.StudentRequest.objects.get(
+                id=id, status=models.StudentRequest.WAITING_FOR_DEPARTMENT
             )
             department = request_object.faculty.department
             if department == models.Department.objects.get(id=request.user.id):
-                request_object.status = models.Request.REJECTED
+                request_object.status = models.StudentRequest.REJECTED
                 request_object.save()
                 return redirect("department_portal")
             else:

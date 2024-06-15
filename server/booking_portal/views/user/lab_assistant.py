@@ -13,7 +13,8 @@ from .portal import BasePortalFilter, get_pagintion_nav_range
 @user_passes_test(permissions.is_lab_assistant)
 def lab_assistant_portal(request):
     f = BasePortalFilter(
-        request.GET, queryset=models.Request.objects.order_by("-slot__date", "-pk")
+        request.GET,
+        queryset=models.StudentRequest.objects.order_by("-slot__date", "-pk"),
     )
     page_obj = f.paginate()
 
@@ -26,7 +27,7 @@ def lab_assistant_portal(request):
             "filter_form": f.form,
             "user_type": "assistant",
             "user_is_student": False,
-            "modifiable_request_status": models.Request.WAITING_FOR_LAB_ASST,
+            "modifiable_request_status": models.StudentRequest.WAITING_FOR_LAB_ASST,
         },
     )
 
@@ -36,13 +37,13 @@ def lab_assistant_portal(request):
 def lab_assistant_accept(request, id):
     try:
         with transaction.atomic():
-            request_object = models.Request.objects.get(
-                id=id, status=models.Request.WAITING_FOR_LAB_ASST
+            request_object = models.StudentRequest.objects.get(
+                id=id, status=models.StudentRequest.WAITING_FOR_LAB_ASST
             )
             request_object.lab_assistant = models.LabAssistant.objects.get(
                 id=request.user.id
             )
-            request_object.status = models.Request.APPROVED
+            request_object.status = models.StudentRequest.APPROVED
             request_object.save()
             return redirect("lab_assistant")
     except Exception:
@@ -55,8 +56,8 @@ def lab_assistant_accept(request, id):
 def lab_assistant_reject(request, id):
     try:
         with transaction.atomic():
-            request_object: models.Request = models.Request.objects.get(
-                id=id, status=models.Request.WAITING_FOR_LAB_ASST
+            request_object: models.StudentRequest = models.StudentRequest.objects.get(
+                id=id, status=models.StudentRequest.WAITING_FOR_LAB_ASST
             )
             if request_object.needs_department_approval:
                 department = cast(models.Department, request_object.faculty.department)
@@ -72,7 +73,7 @@ def lab_assistant_reject(request, id):
                     id=request.user.id
                 )
                 faculty.save()
-            request_object.status = models.Request.REJECTED
+            request_object.status = models.StudentRequest.REJECTED
             request_object.save()
             return redirect("lab_assistant")
     except Exception:

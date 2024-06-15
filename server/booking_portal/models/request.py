@@ -15,7 +15,7 @@ from .slot import Slot
 from .user import Faculty, LabAssistant, Student
 
 
-class RequestManager(models.Manager):
+class StudentRequestManager(models.Manager):
     def create_request(self, form_instance, slot_id, student):
         with transaction.atomic():
             slot, instr = Slot.objects.get_instr_from_slot_id(slot_id, True)
@@ -25,7 +25,7 @@ class RequestManager(models.Manager):
             if not slot.is_available_for_booking():
                 raise ValueError("Slot is not available for booking.")
 
-            if Request.objects.has_student_booked_upcoming_instrument_slot(
+            if StudentRequest.objects.has_student_booked_upcoming_instrument_slot(
                 instr, student
             ):
                 raise ValueError("Upcoming slot for instrument already booked.")
@@ -36,7 +36,7 @@ class RequestManager(models.Manager):
                 faculty=student.supervisor,
                 instrument=instr,
                 slot=slot,
-                status=Request.WAITING_FOR_FACULTY,
+                status=StudentRequest.WAITING_FOR_FACULTY,
                 content_object=form_saved,
             )
             slot.update_status(Slot.STATUS_2)
@@ -44,11 +44,11 @@ class RequestManager(models.Manager):
     @staticmethod
     def has_student_booked_upcoming_instrument_slot(instr, student, date=now().date()):
         """Check if a student has booked an upcoming slot for an instrument"""
-        return Request.objects.filter(
+        return StudentRequest.objects.filter(
             ~(
-                Q(status=Request.REJECTED)
-                | Q(status=Request.CANCELLED)
-                | Q(status=Request.APPROVED)
+                Q(status=StudentRequest.REJECTED)
+                | Q(status=StudentRequest.CANCELLED)
+                | Q(status=StudentRequest.APPROVED)
             ),
             instrument=instr,
             student=student,
@@ -56,7 +56,7 @@ class RequestManager(models.Manager):
         ).exists()
 
 
-class Request(models.Model):
+class StudentRequest(models.Model):
     WAITING_FOR_FACULTY = "R1"
     WAITING_FOR_LAB_ASST = "R2"
     APPROVED = "R3"
@@ -73,7 +73,7 @@ class Request(models.Model):
         (WAITING_FOR_DEPARTMENT, "Waiting for department approval"),
     ]
 
-    objects: RequestManager = RequestManager()
+    objects: StudentRequestManager = StudentRequestManager()
 
     student = models.ForeignKey(Student, on_delete=models.PROTECT)
     faculty = models.ForeignKey(Faculty, on_delete=models.PROTECT)
@@ -102,11 +102,11 @@ class Request(models.Model):
 
     def update_status(self, status):
         assert status in (
-            Request.WAITING_FOR_FACULTY,
-            Request.WAITING_FOR_LAB_ASST,
-            Request.APPROVED,
-            Request.REJECTED,
-            Request.CANCELLED,
+            StudentRequest.WAITING_FOR_FACULTY,
+            StudentRequest.WAITING_FOR_LAB_ASST,
+            StudentRequest.APPROVED,
+            StudentRequest.REJECTED,
+            StudentRequest.CANCELLED,
         )
         self.status = status
         self.save(update_fields=["status"])
@@ -115,10 +115,10 @@ class Request(models.Model):
         return "Request: {}".format(self.slot)
 
 
-@receiver(signal=post_save, sender=Request)
+@receiver(signal=post_save, sender=StudentRequest)
 def send_email_after_save(sender, instance, **kwargs):
     slot = Slot.objects.get(id=instance.slot.id)
-    if instance.status == Request.WAITING_FOR_FACULTY:
+    if instance.status == StudentRequest.WAITING_FOR_FACULTY:
         slot.update_status(Slot.STATUS_2)
         subject = "Waiting for Faculty Approval"
         text = render_to_string(
@@ -159,7 +159,7 @@ def send_email_after_save(sender, instance, **kwargs):
             },
         )
         instance.student.send_email(subject, text, text_html)
-    elif instance.status == Request.WAITING_FOR_DEPARTMENT:
+    elif instance.status == StudentRequest.WAITING_FOR_DEPARTMENT:
         subject = "Waiting for Department Approval"
         text = render_to_string(
             "email/department_pending.txt",
@@ -182,7 +182,7 @@ def send_email_after_save(sender, instance, **kwargs):
             },
         )
         instance.faculty.department.send_email(subject, text, text_html)
-    elif instance.status == Request.WAITING_FOR_LAB_ASST:
+    elif instance.status == StudentRequest.WAITING_FOR_LAB_ASST:
         subject = "Waiting for Lab Assistant Approval"
         text = render_to_string(
             "email/lab_assistant_pending.txt",
@@ -205,7 +205,7 @@ def send_email_after_save(sender, instance, **kwargs):
             },
         )
         instance.lab_assistant.send_email(subject, text, text_html)
-    elif instance.status == Request.APPROVED:
+    elif instance.status == StudentRequest.APPROVED:
         slot.update_status(Slot.STATUS_3)
         subject = "Lab Booking Approved"
         text = render_to_string(
@@ -223,8 +223,11 @@ def send_email_after_save(sender, instance, **kwargs):
             },
         )
         instance.student.send_email(subject, text, text_html)
-    elif instance.status == Request.REJECTED or instance.status == Request.CANCELLED:
-        if instance.status == Request.REJECTED:
+    elif (
+        instance.status == StudentRequest.REJECTED
+        or instance.status == StudentRequest.CANCELLED
+    ):
+        if instance.status == StudentRequest.REJECTED:
             slot.update_status(Slot.STATUS_1)
             subject = "Lab Booking Rejected"
         else:

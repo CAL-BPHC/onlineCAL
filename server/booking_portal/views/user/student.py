@@ -1,4 +1,5 @@
 from typing import cast
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
@@ -6,11 +7,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-
+from ... import config, permissions
+from ...models import Instrument, Slot, Student, StudentRequest
 from .portal import BasePortalFilter
-from ... import config
-from ... import permissions
-from ...models import Slot, Request, Student, Instrument
 
 
 @login_required
@@ -18,7 +17,7 @@ from ...models import Slot, Request, Student, Instrument
 def student_portal(request):
     f = BasePortalFilter(
         request.GET,
-        queryset=Request.objects.filter(student=request.user)
+        queryset=StudentRequest.objects.filter(student=request.user)
         .select_related("slot")
         .order_by("-slot__date"),
     )
@@ -63,7 +62,7 @@ def book_machine(request, instr_id):
         "instrument_verbose_name": form_model_class._meta.verbose_name,
         "form_notes": form_class.help_text,
         "user_type": "student",
-        "status": Request.WAITING_FOR_FACULTY,
+        "status": StudentRequest.WAITING_FOR_FACULTY,
     }
 
     if request.method == "GET":
@@ -78,7 +77,9 @@ def book_machine(request, instr_id):
             messages.error(request, "Sorry, This slot is not available anymore.")
             return HttpResponseRedirect(reverse("instrument-list"))
 
-        if Request.objects.has_student_booked_upcoming_instrument_slot(instr, student):
+        if StudentRequest.objects.has_student_booked_upcoming_instrument_slot(
+            instr, student
+        ):
             messages.error(
                 request, "You already have an ongoing application for this machine."
             )
@@ -114,7 +115,7 @@ def book_machine(request, instr_id):
             )
 
         try:
-            Request.objects.create_request(form, slot_id, student)
+            StudentRequest.objects.create_request(form, slot_id, student)
             messages.success(request, "Slot booked successfully.")
             return HttpResponseRedirect(reverse("student"))
         except (ObjectDoesNotExist, ValueError) as e:
