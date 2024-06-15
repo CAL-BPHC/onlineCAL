@@ -1,3 +1,5 @@
+from typing import cast
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,8 +10,9 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 
+from .instrument.requests import UserDetail
 from .slot import Slot
-from .user import Student, Faculty, LabAssistant
+from .user import Faculty, LabAssistant, Student
 
 
 class RequestManager(models.Manager):
@@ -89,7 +92,10 @@ class Request(models.Model):
 
     @property
     def total_cost(self):
-        return self.instrument.cost_per_sample * self.content_object.number_of_samples
+        return (
+            self.instrument.cost_per_sample
+            * cast(UserDetail, self.content_object).number_of_samples
+        )
 
     def update_status(self, status):
         assert status in (
