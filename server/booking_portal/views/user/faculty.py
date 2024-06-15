@@ -1,5 +1,6 @@
 import random
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
@@ -32,6 +33,7 @@ def faculty_portal(request):
             "user_is_student": False,
             "modifiable_request_status": models.Request.WAITING_FOR_FACULTY,
             "balance": faculty.balance,
+            "department": faculty.department,
         },
     )
 
@@ -50,10 +52,11 @@ def faculty_request_accept(request, id):
                 if faculty == models.Faculty.objects.get(id=request.user.id):
                     if needs_department_approval:
                         if not faculty.department:
-                            # TODO: Handle if no department is present
-                            raise NotImplementedError(
-                                "Handle if department is not present."
+                            messages.error(
+                                request,
+                                "You need to be assigned to a department to request department approval",
                             )
+                            return redirect("faculty_portal")
                         request_object.needs_department_approval = True
                         request_object.status = models.Request.WAITING_FOR_DEPARTMENT
                     else:

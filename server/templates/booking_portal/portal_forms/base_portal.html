@@ -95,8 +95,11 @@
                                 <p><b>Note: In case your balance becomes negative, the request is still accepted.</b></p>
                                 <form action="{% url "faculty_request_accept" request.id %}" method="post">
                                   {% csrf_token %}
+                                  {% if not department %}
+                                    Your account is not associated with any department. You cannot route this request to the department.
+                                  {% endif %}
                                   <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="departmentRoute" name="departmentRoute">
+                                    <input class="form-check-input" type="checkbox" id="departmentRoute" name="departmentRoute" {% if not department %} disabled {% endif %}>
                                     <label for="departmentRoute" class="form-check-label">
                                       I want to route this request to the department for further approval.
                                     </label>
