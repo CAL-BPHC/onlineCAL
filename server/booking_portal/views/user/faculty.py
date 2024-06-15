@@ -2,12 +2,11 @@ import random
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
-from django.http import Http404, HttpResponse
-from django.shortcuts import render, redirect
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect, render
 
-
-from .portal import BasePortalFilter
 from ... import models, permissions
+from .portal import BasePortalFilter
 
 
 @login_required
@@ -40,26 +39,41 @@ def faculty_portal(request):
 @login_required
 @user_passes_test(permissions.is_faculty)
 def faculty_request_accept(request, id):
-    try:
-        with transaction.atomic():
-            request_object: models.Request = models.Request.objects.get(
-                id=id, status=models.Request.WAITING_FOR_FACULTY
-            )
-            faculty = request_object.faculty
-            if faculty == models.Faculty.objects.get(id=request.user.id):
-                request_object.status = models.Request.WAITING_FOR_LAB_ASST
-                request_object.lab_assistant = random.choice(
-                    models.LabAssistant.objects.filter(is_active=True)
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                request_object: models.Request = models.Request.objects.get(
+                    id=id, status=models.Request.WAITING_FOR_FACULTY
                 )
-                faculty.balance -= request_object.total_cost
-                request_object.save()
-                faculty.save()
-                return redirect("faculty_portal")
-            else:
-                return HttpResponse("Bad Request")
-    except Exception as e:
-        print(e)
-        raise Http404("Page Not Found")
+                needs_department_approval = request.POST.get("departmentRoute", False)
+                faculty = request_object.faculty
+                if faculty == models.Faculty.objects.get(id=request.user.id):
+                    if needs_department_approval:
+                        request_object.status = models.Request.WAITING_FOR_DEPARTMENT
+                        if faculty.department:
+                            faculty.department.balance -= request_object.total_cost
+                            faculty.department.save()
+                        else:
+                            # TODO: Handle if no department is present
+                            raise NotImplementedError(
+                                "Handle if department is not present."
+                            )
+                    else:
+                        request_object.status = models.Request.WAITING_FOR_LAB_ASST
+                        faculty.balance -= request_object.total_cost
+                    request_object.lab_assistant = random.choice(
+                        models.LabAssistant.objects.filter(is_active=True)
+                    )
+                    request_object.save()
+                    faculty.save()
+                    return redirect("faculty_portal")
+                else:
+                    return HttpResponse("Bad Request")
+        except Exception as e:
+            print(e)
+            raise Http404("Page Not Found")
+    else:
+        return HttpResponseBadRequest("Method not allowed")
 
 
 @login_required

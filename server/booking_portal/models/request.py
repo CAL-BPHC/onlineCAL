@@ -62,6 +62,7 @@ class Request(models.Model):
     APPROVED = "R3"
     REJECTED = "R4"
     CANCELLED = "R5"
+    WAITING_FOR_DEPARTMENT = "R6"
 
     STATUS_CHOICES = [
         (WAITING_FOR_FACULTY, "Waiting for faculty approval."),
@@ -69,6 +70,7 @@ class Request(models.Model):
         (APPROVED, "Approved"),
         (REJECTED, "Rejected"),
         (CANCELLED, "Cancelled"),
+        (WAITING_FOR_DEPARTMENT, "Waiting for department approval"),
     ]
 
     objects: RequestManager = RequestManager()
