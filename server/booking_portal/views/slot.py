@@ -6,11 +6,11 @@ from django.urls import reverse
 
 from ..forms.portal import InstrumentList, SlotList
 from ..models import StudentRequest
-from ..permissions import is_student
+from ..permissions import is_faculty, is_student
 
 
 @login_required
-@user_passes_test(is_student)
+@user_passes_test(lambda u: is_student(u) or is_faculty(u))
 def slot_list(request):
     if not request.method == "POST":
         messages.error(request, "Bad Request")

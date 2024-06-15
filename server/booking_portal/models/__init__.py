@@ -1,5 +1,6 @@
 from .announcement import Announcement
 from .email import EmailModel
+from .faculty_request import FacultyRequest
 from .instrument import *
 from .manager import CustomUserManager
 from .request import StudentRequest
