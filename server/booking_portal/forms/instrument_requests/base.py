@@ -1,7 +1,7 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 
-from booking_portal.models import UserDetail, UserRemark
-from booking_portal.models import Faculty, Student, CustomUser
+from booking_portal.models import CustomUser, Faculty, Student, UserDetail, UserRemark
 
 
 class MyModelChoiceField(forms.ModelChoiceField):
@@ -31,6 +31,7 @@ class UserDetailsForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
+        is_faculty = kwargs.pop("is_faculty", False)
         super(UserDetailsForm, self).__init__(*args, **kwargs)
         self.fields["user_name"].widget.attrs["disabled"] = True
         self.fields["sup_name"].widget.attrs["disabled"] = True
@@ -38,6 +39,28 @@ class UserDetailsForm(forms.ModelForm):
         self.fields["date"].widget.attrs["disabled"] = True
         self.fields["duration"].widget.attrs["readonly"] = True
         self.fields["sup_dept"].widget.attrs["readonly"] = True
+        self.initial["user_type"] = ContentType.objects.get_for_model(Student).id
+
+        if is_faculty:
+            self.fields["user_name"].queryset = Faculty.objects.all()
+            self.fields["needs_department_approval"] = forms.BooleanField(
+                label="I need to route this through my department", required=False
+            )
+
+            self.fields.pop("sup_name", None)
+            self.fields.pop("sup_dept", None)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.cleaned_data["user_name"]:
+            if Faculty.objects.filter(pk=self.cleaned_data["user_name"].pk).exists():
+                instance.user_type = ContentType.objects.get_for_model(Faculty)
+            else:
+                instance.user_type = ContentType.objects.get_for_model(Student)
+            instance.user_id = self.cleaned_data["user_name"].pk
+        if commit:
+            instance.save()
+        return instance
 
     class Meta:
         model = UserDetail

@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from ... import config, permissions
-from ...models import Instrument, Slot, Student, StudentRequest
+from ...models import Faculty, FacultyRequest, Instrument, Slot, Student, StudentRequest
 from .portal import BasePortalFilter
 
 
@@ -36,17 +36,7 @@ def student_portal(request):
     )
 
 
-@login_required
-@user_passes_test(permissions.is_student)
-def book_machine(request, instr_id):
-    """View for booking machine"""
-
-    # Retrieve form/form_model from template_dict
-    form_class, form_model_class = config.form_template_dict.get(instr_id, (None, None))
-    if not form_class or not form_model_class:
-        messages.error(request, "Bad Request")
-        return HttpResponseRedirect(reverse("instrument-list"))
-
+def book_machine_student(request, form_class, form_model_class):
     slot_id = request.GET.get("slots", None)
     if not slot_id:
         messages.error(request, "Bad Request")
@@ -123,6 +113,102 @@ def book_machine(request, instr_id):
             messages.error(
                 request,
                 f"Could not proccess your request, please try again. ({str(e)})",
+            )
+            return HttpResponseRedirect(reverse("instrument-list"))
+    else:
+        messages.error(request, "Bad Request")
+        return HttpResponseRedirect("/")
+
+
+@login_required
+@user_passes_test(lambda u: permissions.is_student(u) or permissions.is_faculty(u))
+def book_machine(request, instr_id):
+    """View for booking machine"""
+
+    is_student = permissions.is_student(request.user)
+    # Retrieve form/form_model from template_dict
+    form_class, form_model_class = config.form_template_dict.get(instr_id, (None, None))
+    if not form_class or not form_model_class:
+        messages.error(request, "Bad Request")
+        return HttpResponseRedirect(reverse("instrument-list"))
+
+    if is_student:
+        return book_machine_student(request, form_class, form_model_class)
+
+    slot_id = request.GET.get("slots", None)
+    if not slot_id:
+        messages.error(request, "Bad Request")
+        return HttpResponseRedirect(reverse("instrument-list"))
+
+    faculty = Faculty.objects.get(id=request.user.id)
+
+    default_context = {
+        "edit": True,
+        "instrument_title": form_class.title,
+        "instrument_subtitle": form_class.subtitle,
+        "instrument_verbose_name": form_model_class._meta.verbose_name,
+        "form_notes": form_class.help_text,
+        "user_type": "student",
+        "status": StudentRequest.WAITING_FOR_FACULTY,  # does not matter when edit is true
+    }
+
+    if request.method == "GET":
+        slot, instr = cast(
+            tuple[Slot, Instrument], Slot.objects.get_instr_from_slot_id(slot_id)
+        )
+        if not instr or not slot:
+            messages.error(request, "Invalid slot or instrument.")
+            return HttpResponseRedirect(reverse("instrument-list"))
+
+        if not slot.is_available_for_booking():
+            messages.error(request, "Sorry, This slot is not available anymore.")
+            return HttpResponseRedirect(reverse("instrument-list"))
+
+        if FacultyRequest.objects.has_faculty_booked_upcoming_instrument_slot(
+            instr, faculty
+        ):
+            messages.error(
+                request, "You already have an ongoing application for this machine."
+            )
+            return HttpResponseRedirect(reverse("instrument-list"))
+
+        # Render form with initial data
+        default_context["cost_per_sample"] = instr.cost_per_sample
+        return render(
+            request,
+            "booking_portal/instrument_form.html",
+            {
+                "form": form_class(
+                    initial={
+                        "user_name": faculty.id,
+                        "date": slot.date,
+                        "time": slot.start_time,
+                        "duration": slot.duration_verbose,
+                    },
+                    is_faculty=not is_student,
+                ),
+                **default_context,
+            },
+        )
+    elif request.method == "POST":
+        # Validate and process the form
+        form = form_class(request.POST, is_faculty=not is_student)
+        if not form.is_valid():
+            return render(
+                request,
+                "booking_portal/instrument_form.html",
+                {"form": form(is_faculty=not is_student), **default_context},
+            )
+
+        try:
+            FacultyRequest.objects.create_request(form, slot_id, faculty)
+            messages.success(request, "Slot booked successfully.")
+            return HttpResponseRedirect(reverse("index"))
+        except (ObjectDoesNotExist, ValueError) as e:
+            # \\n to escape Javascript
+            messages.error(
+                request,
+                f"Could not process your request, please try again. ({str(e)})",
             )
             return HttpResponseRedirect(reverse("instrument-list"))
     else:

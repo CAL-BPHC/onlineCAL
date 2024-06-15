@@ -1,17 +1,23 @@
 import calendar
 
-from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
+from django.db import models
 
 
 class UserDetail(models.Model):
-    user_name = models.ForeignKey("Student", on_delete=models.CASCADE)
+    # user_name = models.ForeignKey("Student", on_delete=models.CASCADE)
+    user_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    user_id = models.PositiveIntegerField(null=True)
+    user_name = GenericForeignKey("user_type", "user_id")
+
     phone_number = models.CharField(max_length=10)
     date = models.DateField()
     time = models.TimeField()
     duration = models.CharField(max_length=75)
-    sup_name = models.ForeignKey("Faculty", on_delete=models.CASCADE)
-    sup_dept = models.CharField(max_length=75)
+    sup_name = models.ForeignKey("Faculty", on_delete=models.CASCADE, null=True)
+    sup_dept = models.CharField(max_length=75, null=True)
     number_of_samples = models.IntegerField(validators=[MinValueValidator(1)])
     sample_from_outside = models.CharField(
         max_length=3, choices=[("Yes", "Yes"), ("No", "No")]

@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from ..models import (Announcement, CustomUser, Department, EmailModel,
                       Faculty, Instrument, LabAssistant, Slot, Student,
-                      StudentRequest)
+                      StudentRequest, FacultyRequest)
 from ..models.instrument.requests import *
 from .announcement import AnnouncementAdmin
 from .email import EmailAdmin
@@ -18,6 +18,7 @@ admin.site.register(EmailModel, EmailAdmin)
 admin.site.register(LabAssistant, LabAssistantAdmin)
 admin.site.register(Instrument, InstrumentAdmin)
 admin.site.register(StudentRequest, RequestAdmin)
+admin.site.register(FacultyRequest)
 admin.site.register(Slot, SlotAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Department, DepartmentAdmin)
