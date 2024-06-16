@@ -60,4 +60,5 @@ urlpatterns = [
     path("admin-portal/", views.admin_portal, name="admin_portal"),
     path("about-us/", views.about_us, name="about_us"),
     path("announcements/", views.announcements, name="announcements"),
+    path("profile", views.user_profile, name="profile"),
 ]

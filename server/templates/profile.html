@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card mt-5 shadow-sm" style="width: 30rem;box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <div class="card-header text-center">
+            <h2>Profile</h2>
+        </div>
+        <div class="card-body text-center">
+            {% if instance %}
+                <h5 class="card-title">{{ instance.name }}</h5>
+                <p class="card-text"><strong>Email:</strong> {{ instance.email }}</p>
+                <p class="card-text"><strong>Role:</strong> {{ user_type }}</p>
+                {% if user_type == 'faculty' %}
+                    <p class="card-text"><strong>Department:</strong> {{ instance.department.name }}</p>
+                    <p class="card-text"><strong>Balance:</strong> {{ instance.balance }}</p>
+                {% elif user_type == 'student' %}
+                    <p class="card-text"><strong>Supervisor:</strong> {{ instance.supervisor.name }}</p>
+                {% elif user_type == 'assistant' %}
+                    <p class="card-text"><strong>Role:</strong> Lab Assistant</p>
+                {% elif user_type == 'department' %}
+                    <p class="card-text"><strong>Balance:</strong> {{ instance.balance }}</p>
+                {% endif %}
+            {% else %}
+                <p class="card-text">No profile information available.</p>
+            {% endif %}
+              <p><b>If you need to correct any information above please contact us.</b></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

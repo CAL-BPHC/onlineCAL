@@ -17,5 +17,6 @@ from .lab_assistant import (
     lab_assistant_portal,
     lab_assistant_reject,
 )
+from .profile import user_profile
 from .student import book_machine, student_portal
 from .user import about_us, announcements, change_password
