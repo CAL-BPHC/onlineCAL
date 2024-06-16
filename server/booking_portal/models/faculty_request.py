@@ -117,98 +117,98 @@ class FacultyRequest(models.Model):
         return "Request: {}".format(self.slot)
 
 
-# @receiver(signal=post_save, sender=FacultyRequest)
-# def send_email_after_save(sender, instance, **kwargs):
-#     slot = Slot.objects.get(id=instance.slot.id)
-#     if instance.status == FacultyRequest.WAITING_FOR_DEPARTMENT:
-#         subject = "Waiting for Department Approval"
-#         text = render_to_string(
-#             "email/department_pending.txt",
-#             {
-#                 "receipent_name": instance.faculty.department.name,
-#                 "student_name": instance.student.name,
-#                 "instrument_name": instance.instrument.name,
-#                 "slot": instance.slot.description,
-#                 "faculty_name": instance.faculty.name,
-#             },
-#         )
-#         text_html = render_to_string(
-#             "email/department_pending.html",
-#             {
-#                 "receipent_name": instance.faculty.department.name,
-#                 "student_name": instance.student.name,
-#                 "instrument_name": instance.instrument.name,
-#                 "slot": instance.slot.description,
-#                 "faculty_name": instance.faculty.name,
-#             },
-#         )
-#         instance.faculty.department.send_email(subject, text, text_html)
-#     elif instance.status == FacultyRequest.WAITING_FOR_LAB_ASST:
-#         subject = "Waiting for Lab Assistant Approval"
-#         text = render_to_string(
-#             "email/lab_assistant_pending.txt",
-#             {
-#                 "receipent_name": instance.lab_assistant.name,
-#                 "student_name": instance.student.name,
-#                 "instrument_name": instance.instrument.name,
-#                 "faculty_name": instance.faculty.name,
-#                 "slot": instance.slot.description,
-#             },
-#         )
-#         text_html = render_to_string(
-#             "email/lab_assistant_pending.html",
-#             {
-#                 "receipent_name": instance.lab_assistant.name,
-#                 "student_name": instance.student.name,
-#                 "instrument_name": instance.instrument.name,
-#                 "faculty_name": instance.faculty.name,
-#                 "slot": instance.slot.description,
-#             },
-#         )
-#         instance.lab_assistant.send_email(subject, text, text_html)
-#     elif instance.status == FacultyRequest.APPROVED:
-#         slot.update_status(Slot.STATUS_3)
-#         subject = "Lab Booking Approved"
-#         text = render_to_string(
-#             "email/student_accepted.txt",
-#             {
-#                 "receipent_name": instance.student.name,
-#                 "slot": instance.slot.description,
-#             },
-#         )
-#         text_html = render_to_string(
-#             "email/student_accepted.html",
-#             {
-#                 "receipent_name": instance.student.name,
-#                 "slot": instance.slot.description,
-#             },
-#         )
-#         instance.student.send_email(subject, text, text_html)
-#     elif (
-#         instance.status == FacultyRequest.REJECTED
-#         or instance.status == FacultyRequest.CANCELLED
-#     ):
-#         if instance.status == FacultyRequest.REJECTED:
-#             slot.update_status(Slot.STATUS_1)
-#             subject = "Lab Booking Rejected"
-#         else:
-#             subject = "Lab Booking Cancelled"
-#         text = render_to_string(
-#             "email/student_rejected.txt",
-#             {
-#                 "receipent_name": instance.student.name,
-#                 "slot": instance.slot.description,
-#                 "faculty_remarks": instance.content_object.faculty_remarks,
-#                 "lab_assistant_remarks": instance.content_object.lab_assistant_remarks,
-#             },
-#         )
-#         text_html = render_to_string(
-#             "email/student_rejected.html",
-#             {
-#                 "receipent_name": instance.student.name,
-#                 "slot": instance.slot.description,
-#                 "faculty_remarks": instance.content_object.faculty_remarks,
-#                 "lab_assistant_remarks": instance.content_object.lab_assistant_remarks,
-#             },
-#         )
-#         instance.student.send_email(subject, text, text_html)
+@receiver(signal=post_save, sender=FacultyRequest)
+def send_email_after_save(sender, instance, **kwargs):
+    slot = Slot.objects.get(id=instance.slot.id)
+    if instance.status == FacultyRequest.WAITING_FOR_DEPARTMENT:
+        subject = "Waiting for Department Approval"
+        text = render_to_string(
+            "email/department_pending.txt",
+            {
+                "receipent_name": instance.faculty.department.name,
+                "student_name": instance.faculty.name,
+                "instrument_name": instance.instrument.name,
+                "slot": instance.slot.description,
+                "faculty_name": instance.faculty.name,
+            },
+        )
+        text_html = render_to_string(
+            "email/department_pending.html",
+            {
+                "receipent_name": instance.faculty.department.name,
+                "student_name": instance.faculty.name,
+                "instrument_name": instance.instrument.name,
+                "slot": instance.slot.description,
+                "faculty_name": instance.faculty.name,
+            },
+        )
+        instance.faculty.department.send_email(subject, text, text_html)
+    elif instance.status == FacultyRequest.WAITING_FOR_LAB_ASST:
+        subject = "Waiting for Lab Assistant Approval"
+        text = render_to_string(
+            "email/lab_assistant_pending.txt",
+            {
+                "receipent_name": instance.lab_assistant.name,
+                "student_name": instance.faculty.name,
+                "instrument_name": instance.instrument.name,
+                "faculty_name": instance.faculty.name,
+                "slot": instance.slot.description,
+            },
+        )
+        text_html = render_to_string(
+            "email/lab_assistant_pending.html",
+            {
+                "receipent_name": instance.lab_assistant.name,
+                "student_name": instance.faculty.name,
+                "instrument_name": instance.instrument.name,
+                "faculty_name": instance.faculty.name,
+                "slot": instance.slot.description,
+            },
+        )
+        instance.lab_assistant.send_email(subject, text, text_html)
+    elif instance.status == FacultyRequest.APPROVED:
+        slot.update_status(Slot.STATUS_3)
+        subject = "Lab Booking Approved"
+        text = render_to_string(
+            "email/student_accepted.txt",
+            {
+                "receipent_name": instance.faculty.name,
+                "slot": instance.slot.description,
+            },
+        )
+        text_html = render_to_string(
+            "email/student_accepted.html",
+            {
+                "receipent_name": instance.faculty.name,
+                "slot": instance.slot.description,
+            },
+        )
+        instance.student.send_email(subject, text, text_html)
+    elif (
+        instance.status == FacultyRequest.REJECTED
+        or instance.status == FacultyRequest.CANCELLED
+    ):
+        if instance.status == FacultyRequest.REJECTED:
+            slot.update_status(Slot.STATUS_1)
+            subject = "Lab Booking Rejected"
+        else:
+            subject = "Lab Booking Cancelled"
+        text = render_to_string(
+            "email/student_rejected.txt",
+            {
+                "receipent_name": instance.faculty.name,
+                "slot": instance.slot.description,
+                "faculty_remarks": instance.content_object.faculty_remarks,
+                "lab_assistant_remarks": instance.content_object.lab_assistant_remarks,
+            },
+        )
+        text_html = render_to_string(
+            "email/student_rejected.html",
+            {
+                "receipent_name": instance.faculty.name,
+                "slot": instance.slot.description,
+                "faculty_remarks": instance.content_object.faculty_remarks,
+                "lab_assistant_remarks": instance.content_object.lab_assistant_remarks,
+            },
+        )
+        instance.student.send_email(subject, text, text_html)
