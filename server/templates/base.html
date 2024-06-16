@@ -39,6 +39,15 @@
         </li>
         <li class="nav-item active">
           {% if user_type == 'faculty' %}
+            <a class="nav-link" href="{% url 'faculty_request_portal' %}">My Requests<span class="sr-only"> (current)</span></a>
+          {% elif user_type == 'assistant' %}
+            <a class="nav-link" href="{% url 'lab_assistant_faculty_portal' %}">Faculty Requests<span class="sr-only"> (current)</span></a>
+          {% elif user_type == 'department' %}
+            <a class="nav-link" href="{% url 'department_faculty_portal' %}">Faculty Requests<span class="sr-only"> (current)</span></a>
+          {% endif %}
+        </li>
+        <li class="nav-item active">
+          {% if user_type == 'faculty' %}
             <a class="nav-link" href="{% url 'faculty_portal' %}">Student Requests<span class="sr-only"> (current)</span></a>
           {% elif user_type == 'student' %}
             <a class="nav-link" href="{% url 'student' %}">My Requests<span class="sr-only"> (current)</span></a>

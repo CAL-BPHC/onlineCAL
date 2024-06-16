@@ -203,7 +203,7 @@ def book_machine(request, instr_id):
         try:
             FacultyRequest.objects.create_request(form, slot_id, faculty)
             messages.success(request, "Slot booked successfully.")
-            return HttpResponseRedirect(reverse("index"))
+            return HttpResponseRedirect(reverse("faculty_request_portal"))
         except (ObjectDoesNotExist, ValueError) as e:
             # \\n to escape Javascript
             messages.error(

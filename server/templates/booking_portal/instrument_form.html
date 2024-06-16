@@ -15,6 +15,7 @@
         {% elif status == 'R3' %} Approved
         {% elif status == 'R4' %} Rejected
         {% elif status == 'R5' %} Cancelled
+        {% elif status == 'R6' %} Waiting for Department Approval
         {% endif %}
     </h6>
 </div>
@@ -23,7 +24,7 @@
 {% if edit %}
 <form action="" method="POST">
 {% elif user_type != 'student' %}
-<form action={% url 'add_remarks' id=id %} method="POST">
+<form action="{% url 'add_remarks' id=id %}{% if faculty_request %}?is_faculty=true{% endif %}" method="POST">
 {% endif%}
     <script>
         $('form').submit(function(e) {

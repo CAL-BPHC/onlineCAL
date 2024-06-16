@@ -40,6 +40,35 @@ def faculty_portal(request):
 
 @login_required
 @user_passes_test(permissions.is_faculty)
+def faculty_request_portal(request):
+    f = BasePortalFilter(
+        request.GET,
+        queryset=models.FacultyRequest.objects.filter(faculty=request.user)
+        .select_related("slot")
+        .order_by("-slot__date"),
+    )
+    page_obj = f.paginate()
+
+    faculty: models.Faculty = models.Faculty.objects.get(id=request.user.id)
+
+    return render(
+        request,
+        "booking_portal/portal_forms/base_portal.html",
+        {
+            "page_obj": page_obj,
+            "filter_form": f.form,
+            "user_type": "faculty",
+            "user_is_student": False,
+            "modifiable_request_status": None,
+            "balance": faculty.balance,
+            "department": faculty.department,
+            "faculty_request": True,
+        },
+    )
+
+
+@login_required
+@user_passes_test(permissions.is_faculty)
 def faculty_request_accept(request, id):
     if request.method == "POST":
         try:

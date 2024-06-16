@@ -35,7 +35,9 @@
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
+                    {% if not faculty_request %}
                     <th scope="col">Student Name</th>
+                    {% endif %}
                     <th scope="col">Faculty</th>
                     <th scope="col">Instrument</th>
                     <th scope="col">Slot</th>
@@ -52,7 +54,9 @@
                 {% for request in page_obj %}
                   <tr>
                     <th scope="row">{{ request.pk }}</th>
+                    {% if not faculty_request %}
                     <td>{{ request.student }}</td>
+                    {% endif %}
                     <td>{{ request.faculty }}</td>
                     <td>{{ request.instrument }}</td>
                     <td>{{ request.slot.description }}</td>
@@ -69,7 +73,7 @@
                     {% elif request.status == 'R6' %}
                       <td>Waiting for Department Approval</td>
                     {% endif %}
-                    <td><a href={% url 'view-application' id=request.id %} target="_blank"> View Application </a></td>
+                    <td><a href="{% url 'view-application' id=request.id %}{% if faculty_request %}?is_faculty=true{% endif %}" target="_blank"> View Application </a></td>
                     <td>{{ request.total_cost }}</td>
                     {% if not user_is_student %}
                       {% if request.status == modifiable_request_status %}
@@ -114,10 +118,10 @@
                           </div>
                         </div>
                       {% elif user_type == 'assistant' or user_type == 'department' %}
-                        <td><a href="/requests_{{ user_type }}/accept/{{request.id}}">
+                        <td><a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request %}?is_faculty=true{% endif %}">
                           <button type="button" class="btn btn-success">Accept</button>
                         </a></td>
-                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}">
+                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}{% if faculty_request %}?is_faculty=true{% endif %}">
                           <button type="button" class="btn btn-danger">Reject</button>
                         </a></td>
                       {% endif %}

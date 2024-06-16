@@ -1,8 +1,19 @@
 from .admin import admin_portal
-from .department import department_accept, department_portal, department_reject
-from .faculty import faculty_portal, faculty_request_accept, faculty_request_reject
+from .department import (
+    department_accept,
+    department_faculty_portal,
+    department_portal,
+    department_reject,
+)
+from .faculty import (
+    faculty_portal,
+    faculty_request_accept,
+    faculty_request_portal,
+    faculty_request_reject,
+)
 from .lab_assistant import (
     lab_assistant_accept,
+    lab_assistant_faculty_portal,
     lab_assistant_portal,
     lab_assistant_reject,
 )

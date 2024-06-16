@@ -30,12 +30,16 @@ class FacultyRequestManager(models.Manager):
             ):
                 raise ValueError("Upcoming slot for instrument already booked.")
 
+            status = FacultyRequest.WAITING_FOR_LAB_ASST
+            if form_instance.cleaned_data["needs_department_approval"]:
+                status = FacultyRequest.WAITING_FOR_DEPARTMENT
+
             form_saved = form_instance.save()
             self.create(
                 faculty=faculty,
                 instrument=instr,
                 slot=slot,
-                status=FacultyRequest.WAITING_FOR_LAB_ASST,
+                status=status,
                 content_object=form_saved,
                 needs_department_approval=form_instance.cleaned_data[
                     "needs_department_approval"

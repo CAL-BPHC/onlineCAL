@@ -9,9 +9,22 @@ urlpatterns = [
     path("instrument-list/", views.instrument_list, name="instrument-list"),
     path("view-slots/", views.slot_list, name="slot-list"),
     path("faculty/", views.faculty_portal, name="faculty_portal"),
+    path(
+        "faculty/requests", views.faculty_request_portal, name="faculty_request_portal"
+    ),
     path("lab-assistant/", views.lab_assistant_portal, name="lab_assistant"),
+    path(
+        "lab-assistant/faculty",
+        views.lab_assistant_faculty_portal,
+        name="lab_assistant_faculty_portal",
+    ),
     path("student/", views.student_portal, name="student"),
     path("department/", views.department_portal, name="department_portal"),
+    path(
+        "department/faculty",
+        views.department_faculty_portal,
+        name="department_faculty_portal",
+    ),
     path(
         "requests_faculty/accept/<int:id>",
         views.faculty_request_accept,
