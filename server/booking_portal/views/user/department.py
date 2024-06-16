@@ -12,7 +12,9 @@ from .portal import BasePortalFilter, get_pagintion_nav_range
 def department_portal(request):
     f = BasePortalFilter(
         request.GET,
-        queryset=models.StudentRequest.objects.filter(faculty__department=request.user)
+        queryset=models.StudentRequest.objects.filter(
+            faculty__department=request.user, needs_department_approval=True
+        )
         .select_related("slot")
         .order_by("-slot__date"),
     )
@@ -37,7 +39,9 @@ def department_portal(request):
 def department_faculty_portal(request):
     f = BasePortalFilter(
         request.GET,
-        queryset=models.FacultyRequest.objects.order_by("-slot__date", "-pk"),
+        queryset=models.FacultyRequest.objects.filter(
+            faculty__department=request.user, needs_department_approval=True
+        ).order_by("-slot__date", "-pk"),
     )
     page_obj = f.paginate()
 

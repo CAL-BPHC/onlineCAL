@@ -1,3 +1,4 @@
+import random
 from typing import cast
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -33,13 +34,21 @@ class FacultyRequestManager(models.Manager):
             status = FacultyRequest.WAITING_FOR_LAB_ASST
             if form_instance.cleaned_data["needs_department_approval"]:
                 status = FacultyRequest.WAITING_FOR_DEPARTMENT
-
+            else:
+                faculty.balance -= (
+                    form_instance.cleaned_data["number_of_samples"]
+                    * instr.cost_per_sample
+                )
+                faculty.save()
             form_saved = form_instance.save()
             self.create(
                 faculty=faculty,
                 instrument=instr,
                 slot=slot,
                 status=status,
+                lab_assistant=random.choice(
+                    LabAssistant.objects.filter(is_active=True)
+                ),
                 content_object=form_saved,
                 needs_department_approval=form_instance.cleaned_data[
                     "needs_department_approval"
@@ -183,7 +192,7 @@ def send_email_after_save(sender, instance, **kwargs):
                 "slot": instance.slot.description,
             },
         )
-        instance.student.send_email(subject, text, text_html)
+        instance.faculty.send_email(subject, text, text_html)
     elif (
         instance.status == FacultyRequest.REJECTED
         or instance.status == FacultyRequest.CANCELLED
@@ -211,4 +220,4 @@ def send_email_after_save(sender, instance, **kwargs):
                 "lab_assistant_remarks": instance.content_object.lab_assistant_remarks,
             },
         )
-        instance.student.send_email(subject, text, text_html)
+        instance.faculty.send_email(subject, text, text_html)
