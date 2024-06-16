@@ -18,8 +18,7 @@
                     <p class="card-text"><strong>Balance:</strong> {{ instance.balance }}</p>
                 {% elif user_type == 'student' %}
                     <p class="card-text"><strong>Supervisor:</strong> {{ instance.supervisor.name }}</p>
-                {% elif user_type == 'assistant' %}
-                    <p class="card-text"><strong>Role:</strong> Lab Assistant</p>
+                    <p class="card-text"><strong>Department:</strong> {{ instance.supervisor.department.name }}</p>
                 {% elif user_type == 'department' %}
                     <p class="card-text"><strong>Balance:</strong> {{ instance.balance }}</p>
                 {% endif %}
