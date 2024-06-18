@@ -14,6 +14,12 @@ class DepartmentAdmin(CustomUserAdmin):
         (None, {"classes": ("wide",), "fields": ("balance",)}),
     )
 
+    def has_add_permission(self, request) -> bool:
+        return request.user.is_staff
+
+    def has_change_permission(self, request, obj=None) -> bool:
+        return request.user.is_staff
+
     def get_user_type(self, request):
         return Department
 
