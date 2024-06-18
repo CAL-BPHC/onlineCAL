@@ -19,6 +19,7 @@ def department_portal(request):
         .order_by("-slot__date"),
     )
     page_obj = f.paginate()
+    department = models.Department.objects.get(id=request.user.id)
 
     return render(
         request,
@@ -29,6 +30,7 @@ def department_portal(request):
             "filter_form": f.form,
             "user_type": "department",
             "user_is_student": False,
+            "balance": department.balance,
             "modifiable_request_status": models.StudentRequest.WAITING_FOR_DEPARTMENT,
         },
     )
@@ -44,6 +46,7 @@ def department_faculty_portal(request):
         ).order_by("-slot__date", "-pk"),
     )
     page_obj = f.paginate()
+    department = models.Department.objects.get(id=request.user.id)
 
     return render(
         request,
@@ -53,6 +56,7 @@ def department_faculty_portal(request):
             "nav_range": get_pagintion_nav_range(page_obj),
             "filter_form": f.form,
             "user_type": "department",
+            "balance": department.balance,
             "user_is_student": False,
             "modifiable_request_status": models.FacultyRequest.WAITING_FOR_DEPARTMENT,
             "faculty_request": True,
