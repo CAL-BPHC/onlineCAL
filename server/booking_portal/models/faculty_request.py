@@ -34,12 +34,6 @@ class FacultyRequestManager(models.Manager):
             status = FacultyRequest.WAITING_FOR_LAB_ASST
             if form_instance.cleaned_data["needs_department_approval"]:
                 status = FacultyRequest.WAITING_FOR_DEPARTMENT
-            else:
-                faculty.balance -= (
-                    form_instance.cleaned_data["number_of_samples"]
-                    * instr.cost_per_sample
-                )
-                faculty.save()
             form_saved = form_instance.save()
             self.create(
                 faculty=faculty,

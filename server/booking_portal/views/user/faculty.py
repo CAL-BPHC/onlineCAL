@@ -87,7 +87,7 @@ def faculty_request_accept(request, id):
                                 request,
                                 "You need to be assigned to a department to request department approval",
                             )
-                            return redirect("faculty_portal")
+                            return redirect("instrument-list")
                         request_object.needs_department_approval = True
                         request_object.status = (
                             models.StudentRequest.WAITING_FOR_DEPARTMENT
@@ -96,12 +96,10 @@ def faculty_request_accept(request, id):
                         request_object.status = (
                             models.StudentRequest.WAITING_FOR_LAB_ASST
                         )
-                        faculty.balance -= request_object.total_cost
                     request_object.lab_assistant = random.choice(
                         models.LabAssistant.objects.filter(is_active=True)
                     )
                     request_object.save()
-                    faculty.save()
                     return redirect("faculty_portal")
                 else:
                     return HttpResponse("Bad Request")

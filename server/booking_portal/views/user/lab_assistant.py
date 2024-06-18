@@ -70,6 +70,16 @@ def lab_assistant_accept(request, id):
                 request_object = models.StudentRequest.objects.get(
                     id=id, status=models.StudentRequest.WAITING_FOR_LAB_ASST
                 )
+            if request_object.needs_department_approval:
+                print("here")
+                print(request_object.needs_department_approval)
+                department = cast(models.Department, request_object.faculty.department)
+                department.balance -= request_object.total_cost
+                department.save()
+            else:
+                faculty = request_object.faculty
+                faculty.balance -= request_object.total_cost
+                faculty.save()
             request_object.lab_assistant = models.LabAssistant.objects.get(
                 id=request.user.id
             )
@@ -99,20 +109,6 @@ def lab_assistant_reject(request, id):
                         id=id, status=models.StudentRequest.WAITING_FOR_LAB_ASST
                     )
                 )
-            if request_object.needs_department_approval:
-                department = cast(models.Department, request_object.faculty.department)
-                department.balance += request_object.total_cost
-                request_object.lab_assistant = models.LabAssistant.objects.get(
-                    id=request.user.id
-                )
-                department.save()
-            else:
-                faculty = request_object.faculty
-                faculty.balance += request_object.total_cost
-                request_object.lab_assistant = models.LabAssistant.objects.get(
-                    id=request.user.id
-                )
-                faculty.save()
             request_object.status = models.StudentRequest.REJECTED
             request_object.save()
             return redirect(

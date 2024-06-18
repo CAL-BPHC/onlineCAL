@@ -79,8 +79,6 @@ def department_accept(request, id):
             department = models.Department.objects.get(id=request.user.id)
             if department == request_object.faculty.department:
                 request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
-                department.balance -= request_object.total_cost
-                department.save()
                 request_object.save()
                 return redirect(
                     "department_faculty_portal" if is_faculty else "department_portal"
