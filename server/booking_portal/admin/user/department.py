@@ -32,3 +32,8 @@ class DepartmentAdmin(CustomUserAdmin):
             form.base_fields["role"].initial = CustomUser.Role.DEPARTMENT
             form.base_fields["role"].disabled = True
         return form
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ["balance"]
+        return super().get_readonly_fields(request, obj)
