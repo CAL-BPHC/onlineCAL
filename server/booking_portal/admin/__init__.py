@@ -1,16 +1,33 @@
 from django.contrib import admin
 
-from ..models import (Announcement, CustomUser, Department, EmailModel,
-                      Faculty, Instrument, LabAssistant, Slot, Student,
-                      StudentRequest, FacultyRequest)
+from booking_portal.models.user import BalanceTopUpLog
+
+from ..models import (
+    Announcement,
+    CustomUser,
+    Department,
+    EmailModel,
+    Faculty,
+    FacultyRequest,
+    Instrument,
+    LabAssistant,
+    Slot,
+    Student,
+    StudentRequest,
+)
 from ..models.instrument.requests import *
 from .announcement import AnnouncementAdmin
 from .email import EmailAdmin
 from .instrument import InstrumentAdmin
 from .request import RequestAdmin
 from .slot import SlotAdmin
-from .user import (CustomUserAdmin, DepartmentAdmin, FacultyAdmin,
-                   LabAssistantAdmin, StudentAdmin)
+from .user import (
+    CustomUserAdmin,
+    DepartmentAdmin,
+    FacultyAdmin,
+    LabAssistantAdmin,
+    StudentAdmin,
+)
 
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Faculty, FacultyAdmin)
@@ -60,3 +77,4 @@ admin.site.register(Fluoromax)
 admin.site.register(SpectraFluorimeter)
 admin.site.register(Ultracentrifuge)
 admin.site.register(Announcement, AnnouncementAdmin)
+admin.site.register(BalanceTopUpLog)

@@ -1,8 +1,10 @@
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import path
 
 from booking_portal.forms.admin import TopUpForm
+from booking_portal.models.user import BalanceTopUpLog
 
 from ...models import CustomUser, Department
 from .user import CustomUserAdmin
@@ -62,6 +64,14 @@ class DepartmentAdmin(CustomUserAdmin):
                 amount = form.cleaned_data["top_up_amount"]
                 department.balance += amount
                 department.save()
+                BalanceTopUpLog.objects.create(
+                    admin_user=request.user,
+                    top_up_amount=amount,
+                    content_type=ContentType.objects.get_for_model(
+                        department.__class__
+                    ),
+                    object_id=department.id,
+                )
                 self.message_user(
                     request, f"{department} balance topped up by {amount} successfully."
                 )

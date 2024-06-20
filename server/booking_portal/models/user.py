@@ -1,7 +1,11 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
+
 
 from .email import EmailModel
 from .manager import CustomUserManager
@@ -110,3 +114,19 @@ class LabAssistant(CustomUser):
     class Meta:
         verbose_name = "Lab Assistant"
         default_related_name = "labassistants"
+
+
+class BalanceTopUpLog(models.Model):
+    admin_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="admin_user"
+    )
+    top_up_amount = models.IntegerField()
+    date = models.DateTimeField(auto_now_add=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    recipient = GenericForeignKey("content_type", "object_id")
+
+    def __str__(self):
+        return (
+            f"{self.admin_user} - {self.top_up_amount} - {self.date} - {self.recipient}"
+        )
