@@ -1,0 +1,11 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="default">Submit</button>
+    <a type='button' href="{% url cancel_url %}">Cancel</a>
+</form>
+{% endblock %}

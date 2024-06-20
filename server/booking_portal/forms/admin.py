@@ -271,3 +271,7 @@ class InstrumentUsageReportForm(forms.Form):
             )
 
         return cleaned_data
+
+
+class TopUpForm(forms.Form):
+    top_up_amount = forms.IntegerField(label="Top Up Amount")

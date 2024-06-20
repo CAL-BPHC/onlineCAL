@@ -1,3 +1,9 @@
+from django.http import HttpRequest
+from django.shortcuts import redirect, render
+from django.urls import path
+
+from booking_portal.forms.admin import TopUpForm
+
 from ... import forms
 from ...models import CustomUser, Faculty
 from .user import CustomUserAdmin
@@ -5,7 +11,7 @@ from .user import CustomUserAdmin
 
 class FacultyAdmin(CustomUserAdmin):
     CSV_HEADERS_FACULTY = ("department",)
-
+    change_form_template = "admin/top_up_change_form.html"
     form = forms.FacultyChangeForm
     add_form = forms.FacultyCreationForm
 
@@ -44,3 +50,42 @@ class FacultyAdmin(CustomUserAdmin):
         if obj:
             return ["balance"]
         return super().get_readonly_fields(request, obj)
+
+    def get_urls(self):
+        return super().get_urls() + [
+            path(
+                "topup/faculty/<int:faculty_id>",
+                self.admin_site.admin_view(self.top_up_balance),
+                name="faculty_top_up",
+            )
+        ]
+
+    def top_up_balance(self, request, faculty_id):
+        faculty = self.get_object(request, faculty_id)
+        if request.method == "POST":
+            form = TopUpForm(request.POST)
+            if form.is_valid():
+                amount = form.cleaned_data["top_up_amount"]
+                faculty.balance += amount
+                faculty.save()
+                self.message_user(
+                    request, f"{faculty} balance topped up by {amount} successfully."
+                )
+                return redirect("admin:booking_portal_faculty_change", faculty_id)
+        else:
+            form = TopUpForm()
+            context = {
+                "form": form,
+                "faculty": faculty,
+                "cancel_url": "admin:booking_portal_faculty_changelist",
+            }
+        return render(request, "admin/top_up_entity.html", context)
+
+    def changeform_view(
+        self, request: HttpRequest, object_id, form_url="", extra_context=None
+    ):
+        extra_context = extra_context or {}
+        extra_context["top_up_wallet"] = True
+        extra_context["top_up_url"] = "admin:faculty_top_up"
+        extra_context["faculty_id"] = object_id
+        return super().changeform_view(request, object_id, form_url, extra_context)
