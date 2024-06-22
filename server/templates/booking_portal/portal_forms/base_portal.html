@@ -96,7 +96,7 @@
                               <div class="modal-body">
                                 Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
 
-                                <p><b>Note: In case your balance becomes negative, the request is still accepted.</b></p>
+                                <p><b>Note: If your request is routed through your department then your balance is not affected.</b></p>
                                 <form action="{% url "faculty_request_accept" request.id %}" method="post">
                                   {% csrf_token %}
                                   {% if not department %}
@@ -136,8 +136,6 @@
                               </div>
                               <div class="modal-body">
                                 Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
-
-                                <p><b>Note: In case your balance becomes negative, the request is still accepted.</b></p>
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                   <a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request %}?is_faculty=true{% endif %}">
