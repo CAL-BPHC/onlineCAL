@@ -136,18 +136,21 @@ class UserRemarkForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["faculty_remarks"].widget.attrs["readonly"] = True
         self.fields["lab_assistant_remarks"].widget.attrs["readonly"] = True
+        self.fields["department_remarks"].widget.attrs["readonly"] = True
 
     class Meta:
         model = UserRemark
         fields = (
             "student_remarks",
             "faculty_remarks",
+            "department_remarks",
             "lab_assistant_remarks",
         )
 
         labels = {
             "student_remarks": "Any other relevant information",
             "faculty_remarks": "Supervisor's Remarks (if any)",
+            "department_remarks": "Department HoD's Remarks (if any)",
             "lab_assistant_remarks": "Lab Assistant's Remarks (if any)",
         }
 
@@ -158,6 +161,11 @@ class UserRemarkForm(forms.ModelForm):
                 }
             ),
             "faculty_remarks": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            "department_remarks": forms.Textarea(
                 attrs={
                     "class": "form-control",
                 }

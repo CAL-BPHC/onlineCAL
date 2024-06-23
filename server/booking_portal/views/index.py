@@ -14,7 +14,7 @@ from ..models import (
     StudentRequest,
     UserDetail,
 )
-from ..permissions import get_user_type, is_faculty, is_lab_assistant
+from ..permissions import get_user_type, is_department, is_faculty, is_lab_assistant
 
 
 def index(request):
@@ -65,6 +65,10 @@ def show_application_student(request, id):
                 field_val == "lab_assistant_remarks"
                 and get_user_type(request.user) == "assistant"
             )
+            or (
+                field_val == "department_remarks"
+                and get_user_type(request.user) == "department"
+            )
         ) and form_field_value is None:
             form_object.fields[field_val].widget.attrs["readonly"] = False
 
@@ -111,8 +115,14 @@ def show_application_faculty(request, id):
     for field_val, val in form_object.fields.items():
         form_field_value = form_object[field_val].value()
         if (
-            field_val == "lab_assistant_remarks"
-            and get_user_type(request.user) == "assistant"
+            (
+                field_val == "lab_assistant_remarks"
+                and get_user_type(request.user) == "assistant"
+            )
+            or (
+                field_val == "department_remarks"
+                and get_user_type(request.user) == "department"
+            )
         ) and form_field_value is None:
             form_object.fields[field_val].widget.attrs["readonly"] = False
 
@@ -151,7 +161,9 @@ def show_application(request, id):
     return show_application_student(request, id)
 
 
-@user_passes_test(lambda user: is_faculty(user) or is_lab_assistant(user))
+@user_passes_test(
+    lambda user: is_faculty(user) or is_lab_assistant(user) or is_department(user)
+)
 @login_required
 def add_remarks(request, id):
     """View for saving remarks entered by Faculty/Lab Assistant.
@@ -160,7 +172,6 @@ def add_remarks(request, id):
     :returns
         HttpResponse object from `show_applicaton` view"""
     is_faculty_request = (request.GET.get("is_faculty", False)) == "true"
-    print(is_faculty_request)
     try:
         if is_faculty_request:
             request_obj = FacultyRequest.objects.get(id=id)
@@ -175,6 +186,10 @@ def add_remarks(request, id):
         content_object.faculty_remarks = form_fields["faculty_remarks"]
     elif is_lab_assistant(request.user):
         content_object.lab_assistant_remarks = form_fields["lab_assistant_remarks"]
+    elif is_department(request.user):
+        content_object.department_remarks = form_fields["department_remarks"]
 
-    content_object.save(update_fields=["faculty_remarks", "lab_assistant_remarks"])
+    content_object.save(
+        update_fields=["faculty_remarks", "lab_assistant_remarks", "department_remarks"]
+    )
     return show_application(request, id)
