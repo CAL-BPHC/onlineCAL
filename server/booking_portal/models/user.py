@@ -4,9 +4,10 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy
-
 
 from .email import EmailModel
 from .manager import CustomUserManager
@@ -131,3 +132,11 @@ class BalanceTopUpLog(models.Model):
         return (
             f"{self.admin_user} - {self.top_up_amount} - {self.date} - {self.recipient}"
         )
+
+
+@receiver(pre_delete, sender=BalanceTopUpLog)
+def undo_top_up_on_delete(sender, instance, **kwargs):
+    recipient = instance.recipient
+    if hasattr(recipient, "balance"):
+        recipient.balance -= instance.top_up_amount
+        recipient.save()
