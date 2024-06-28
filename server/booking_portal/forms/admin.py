@@ -6,6 +6,7 @@ from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 
 from ..models.instrument import Instrument
 from ..models.slot import SlotManager
@@ -274,4 +275,6 @@ class InstrumentUsageReportForm(forms.Form):
 
 
 class TopUpForm(forms.Form):
-    top_up_amount = forms.IntegerField(label="Top Up Amount")
+    top_up_amount = forms.IntegerField(
+        label="Top Up Amount", validators=[MinValueValidator(0)]
+    )
