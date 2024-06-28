@@ -80,6 +80,16 @@ class FacultyAdmin(CustomUserAdmin):
                     request, f"{faculty} balance topped up by {amount} successfully."
                 )
                 return redirect("admin:booking_portal_faculty_change", faculty_id)
+            else:
+                return render(
+                    request,
+                    "admin/top_up_entity.html",
+                    {
+                        "form": form,
+                        "faculty": faculty,
+                        "cancel_url": "admin:booking_portal_faculty_changelist",
+                    },
+                )
         else:
             form = TopUpForm()
             context = {

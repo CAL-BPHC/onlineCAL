@@ -81,7 +81,10 @@ class FacultyRequest(models.Model):
     ]
 
     objects: FacultyRequestManager = FacultyRequestManager()
-
+    # this field is solely here to ease the union of the two models
+    student = models.ForeignKey(
+        "Student", on_delete=models.PROTECT, blank=True, null=True, default=None
+    )
     faculty = models.ForeignKey(Faculty, on_delete=models.PROTECT)
     lab_assistant = models.ForeignKey(
         LabAssistant, on_delete=models.PROTECT, blank=True, null=True
