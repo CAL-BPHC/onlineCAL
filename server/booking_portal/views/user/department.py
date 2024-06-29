@@ -14,7 +14,7 @@ def department_portal(request):
     student_requests = (
         models.StudentRequest.objects.filter(
             faculty__department=request.user,
-            status=models.StudentRequest.WAITING_FOR_DEPARTMENT,
+            needs_department_approval=True,
         )
         .select_related("slot")
         .annotate(is_faculty_request=Value(False, output_field=BooleanField()))
@@ -22,7 +22,7 @@ def department_portal(request):
     faculty_requests = (
         models.FacultyRequest.objects.filter(
             faculty__department=request.user,
-            status=models.FacultyRequest.WAITING_FOR_DEPARTMENT,
+            needs_department_approval=True,
         )
         .select_related("slot")
         .annotate(is_faculty_request=Value(True, output_field=BooleanField()))
