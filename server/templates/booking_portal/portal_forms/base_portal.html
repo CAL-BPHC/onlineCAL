@@ -36,7 +36,9 @@
                   <tr>
                     <th scope="col">ID</th>
                     {% if not faculty_request %}
+                    {% if not user_type == 'department' %}
                     <th scope="col">Student Name</th>
+                    {% endif %}
                     {% endif %}
                     <th scope="col">Faculty</th>
                     <th scope="col">Instrument</th>
@@ -55,7 +57,9 @@
                   <tr>
                     <th scope="row">{{ request.pk }}</th>
                     {% if not faculty_request %}
+                    {% if not user_type == 'department' %}
                     <td>{{ request.student }}</td>
+                    {% endif %}
                     {% endif %}
                     <td>{{ request.faculty }}</td>
                     <td>{{ request.instrument }}</td>
@@ -73,18 +77,18 @@
                     {% elif request.status == 'R6' %}
                       <td>Waiting for Department Approval</td>
                     {% endif %}
-                    <td><a href="{% url 'view-application' id=request.id %}{% if faculty_request %}?is_faculty=true{% endif %}" target="_blank"> View Application </a></td>
+                    <td><a href="{% url 'view-application' id=request.id %}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" target="_blank"> View Application </a></td>
                     <td>{{ request.total_cost }}</td>
                     {% if not user_is_student %}
                       {% if request.status == modifiable_request_status %}
                       {% if user_type == 'faculty' %}
                         <td>
-                          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal">Accept</button>
+                          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal{{request.id}}">Accept</button>
                         </td>
                         <td><a href="/requests_{{  user_type }}/reject/{{request.id}}">
                           <button type="button" class="btn btn-danger">Reject</button>
                         </a></td>
-                        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
+                        <div class="modal fade" id="confirmationModal{{request.id}}" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
                           <div class="modal-dialog" role="document">
                             <div class="modal-content">
                               <div class="modal-header">
@@ -119,13 +123,13 @@
                         </div>
                       {% elif user_type == 'department' %}
                         <td>
-                          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal">Accept</button>
+                          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal{{request.id}}{{request.is_faculty_request}}">Accept</button>
                         </td>
-                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}{% if faculty_request %}?is_faculty=true{% endif %}">
+                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
                           <button type="button" class="btn btn-danger">Reject</button>
                         </a></td>
 
-                        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
+                        <div class="modal fade" id="confirmationModal{{request.id}}{{request.is_faculty_request}}" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
                           <div class="modal-dialog" role="document">
                             <div class="modal-content">
                               <div class="modal-header">
@@ -138,7 +142,7 @@
                                 Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                  <a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request %}?is_faculty=true{% endif %}">
+                                  <a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
                           <button type="button" class="btn btn-success">Confirm</button>
                         </a>
                                 </div>
@@ -147,10 +151,10 @@
                           </div>
                         </div>
                       {% elif user_type == 'assistant' %}
-                        <td><a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request %}?is_faculty=true{% endif %}">
+                        <td><a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
                           <button type="button" class="btn btn-success">Accept</button>
                         </a></td>
-                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}{% if faculty_request %}?is_faculty=true{% endif %}">
+                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
                           <button type="button" class="btn btn-danger">Reject</button>
                         </a></td>
                       {% endif %}

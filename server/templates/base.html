@@ -42,8 +42,6 @@
             <a class="nav-link" href="{% url 'faculty_request_portal' %}">My Requests<span class="sr-only"> (current)</span></a>
           {% elif user_type == 'assistant' %}
             <a class="nav-link" href="{% url 'lab_assistant_faculty_portal' %}">Faculty Requests<span class="sr-only"> (current)</span></a>
-          {% elif user_type == 'department' %}
-            <a class="nav-link" href="{% url 'department_faculty_portal' %}">Faculty Requests<span class="sr-only"> (current)</span></a>
           {% endif %}
         </li>
         <li class="nav-item active">
@@ -54,7 +52,7 @@
           {% elif user_type == 'assistant' %}
             <a class="nav-link" href="{% url 'lab_assistant' %}">Student Requests<span class="sr-only"> (current)</span></a>
           {% elif user_type == 'department' %}
-            <a class="nav-link" href="{% url 'department_portal' %}">Student Requests<span class="sr-only"> (current)</span></a>
+            <a class="nav-link" href="{% url 'department_portal' %}">Requests<span class="sr-only"> (current)</span></a>
           {% endif %}
         </li>
 

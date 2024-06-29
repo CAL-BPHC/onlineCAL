@@ -21,11 +21,6 @@ urlpatterns = [
     path("student/", views.student_portal, name="student"),
     path("department/", views.department_portal, name="department_portal"),
     path(
-        "department/faculty",
-        views.department_faculty_portal,
-        name="department_faculty_portal",
-    ),
-    path(
         "requests_faculty/accept/<int:id>",
         views.faculty_request_accept,
         name="faculty_request_accept",

@@ -1,10 +1,5 @@
 from .admin import admin_portal
-from .department import (
-    department_accept,
-    department_faculty_portal,
-    department_portal,
-    department_reject,
-)
+from .department import department_accept, department_portal, department_reject
 from .faculty import (
     faculty_portal,
     faculty_request_accept,
