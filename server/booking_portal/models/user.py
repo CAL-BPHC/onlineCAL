@@ -129,9 +129,7 @@ class BalanceTopUpLog(models.Model):
     recipient = GenericForeignKey("content_type", "object_id")
 
     def __str__(self):
-        return (
-            f"{self.admin_user} - {self.top_up_amount} - {self.date} - {self.recipient}"
-        )
+        return f"{self.admin_user} : {self.top_up_amount} : {self.recipient}"
 
 
 @receiver(pre_delete, sender=BalanceTopUpLog)
