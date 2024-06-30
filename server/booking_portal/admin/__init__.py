@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from booking_portal.admin.balance_top_up_log import BalanceTopUpLogAdmin
 from booking_portal.models.user import BalanceTopUpLog
 
 from ..models import (
@@ -77,4 +78,4 @@ admin.site.register(Fluoromax)
 admin.site.register(SpectraFluorimeter)
 admin.site.register(Ultracentrifuge)
 admin.site.register(Announcement, AnnouncementAdmin)
-admin.site.register(BalanceTopUpLog)
+admin.site.register(BalanceTopUpLog, BalanceTopUpLogAdmin)
