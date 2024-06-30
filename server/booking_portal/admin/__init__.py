@@ -19,7 +19,7 @@ from ..models.instrument.requests import *
 from .announcement import AnnouncementAdmin
 from .email import EmailAdmin
 from .instrument import InstrumentAdmin
-from .request import RequestAdmin
+from .request import FacultyRequestAdmin, RequestAdmin
 from .slot import SlotAdmin
 from .user import (
     CustomUserAdmin,
@@ -35,7 +35,7 @@ admin.site.register(EmailModel, EmailAdmin)
 admin.site.register(LabAssistant, LabAssistantAdmin)
 admin.site.register(Instrument, InstrumentAdmin)
 admin.site.register(StudentRequest, RequestAdmin)
-admin.site.register(FacultyRequest)
+admin.site.register(FacultyRequest, FacultyRequestAdmin)
 admin.site.register(Slot, SlotAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Department, DepartmentAdmin)
