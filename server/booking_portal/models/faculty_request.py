@@ -4,6 +4,7 @@ from typing import cast
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -39,6 +40,7 @@ class FacultyRequestManager(models.Manager):
                 faculty=faculty,
                 instrument=instr,
                 slot=slot,
+                cost_per_sample=instr.cost_per_sample,
                 status=status,
                 lab_assistant=random.choice(
                     LabAssistant.objects.filter(is_active=True)
@@ -93,6 +95,7 @@ class FacultyRequest(models.Model):
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     needs_department_approval = models.BooleanField(default=False)
+    cost_per_sample = models.IntegerField(validators=[MinValueValidator(0)], default=0)
 
     # To keep a reference of different form types
     # against a request
@@ -105,7 +108,7 @@ class FacultyRequest(models.Model):
     @property
     def total_cost(self):
         return (
-            self.instrument.cost_per_sample
+            self.cost_per_sample
             * cast(UserDetail, self.content_object).number_of_samples
         )
 

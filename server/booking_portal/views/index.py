@@ -89,7 +89,7 @@ def show_application_student(request, id):
             "instrument_verbose_name": content_object._meta.verbose_name,
             "form_notes": form.help_text,
             "status": request_obj.status,
-            "cost_per_sample": request_obj.slot.instrument.cost_per_sample,
+            "cost_per_sample": request_obj.cost_per_sample,
             "total_cost": request_obj.total_cost,
         },
     )
@@ -143,7 +143,7 @@ def show_application_faculty(request, id):
             "instrument_verbose_name": content_object._meta.verbose_name,
             "form_notes": form.help_text,
             "status": request_obj.status,
-            "cost_per_sample": request_obj.slot.instrument.cost_per_sample,
+            "cost_per_sample": request_obj.cost_per_sample,
             "total_cost": request_obj.total_cost,
             "faculty_request": True,
         },
