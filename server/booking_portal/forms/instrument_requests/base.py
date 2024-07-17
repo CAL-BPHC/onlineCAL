@@ -1,7 +1,15 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 
-from booking_portal.models import CustomUser, Faculty, Student, UserDetail, UserRemark
+import booking_portal.config as config
+from booking_portal.models import (
+    CustomUser,
+    Faculty,
+    ModePricingRules,
+    Student,
+    UserDetail,
+    UserRemark,
+)
 
 
 class MyModelChoiceField(forms.ModelChoiceField):
@@ -50,6 +58,9 @@ class UserDetailsForm(forms.ModelForm):
 
             self.fields.pop("sup_name", None)
             self.fields.pop("sup_dept", None)
+        instrument_id = self.get_instrument_id()
+        self.fields["mode"] = forms.ChoiceField(choices=[], required=False)
+        self.fields["mode"].choices = ModePricingRules.get_mode_choices(instrument_id)
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -62,6 +73,14 @@ class UserDetailsForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+    def get_instrument_id(self):
+        instrument_id = None
+        for key, value in config.form_template_dict.items():
+            if value[1] == self.Meta.model:
+                instrument_id = key
+                break
+        return instrument_id
 
     class Meta:
         model = UserDetail

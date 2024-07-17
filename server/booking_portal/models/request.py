@@ -11,7 +11,9 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 
-from .instrument.requests import UserDetail
+import booking_portal.models.instrument
+from booking_portal.models.instrument.requests import UserDetail
+
 from .slot import Slot
 from .user import Faculty, LabAssistant, Student
 
@@ -31,6 +33,14 @@ class StudentRequestManager(models.Manager):
             ):
                 raise ValueError("Upcoming slot for instrument already booked.")
 
+            mode_id = form_instance.cleaned_data.get("mode")
+            if not mode_id:
+                raise ValueError("Mode is required for booking.")
+
+            mode = booking_portal.models.instrument.ModePricingRules.objects.get(
+                id=mode_id
+            )
+
             form_saved = form_instance.save()
             self.create(
                 student=student,
@@ -40,6 +50,8 @@ class StudentRequestManager(models.Manager):
                 slot=slot,
                 status=StudentRequest.WAITING_FOR_FACULTY,
                 content_object=form_saved,
+                mode_description=mode.description,
+                mode_cost=mode.cost,
             )
             slot.update_status(Slot.STATUS_2)
 
@@ -86,7 +98,13 @@ class StudentRequest(models.Model):
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     needs_department_approval = models.BooleanField(default=False)
-    cost_per_sample = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+    cost_per_sample = models.IntegerField(
+        validators=[MinValueValidator(0)], default=0
+    )  # this needs to be removed
+
+    # need to know which mode the requested instrument has so we can calculate cost and have it for future reference
+    mode_description = models.CharField(max_length=200)
+    mode_cost = models.IntegerField()
 
     # To keep a reference of different form types
     # against a request
