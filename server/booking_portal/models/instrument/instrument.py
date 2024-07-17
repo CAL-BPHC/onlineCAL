@@ -111,3 +111,64 @@ def handle_requests(sender, instance, **kwargs):
             req.content_object.lab_assistant_remarks = new_remarks
             req.content_object.save()
             req.save()
+
+
+class ModePricingRules(models.Model):
+    FLAT = "FLAT"
+    PER_SAMPLE = "PER_SAMPLE"
+    PER_TIME_UNIT = "PER_TIME_UNIT"
+
+    RULE_TYPE_CHOICES = [
+        (FLAT, "Flat Charge"),
+        (PER_SAMPLE, "Per Sample Charge"),
+        (PER_TIME_UNIT, "Per Time Unit Charge"),
+    ]
+    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE)
+    rule_type = models.CharField(max_length=100, choices=RULE_TYPE_CHOICES)
+    description = models.CharField(max_length=200, null=True, blank=True)
+
+    cost = models.IntegerField(default=0, null=True, blank=True)
+    choices = models.JSONField(null=True, blank=True)
+    time_in_minutes = models.IntegerField(default=0, null=True, blank=True)
+
+    conditional_text = models.TextField(null=True, blank=True)
+    conditional_cost = models.IntegerField(default=0, null=True, blank=True)
+
+    @classmethod
+    def get_mode_choices(cls, instr_id):
+        modes = cls.objects.filter(instrument_id=instr_id)
+        choices = []
+        for mode in modes:
+            choices.append((mode.pk, f"{mode.description} - {mode.cost}"))
+        return choices
+
+
+class AdditionalPricingRules(models.Model):
+    FLAT = "FLAT"
+    PER_SAMPLE = "PER_SAMPLE"
+    PER_TIME_UNIT = "PER_TIME_UNIT"
+    HELP_TEXT = "HELP_TEXT"
+    CHOICE_FIELD = "CHOICE_FIELD"
+    CONDITIONAL_FIELD = "CONDITIONAL_FIELD"
+    ADDITIONAL_FIELD = "ADDITIONAL_FIELD"
+
+    RULE_TYPE_CHOICES = [
+        (FLAT, "Flat Charge"),
+        (PER_SAMPLE, "Per Sample Charge"),
+        (PER_TIME_UNIT, "Per Time Unit Charge"),
+        (HELP_TEXT, "Help Text"),
+        (CHOICE_FIELD, "Choice Field"),
+        (CONDITIONAL_FIELD, "Conditional Field"),
+        (ADDITIONAL_FIELD, "Additional Field"),
+    ]
+
+    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE)
+    rule_type = models.CharField(max_length=100, choices=RULE_TYPE_CHOICES)
+    description = models.CharField(max_length=200, null=True, blank=True)
+
+    cost = models.IntegerField(default=0, null=True, blank=True)
+    choices = models.JSONField(null=True, blank=True)
+    time_in_minutes = models.IntegerField(default=0, null=True, blank=True)
+
+    conditional_text = models.TextField(null=True, blank=True)
+    conditional_cost = models.IntegerField(default=0, null=True, blank=True)

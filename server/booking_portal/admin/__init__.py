@@ -16,6 +16,7 @@ from ..models import (
     Student,
     StudentRequest,
 )
+from ..models.instrument.instrument import AdditionalPricingRules, ModePricingRules
 from ..models.instrument.requests import *
 from .announcement import AnnouncementAdmin
 from .email import EmailAdmin
@@ -40,6 +41,8 @@ admin.site.register(FacultyRequest, FacultyRequestAdmin)
 admin.site.register(Slot, SlotAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Department, DepartmentAdmin)
+admin.site.register(AdditionalPricingRules)
+admin.site.register(ModePricingRules)
 admin.site.register(UserDetail)
 admin.site.register(FTIR)
 admin.site.register(FESEM)
