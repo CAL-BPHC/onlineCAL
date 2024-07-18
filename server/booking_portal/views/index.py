@@ -6,6 +6,7 @@ from django.shortcuts import render
 
 from ..config import view_application_dict
 from ..models import (
+    AdditionalPricingRules,
     Department,
     Faculty,
     FacultyRequest,
@@ -50,6 +51,26 @@ def show_application_student(request, id):
     data = content_object.__dict__
     data["user_name"] = Student.objects.get(id=data["user_id"])
     data["sup_name"] = Faculty.objects.get(id=data["sup_name_id"])
+
+    for charge_data in request_obj.additional_charges:
+        charge_id = charge_data["id"]
+        rule_type = charge_data["rule_type"]
+
+        if (
+            rule_type == AdditionalPricingRules.FLAT
+            or rule_type == AdditionalPricingRules.PER_SAMPLE
+            or rule_type == AdditionalPricingRules.PER_TIME_UNIT
+        ):
+            data[f"additional_charge_{charge_id}"] = True
+        elif rule_type == AdditionalPricingRules.CHOICE_FIELD:
+            selected_choice = charge_data.get("selected_choice", "")
+            if selected_choice:
+                data[f"additional_charge_{charge_id}"] = selected_choice
+        elif rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
+            data[f"additional_charge_{charge_id}"] = True
+            data[f"conditional_quantity_{charge_id}"] = charge_data.get(
+                "conditional_quantity", None
+            )
     form_object = form(data)
 
     # Check if Faculty and Assistant remarks are filled once, if yes
@@ -75,6 +96,9 @@ def show_application_student(request, id):
         else:
             form_object.fields[field_val].widget.attrs["disabled"] = True
             form_object.fields[field_val].widget.attrs["readonly"] = True
+
+        if field_val.startswith("conditional_quantity"):
+            form_object.fields[field_val].widget.attrs["style"] = ""
 
     return render(
         request,
@@ -108,6 +132,26 @@ def show_application_faculty(request, id):
     data["user_name"] = Faculty.objects.get(id=data["user_id"])
     data["needs_department_approval"] = request_obj.needs_department_approval
 
+    for charge_data in request_obj.additional_charges:
+        charge_id = charge_data["id"]
+        rule_type = charge_data["rule_type"]
+
+        if (
+            rule_type == AdditionalPricingRules.FLAT
+            or rule_type == AdditionalPricingRules.PER_SAMPLE
+            or rule_type == AdditionalPricingRules.PER_TIME_UNIT
+        ):
+            data[f"additional_charge_{charge_id}"] = True
+        elif rule_type == AdditionalPricingRules.CHOICE_FIELD:
+            selected_choice = charge_data.get("selected_choice", "")
+            if selected_choice:
+                data[f"additional_charge_{charge_id}"] = selected_choice
+        elif rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
+            data[f"additional_charge_{charge_id}"] = True
+            data[f"conditional_quantity_{charge_id}"] = charge_data.get(
+                "conditional_quantity", None
+            )
+
     form_object = form(data, is_faculty=True)
 
     # Check if Faculty and Assistant remarks are filled once, if yes
@@ -130,6 +174,8 @@ def show_application_faculty(request, id):
             form_object.fields[field_val].widget.attrs["disabled"] = True
             form_object.fields[field_val].widget.attrs["readonly"] = True
 
+        if field_val.startswith("conditional_quantity"):
+            form_object.fields[field_val].widget.attrs["style"] = ""
     return render(
         request,
         "booking_portal/instrument_form.html",
