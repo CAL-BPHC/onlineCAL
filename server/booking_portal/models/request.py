@@ -52,7 +52,9 @@ class StudentRequestManager(models.Manager):
                     rule = Rules.objects.get(id=charge_id)
                     if isinstance(value, str):
                         # Handle choice field
-                        data_to_store.append({**rule.__dict__, "selecte_choice": value})
+                        data_to_store.append(
+                            {**rule.__dict__, "selected_choice": value}
+                        )
                     elif value:
                         if rule.rule_type == Rules.CONDITIONAL_FIELD:
                             data_to_store.append(
