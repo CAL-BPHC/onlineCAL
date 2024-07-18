@@ -150,7 +150,6 @@ class AdditionalPricingRules(models.Model):
     HELP_TEXT = "HELP_TEXT"
     CHOICE_FIELD = "CHOICE_FIELD"
     CONDITIONAL_FIELD = "CONDITIONAL_FIELD"
-    ADDITIONAL_FIELD = "ADDITIONAL_FIELD"
 
     RULE_TYPE_CHOICES = [
         (FLAT, "Flat Charge"),
@@ -159,7 +158,6 @@ class AdditionalPricingRules(models.Model):
         (HELP_TEXT, "Help Text"),
         (CHOICE_FIELD, "Choice Field"),
         (CONDITIONAL_FIELD, "Conditional Field"),
-        (ADDITIONAL_FIELD, "Additional Field"),
     ]
 
     instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE)
@@ -167,7 +165,9 @@ class AdditionalPricingRules(models.Model):
     description = models.CharField(max_length=200, null=True, blank=True)
 
     cost = models.IntegerField(default=0, null=True, blank=True)
-    choices = models.JSONField(null=True, blank=True)
+    choices = models.JSONField(
+        null=True, blank=True
+    )  # Format: [{"value": "option1", "label": "Option 1", "cost": 10}, ...]
     time_in_minutes = models.IntegerField(default=0, null=True, blank=True)
 
     conditional_text = models.TextField(null=True, blank=True)

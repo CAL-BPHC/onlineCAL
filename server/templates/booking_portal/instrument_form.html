@@ -60,24 +60,21 @@
 {% block script %}
 {% if edit %}
 <script>
-    function calculateTotalPrice() {
-        var numberOfSamples = parseFloat(document.getElementById('id_number_of_samples').value);
-        var costPerSample = parseFloat(document.getElementById('id_cost_per_sample').textContent);
-        var totalPriceField = document.getElementById('id_total_cost');
-                
-        if (!isNaN(numberOfSamples) && !isNaN(costPerSample)) {
-            if(numberOfSamples <= 0) {
-                totalPriceField.textContent = "Choose a valid number of samples"
-            }else {
-                totalPriceField.textContent = (numberOfSamples * costPerSample).toFixed(2);
+    $(document).ready(function() {
+        $('input[data-conditional]').change(function() {
+            var conditionalField = $(this).data('conditional');
+            var isChecked = $(this).prop('checked');
+            
+            if (isChecked) {
+                $('[data-quantity-for="' + conditionalField + '"]').show();
+                $('[data-quantity-for="' + conditionalField + '"]').parent().show();
+            } else {
+                $('[data-quantity-for="' + conditionalField + '"]').hide();
+                $('[data-quantity-for="' + conditionalField + '"]').parent().hide();
             }
-        } else {
-            totalPriceField.textContent = 'NA';
-        }
-    }
-    calculateTotalPrice()
-    document.getElementById('id_number_of_samples').addEventListener('input', calculateTotalPrice);
-    document.getElementById('id_number_of_samples').addEventListener('change', calculateTotalPrice);
+        });
+        $('input[data-conditional]').change();
+    });
 </script>
 {% endif%}
 {% endblock script %}

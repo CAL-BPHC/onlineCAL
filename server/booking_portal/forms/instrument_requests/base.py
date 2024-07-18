@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 
 import booking_portal.config as config
 from booking_portal.models import (
+    AdditionalPricingRules,
     CustomUser,
     Faculty,
     ModePricingRules,
@@ -61,6 +62,7 @@ class UserDetailsForm(forms.ModelForm):
         instrument_id = self.get_instrument_id()
         self.fields["mode"] = forms.ChoiceField(choices=[], required=False)
         self.fields["mode"].choices = ModePricingRules.get_mode_choices(instrument_id)
+        self.add_additional_pricing_fields(instrument_id)
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -81,6 +83,76 @@ class UserDetailsForm(forms.ModelForm):
                 instrument_id = key
                 break
         return instrument_id
+
+    def add_additional_pricing_fields(self, instr_id):
+        fields = AdditionalPricingRules.objects.filter(instrument_id=instr_id)
+
+        for rule in fields:
+            field_name = f"additional_charge_{rule.pk}"
+            if rule.rule_type == AdditionalPricingRules.FLAT:
+                self.fields[field_name] = forms.BooleanField(
+                    label=f"Additional Option: {rule.description}: Rs {rule.cost}",
+                    required=False,
+                )
+            elif rule.rule_type == AdditionalPricingRules.PER_SAMPLE:
+                self.fields[field_name] = forms.BooleanField(
+                    label=f"Additional Option: {rule.description}: Rs {rule.cost} per sample",
+                    required=False,
+                )
+            elif rule.rule_type == AdditionalPricingRules.PER_TIME_UNIT:
+                self.fields[field_name] = forms.BooleanField(
+                    label=f"Additional Option: {rule.description}: Rs {rule.cost} per {rule.time_in_minutes} minutes",
+                    required=False,
+                )
+            elif rule.rule_type == AdditionalPricingRules.HELP_TEXT:
+                self.fields[field_name] = forms.CharField(
+                    initial=f"Note: {rule.description}",
+                    label="",
+                    required=False,
+                    disabled=True,
+                    widget=forms.TextInput(
+                        attrs={
+                            "readonly": "readonly",
+                            "class": "form-control-plaintext",
+                            "style": "font-weight: bold; border: none; background: transparent;",
+                        }
+                    ),
+                )
+            elif rule.rule_type == AdditionalPricingRules.CHOICE_FIELD:
+                choices = [("", "Select an option")] + [
+                    (option["value"], f"{option['label']} - Rs {option['cost']}")
+                    for option in rule.choices  # type: ignore
+                ]
+                self.fields[field_name] = forms.ChoiceField(
+                    label=f"Additional Option: {rule.description} Choice",
+                    choices=choices,
+                    required=False,
+                    widget=forms.Select(attrs={"class": "form-control"}),
+                )
+            elif rule.rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
+                self.fields[field_name] = forms.BooleanField(
+                    label=f"Additional Option: {rule.conditional_text} Rs {rule.conditional_cost} per unit",
+                    required=False,
+                    widget=forms.CheckboxInput(
+                        attrs={
+                            "class": "form-check-input",
+                            "data-conditional": field_name,
+                            "style": "margin-left: 10px;",
+                        }
+                    ),
+                )
+                quantity_field_name = f"conditional_quantity_{rule.pk}"
+                self.fields[quantity_field_name] = forms.IntegerField(
+                    label=rule.description,
+                    required=False,
+                    widget=forms.NumberInput(
+                        attrs={
+                            "class": "form-control conditional-field",
+                            "data-quantity-for": field_name,
+                            "style": "display: none;",  # Initially hide the quantity field
+                        }
+                    ),
+                )
 
     class Meta:
         model = UserDetail

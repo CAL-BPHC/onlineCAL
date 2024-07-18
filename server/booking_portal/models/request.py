@@ -41,6 +41,34 @@ class StudentRequestManager(models.Manager):
                 id=mode_id
             )
 
+            # handle additional fields
+            data_to_store = []
+            cleaned_data = form_instance.cleaned_data
+            Rules = booking_portal.models.instrument.AdditionalPricingRules
+            for key, value in cleaned_data.items():
+                if key.startswith("additional_charge_"):
+                    charge_id = key.split("_")[-1]
+                    # Additional charge selected
+                    rule = Rules.objects.get(id=charge_id)
+                    if isinstance(value, str):
+                        # Handle choice field
+                        data_to_store.append({**rule.__dict__, "selecte_choice": value})
+                    elif value:
+                        if rule.rule_type == Rules.CONDITIONAL_FIELD:
+                            data_to_store.append(
+                                {
+                                    **rule.__dict__,
+                                    "conditional_quantity": cleaned_data[
+                                        f"conditional_quantity_{charge_id}"
+                                    ],
+                                }
+                            )
+                        else:
+                            data_to_store.append({**rule.__dict__})
+
+            for val in data_to_store:
+                del val["_state"]
+
             form_saved = form_instance.save()
             self.create(
                 student=student,
@@ -52,6 +80,7 @@ class StudentRequestManager(models.Manager):
                 content_object=form_saved,
                 mode_description=mode.description,
                 mode_cost=mode.cost,
+                additional_charges=data_to_store,
             )
             slot.update_status(Slot.STATUS_2)
 
@@ -105,6 +134,9 @@ class StudentRequest(models.Model):
     # need to know which mode the requested instrument has so we can calculate cost and have it for future reference
     mode_description = models.CharField(max_length=200)
     mode_cost = models.IntegerField()
+
+    # to store the additional fields so we can calculate cost and have it for future reference
+    additional_charges = models.JSONField(default=list)
 
     # To keep a reference of different form types
     # against a request
