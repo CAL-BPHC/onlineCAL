@@ -129,9 +129,6 @@ class StudentRequest(models.Model):
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     needs_department_approval = models.BooleanField(default=False)
-    cost_per_sample = models.IntegerField(
-        validators=[MinValueValidator(0)], default=0
-    )  # this needs to be removed
 
     # need to know which mode the requested instrument has so we can calculate cost and have it for future reference
     mode_description = models.CharField(max_length=200)
