@@ -40,11 +40,15 @@
     </p>
     <div style="text-align: center;">
     {% if edit %}
-        <p>Cost per sample: <span id="id_cost_per_sample">{{ cost_per_sample }}</span></p>
-        <p>Total cost: <span id="id_total_cost"></span></p>
-        <input type="submit" class="btn btn-primary" value="Submit">
+        <input type="hidden" name="calculation_done" value="{{ calculation_done }}">
+        <button type="submit" class="btn btn-primary" name="action" value='calculate'>Calculate cost</button>
+        {% if calculation_done %}
+            <p>Total cost: {{ total_cost }}</p>
+            <button type="submit" class="btn btn-primary" name="action" value='submit'>Submit</button>
+        {% else %}
+            <button type="submit" class="btn btn-primary" name="action" value='submit' disabled>Submit</button>
+        {% endif %}
     {% else %}
-        <p>Cost per sample: {{ cost_per_sample }}</p>
         <p>Total cost: {{ total_cost }}</p>
         <input type="submt" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
     {% endif %}

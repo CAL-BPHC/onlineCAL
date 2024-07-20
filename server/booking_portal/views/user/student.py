@@ -8,7 +8,16 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from ... import config, permissions
-from ...models import Faculty, FacultyRequest, Instrument, Slot, Student, StudentRequest
+from ...models import (
+    AdditionalPricingRules,
+    Faculty,
+    FacultyRequest,
+    Instrument,
+    ModePricingRules,
+    Slot,
+    Student,
+    StudentRequest,
+)
 from .portal import BasePortalFilter
 
 
@@ -75,8 +84,6 @@ def book_machine_student(request, form_class, form_model_class):
             )
             return HttpResponseRedirect(reverse("instrument-list"))
 
-        # Render form with initial data
-        default_context["cost_per_sample"] = instr.cost_per_sample
         return render(
             request,
             "booking_portal/instrument_form.html",
@@ -103,17 +110,94 @@ def book_machine_student(request, form_class, form_model_class):
                 "booking_portal/instrument_form.html",
                 {"form": form, **default_context},
             )
+        action = request.POST.get("action")
+        if action == "submit":
+            try:
+                StudentRequest.objects.create_request(form, slot_id, student)
+                messages.success(request, "Slot booked successfully.")
+                return HttpResponseRedirect(reverse("student"))
+            except (ObjectDoesNotExist, ValueError) as e:
+                # \\n to escape Javascript
+                messages.error(
+                    request,
+                    f"Could not proccess your request, please try again. ({str(e)})",
+                )
+                return HttpResponseRedirect(reverse("instrument-list"))
+        elif action == "calculate":
+            total_cost = 0
 
-        try:
-            StudentRequest.objects.create_request(form, slot_id, student)
-            messages.success(request, "Slot booked successfully.")
-            return HttpResponseRedirect(reverse("student"))
-        except (ObjectDoesNotExist, ValueError) as e:
-            # \\n to escape Javascript
-            messages.error(
+            cleaned_data = form.cleaned_data
+
+            slot = Slot.objects.get(id=slot_id)
+            duration = slot.duration
+            duration_in_minutes = duration.total_seconds() / 60
+
+            # base cost
+            mode_id = cleaned_data.get("mode")
+            mode = ModePricingRules.objects.get(id=mode_id)
+
+            if mode.rule_type == ModePricingRules.FLAT:
+                if mode.cost:
+                    total_cost += mode.cost
+            elif mode.rule_type == ModePricingRules.PER_SAMPLE:
+                num_samples = cleaned_data.get("number_of_samples")
+                if num_samples and mode.cost:
+                    total_cost += mode.cost * num_samples
+            elif mode.rule_type == ModePricingRules.PER_TIME_UNIT:
+                if duration and mode.cost:
+                    total_cost += mode.cost * (
+                        duration_in_minutes / mode.time_in_minutes
+                    )
+
+            # additional costs
+            for key, value in cleaned_data.items():
+                if key.startswith("additional_charge_"):
+                    charge_id = key.split("_")[-1]
+                    rule = AdditionalPricingRules.objects.get(id=charge_id)
+
+                    if (
+                        isinstance(value, str)
+                        and rule.rule_type == AdditionalPricingRules.CHOICE_FIELD
+                    ):
+                        if value and rule.choices:
+                            for choice in rule.choices:  # type: ignore
+                                if choice["value"] == value:
+                                    total_cost += choice["cost"]
+                    elif value:
+                        if rule.rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
+                            quantity = cleaned_data.get(
+                                f"conditional_quantity_{charge_id}"
+                            )
+                            if rule.conditional_cost and quantity:
+                                total_cost += rule.conditional_cost * quantity
+                        elif rule.rule_type == AdditionalPricingRules.FLAT:
+                            if rule.cost:
+                                total_cost += rule.cost
+                        elif rule.rule_type == AdditionalPricingRules.PER_SAMPLE:
+                            num_samples = cleaned_data.get("number_of_samples")
+                            if num_samples and rule.cost:
+                                total_cost += rule.cost * num_samples
+                        elif rule.rule_type == AdditionalPricingRules.PER_TIME_UNIT:
+                            if duration and rule.cost:
+                                total_cost += rule.cost * (
+                                    duration_in_minutes / rule.time_in_minutes
+                                )
+                        else:
+                            if rule.cost:
+                                total_cost += rule.cost
+
+            return render(
                 request,
-                f"Could not proccess your request, please try again. ({str(e)})",
+                "booking_portal/instrument_form.html",
+                {
+                    "form": form,
+                    **default_context,
+                    "calculation_done": True,
+                    "total_cost": total_cost,
+                },
             )
+        else:
+            messages.error(request, "Bad Request")
             return HttpResponseRedirect(reverse("instrument-list"))
     else:
         messages.error(request, "Bad Request")
@@ -172,8 +256,6 @@ def book_machine(request, instr_id):
             )
             return HttpResponseRedirect(reverse("instrument-list"))
 
-        # Render form with initial data
-        default_context["cost_per_sample"] = instr.cost_per_sample
         return render(
             request,
             "booking_portal/instrument_form.html",
@@ -199,18 +281,96 @@ def book_machine(request, instr_id):
                 "booking_portal/instrument_form.html",
                 {"form": form(is_faculty=not is_student), **default_context},
             )
+        action = request.POST.get("action")
+        if action == "submit":
+            try:
+                FacultyRequest.objects.create_request(form, slot_id, faculty)
+                messages.success(request, "Slot booked successfully.")
+                return HttpResponseRedirect(reverse("faculty_request_portal"))
+            except (ObjectDoesNotExist, ValueError) as e:
+                # \\n to escape Javascript
+                messages.error(
+                    request,
+                    f"Could not process your request, please try again. ({str(e)})",
+                )
+                return HttpResponseRedirect(reverse("instrument-list"))
+        elif action == "calculate":
+            total_cost = 0
 
-        try:
-            FacultyRequest.objects.create_request(form, slot_id, faculty)
-            messages.success(request, "Slot booked successfully.")
-            return HttpResponseRedirect(reverse("faculty_request_portal"))
-        except (ObjectDoesNotExist, ValueError) as e:
-            # \\n to escape Javascript
-            messages.error(
+            cleaned_data = form.cleaned_data
+
+            slot = Slot.objects.get(id=slot_id)
+            duration = slot.duration
+            duration_in_minutes = duration.total_seconds() / 60
+
+            # base cost
+            mode_id = cleaned_data.get("mode")
+            mode = ModePricingRules.objects.get(id=mode_id)
+
+            if mode.rule_type == ModePricingRules.FLAT:
+                if mode.cost:
+                    total_cost += mode.cost
+            elif mode.rule_type == ModePricingRules.PER_SAMPLE:
+                num_samples = cleaned_data.get("number_of_samples")
+                if num_samples and mode.cost:
+                    total_cost += mode.cost * num_samples
+            elif mode.rule_type == ModePricingRules.PER_TIME_UNIT:
+                if duration and mode.cost:
+                    total_cost += mode.cost * (
+                        duration_in_minutes / mode.time_in_minutes
+                    )
+
+            # additional costs
+            for key, value in cleaned_data.items():
+                if key.startswith("additional_charge_"):
+                    charge_id = key.split("_")[-1]
+                    rule = AdditionalPricingRules.objects.get(id=charge_id)
+
+                    if (
+                        isinstance(value, str)
+                        and rule.rule_type == AdditionalPricingRules.CHOICE_FIELD
+                    ):
+                        if value and rule.choices:
+                            for choice in rule.choices:  # type: ignore
+                                if choice["value"] == value:
+                                    total_cost += choice["cost"]
+                    elif value:
+                        if rule.rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
+                            quantity = cleaned_data.get(
+                                f"conditional_quantity_{charge_id}"
+                            )
+                            if rule.conditional_cost and quantity:
+                                total_cost += rule.conditional_cost * quantity
+                        elif rule.rule_type == AdditionalPricingRules.FLAT:
+                            if rule.cost:
+                                total_cost += rule.cost
+                        elif rule.rule_type == AdditionalPricingRules.PER_SAMPLE:
+                            num_samples = cleaned_data.get("number_of_samples")
+                            if num_samples and rule.cost:
+                                total_cost += rule.cost * num_samples
+                        elif rule.rule_type == AdditionalPricingRules.PER_TIME_UNIT:
+                            if duration and rule.cost:
+                                total_cost += rule.cost * (
+                                    duration_in_minutes / rule.time_in_minutes
+                                )
+                        else:
+                            if rule.cost:
+                                total_cost += rule.cost
+
+            return render(
                 request,
-                f"Could not process your request, please try again. ({str(e)})",
+                "booking_portal/instrument_form.html",
+                {
+                    "form": form,
+                    **default_context,
+                    "calculation_done": True,
+                    "total_cost": total_cost,
+                },
             )
+        else:
+            messages.error(request, "Bad Request")
             return HttpResponseRedirect(reverse("instrument-list"))
+
     else:
         messages.error(request, "Bad Request")
         return HttpResponseRedirect("/")

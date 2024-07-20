@@ -73,6 +73,15 @@ def show_application_student(request, id):
             )
     form_object = form(data)
 
+    # initialize mode
+    mode_description = request_obj.mode_description
+    mode_cost = request_obj.mode_cost
+
+    if mode_description and mode_cost:
+        mode_display = f"{mode_description} - Rs {mode_cost}"
+        form_object.fields["mode"].choices = [(-1, mode_display)]
+        form_object.fields["mode"].initial = -1
+
     # Check if Faculty and Assistant remarks are filled once, if yes
     # then these are made read-only
     for field_val, val in form_object.fields.items():
@@ -113,7 +122,6 @@ def show_application_student(request, id):
             "instrument_verbose_name": content_object._meta.verbose_name,
             "form_notes": form.help_text,
             "status": request_obj.status,
-            "cost_per_sample": request_obj.cost_per_sample,
             "total_cost": request_obj.total_cost,
         },
     )
@@ -154,6 +162,15 @@ def show_application_faculty(request, id):
 
     form_object = form(data, is_faculty=True)
 
+    # initialize mode
+    mode_description = request_obj.mode_description
+    mode_cost = request_obj.mode_cost
+
+    if mode_description and mode_cost:
+        mode_display = f"{mode_description} - Rs {mode_cost}"
+        form_object.fields["mode"].choices = [(-1, mode_display)]
+        form_object.fields["mode"].initial = -1
+
     # Check if Faculty and Assistant remarks are filled once, if yes
     # then these are made read-only
     for field_val, val in form_object.fields.items():
@@ -189,7 +206,6 @@ def show_application_faculty(request, id):
             "instrument_verbose_name": content_object._meta.verbose_name,
             "form_notes": form.help_text,
             "status": request_obj.status,
-            "cost_per_sample": request_obj.cost_per_sample,
             "total_cost": request_obj.total_cost,
             "faculty_request": True,
         },

@@ -80,7 +80,6 @@ class FacultyRequestManager(models.Manager):
                 faculty=faculty,
                 instrument=instr,
                 slot=slot,
-                cost_per_sample=instr.cost_per_sample,
                 status=status,
                 lab_assistant=random.choice(
                     LabAssistant.objects.filter(is_active=True)
@@ -91,6 +90,8 @@ class FacultyRequestManager(models.Manager):
                 ],
                 mode_description=mode.description,
                 mode_cost=mode.cost,
+                mode_rule_type=mode.rule_type,
+                mode_time_in_minutes=mode.time_in_minutes,
                 additional_charges=data_to_store,
             )
             slot.update_status(Slot.STATUS_2)
@@ -142,6 +143,10 @@ class FacultyRequest(models.Model):
     # need to know which mode the requested instrument has so we can calculate cost and have it for future reference
     mode_description = models.CharField(max_length=200)
     mode_cost = models.IntegerField()
+    mode_rule_type = models.CharField(
+        max_length=100,
+    )
+    mode_time_in_minutes = models.IntegerField(default=0)
 
     # to store the additional fields so we can calculate cost and have it for future reference
     additional_charges = models.JSONField(default=list)
@@ -155,10 +160,53 @@ class FacultyRequest(models.Model):
 
     @property
     def total_cost(self):
-        return (
-            self.cost_per_sample
-            * cast(UserDetail, self.content_object).number_of_samples
-        )
+        total_cost = 0
+
+        duration = self.slot.duration
+        duration_in_minutes = duration.total_seconds() / 60
+
+        num_samples = cast(UserDetail, self.content_object).number_of_samples
+
+        if (
+            self.mode_rule_type
+            == booking_portal.models.instrument.ModePricingRules.FLAT
+        ):
+            total_cost += self.mode_cost
+        elif (
+            self.mode_rule_type
+            == booking_portal.models.instrument.ModePricingRules.PER_SAMPLE
+        ):
+            total_cost += self.mode_cost * num_samples
+        elif (
+            self.mode_rule_type
+            == booking_portal.models.instrument.ModePricingRules.PER_TIME_UNIT
+        ):
+            total_cost += self.mode_cost * (
+                duration_in_minutes / self.mode_time_in_minutes
+            )
+
+        # additional costs
+        Rule = booking_portal.models.instrument.AdditionalPricingRules
+        for charge in self.additional_charges:
+            if charge["rule_type"] == Rule.FLAT:
+                total_cost += charge["cost"]
+            elif charge["rule_type"] == Rule.PER_SAMPLE:
+                total_cost += charge["cost"] * num_samples
+            elif charge["rule_type"] == Rule.PER_TIME_UNIT:
+                total_cost += charge["cost"] * (
+                    duration_in_minutes / charge["time_in_minutes"]
+                )
+            elif charge["rule_type"] == Rule.CHOICE_FIELD:
+                for choice in charge["choices"]:
+                    if charge["selected_choice"] == choice["value"]:
+                        total_cost += choice["cost"]
+                        break
+            elif charge["rule_type"] == Rule.CONDITIONAL_FIELD:
+                if charge["conditional_quantity"]:
+                    total_cost += (
+                        charge["conditional_cost"] * charge["conditional_quantity"]
+                    )
+        return total_cost
 
     def update_status(self, status):
         assert status in (

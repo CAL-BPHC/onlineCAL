@@ -32,7 +32,6 @@ class InstrumentManager(models.Manager):
             # Calculate the total utilisation for the instrument
             utilisation = datetime.timedelta()
             for request in requests:
-                print(request.slot.duration)
                 utilisation += request.slot.duration
             util_hours, remainder = divmod(utilisation.total_seconds(), 3600)
             util_minutes, _ = divmod(remainder, 60)
