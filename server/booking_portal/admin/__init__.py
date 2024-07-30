@@ -1,6 +1,10 @@
 from django.contrib import admin
 
 from booking_portal.admin.balance_top_up_log import BalanceTopUpLogAdmin
+from booking_portal.admin.pricing_rules import (
+    AdditionalPricingRulesAdmin,
+    ModePricingRulesAdmin,
+)
 from booking_portal.models.user import BalanceTopUpLog
 
 from ..models import (
@@ -41,8 +45,8 @@ admin.site.register(FacultyRequest, FacultyRequestAdmin)
 admin.site.register(Slot, SlotAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Department, DepartmentAdmin)
-admin.site.register(AdditionalPricingRules)
-admin.site.register(ModePricingRules)
+admin.site.register(AdditionalPricingRules, AdditionalPricingRulesAdmin)
+admin.site.register(ModePricingRules, ModePricingRulesAdmin)
 admin.site.register(UserDetail)
 admin.site.register(FTIR)
 admin.site.register(FESEM)
