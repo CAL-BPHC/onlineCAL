@@ -82,6 +82,25 @@ def show_application_student(request, id):
         form_object.fields["mode"].choices = [(-1, mode_display)]
         form_object.fields["mode"].initial = -1
 
+    # initialize field names
+    for charge_data in request_obj.additional_charges:
+        charge_id = charge_data["id"]
+        rule_type = charge_data["rule_type"]
+
+        if rule_type == AdditionalPricingRules.HELP_TEXT:
+            continue
+        if not rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
+            form_object.fields[
+                f"additional_charge_{charge_id}"
+            ].label = f"{charge_data['description']} - Rs {charge_data['cost']}"
+        else:
+            form_object.fields[
+                f"additional_charge_{charge_id}"
+            ].label = f"{charge_data['description']} - Rs {charge_data['cost']}"
+            form_object.fields[f"conditional_quantity_{charge_id}"].label = charge_data[
+                "conditional_text"
+            ]
+
     # Check if Faculty and Assistant remarks are filled once, if yes
     # then these are made read-only
     for field_val, val in form_object.fields.items():
@@ -170,6 +189,25 @@ def show_application_faculty(request, id):
         mode_display = f"{mode_description} - Rs {mode_cost}"
         form_object.fields["mode"].choices = [(-1, mode_display)]
         form_object.fields["mode"].initial = -1
+
+    # initialize field names
+    for charge_data in request_obj.additional_charges:
+        charge_id = charge_data["id"]
+        rule_type = charge_data["rule_type"]
+
+        if rule_type == AdditionalPricingRules.HELP_TEXT:
+            continue
+        if not rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
+            form_object.fields[
+                f"additional_charge_{charge_id}"
+            ].label = f"{charge_data['description']} - Rs {charge_data['cost']}"
+        else:
+            form_object.fields[
+                f"additional_charge_{charge_id}"
+            ].label = f"{charge_data['description']} - Rs {charge_data['cost']}"
+            form_object.fields[f"conditional_quantity_{charge_id}"].label = charge_data[
+                "conditional_text"
+            ]
 
     # Check if Faculty and Assistant remarks are filled once, if yes
     # then these are made read-only
