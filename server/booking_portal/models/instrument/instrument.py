@@ -126,19 +126,30 @@ class ModePricingRules(models.Model):
     description = models.CharField(max_length=200, null=True, blank=True)
 
     cost = models.IntegerField(default=0, null=True, blank=True)
-    choices = models.JSONField(null=True, blank=True)
     time_in_minutes = models.IntegerField(default=0, null=True, blank=True)
-
-    conditional_text = models.TextField(null=True, blank=True)
-    conditional_cost = models.IntegerField(default=0, null=True, blank=True)
 
     @classmethod
     def get_mode_choices(cls, instr_id):
         modes = cls.objects.filter(instrument_id=instr_id)
         choices = []
         for mode in modes:
-            choices.append((mode.pk, f"{mode.description} - {mode.cost}"))
+            if mode.rule_type == cls.FLAT:
+                choices.append((mode.pk, f"{mode.description} - {mode.cost}"))
+            elif mode.rule_type == cls.PER_SAMPLE:
+                choices.append(
+                    (mode.pk, f"{mode.description} - {mode.cost} per sample")
+                )
+            elif mode.rule_type == cls.PER_TIME_UNIT:
+                choices.append(
+                    (
+                        mode.pk,
+                        f"{mode.description} - {mode.cost} per {mode.time_in_minutes} minutes",
+                    )
+                )
         return choices
+
+    def __str__(self):
+        return f"{self.instrument.name} - {self.description}"
 
 
 class AdditionalPricingRules(models.Model):
@@ -170,3 +181,6 @@ class AdditionalPricingRules(models.Model):
 
     conditional_text = models.TextField(null=True, blank=True)
     conditional_cost = models.IntegerField(default=0, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.instrument.name} - {self.description}"
