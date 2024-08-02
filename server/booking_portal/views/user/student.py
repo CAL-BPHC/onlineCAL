@@ -160,9 +160,10 @@ def book_machine_student(request, form_class, form_model_class):
                         and rule.rule_type == AdditionalPricingRules.CHOICE_FIELD
                     ):
                         if value and rule.choices:
+                            num_samples = cleaned_data.get("number_of_samples")
                             for choice in rule.choices:  # type: ignore
                                 if choice["value"] == value:
-                                    total_cost += choice["cost"]
+                                    total_cost += choice["cost"] * num_samples
                     elif value:
                         if rule.rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
                             quantity = cleaned_data.get(
@@ -331,9 +332,10 @@ def book_machine(request, instr_id):
                         and rule.rule_type == AdditionalPricingRules.CHOICE_FIELD
                     ):
                         if value and rule.choices:
+                            num_samples = cleaned_data.get("number_of_samples")
                             for choice in rule.choices:  # type: ignore
                                 if choice["value"] == value:
-                                    total_cost += choice["cost"]
+                                    total_cost += choice["cost"] * num_samples
                     elif value:
                         if rule.rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
                             quantity = cleaned_data.get(

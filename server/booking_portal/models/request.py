@@ -191,7 +191,7 @@ class StudentRequest(models.Model):
             elif charge["rule_type"] == Rule.CHOICE_FIELD:
                 for choice in charge["choices"]:
                     if charge["selected_choice"] == choice["value"]:
-                        total_cost += choice["cost"]
+                        total_cost += choice["cost"] * num_samples
                         break
             elif charge["rule_type"] == Rule.CONDITIONAL_FIELD:
                 if charge["conditional_quantity"]:
