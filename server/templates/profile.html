@@ -12,15 +12,19 @@
             {% if instance %}
                 <h5 class="card-title">{{ instance.name }}</h5>
                 <p class="card-text"><strong>Email:</strong> {{ instance.email }}</p>
-                <p class="card-text"><strong>Role:</strong> {{ user_type }}</p>
                 {% if user_type == 'faculty' %}
+                    <p class="card-text"><strong>Role:</strong> Faculty</p>
                     <p class="card-text"><strong>Department:</strong> {{ instance.department.name }}</p>
                     <p class="card-text"><strong>Balance:</strong> {{ instance.balance }}</p>
                 {% elif user_type == 'student' %}
+                    <p class="card-text"><strong>Role:</strong> Student</p>
                     <p class="card-text"><strong>Supervisor:</strong> {{ instance.supervisor.name }}</p>
                     <p class="card-text"><strong>Department:</strong> {{ instance.supervisor.department.name }}</p>
                 {% elif user_type == 'department' %}
+                    <p class="card-text"><strong>Role:</strong> Department/HoD</p>
                     <p class="card-text"><strong>Balance:</strong> {{ instance.balance }}</p>
+                {% elif user_type == 'assistant' %}
+                    <p class="card-text"><strong>Role:</strong> Lab Technician</p>
                 {% endif %}
             {% else %}
                 <p class="card-text">No profile information available.</p>
