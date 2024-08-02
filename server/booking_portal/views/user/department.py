@@ -73,7 +73,7 @@ def department_accept(request, id):
             if department == request_object.faculty.department:
                 request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
                 request_object.save()
-                return redirect("department_faculty")
+                return redirect("department_portal")
             else:
                 return HttpResponse("Bad Request")
     except Exception as e:
