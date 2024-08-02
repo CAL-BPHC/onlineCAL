@@ -3,7 +3,6 @@ from typing import cast
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -14,6 +13,7 @@ from django.utils.timezone import now
 import booking_portal.models.instrument
 from booking_portal.models.instrument.requests import UserDetail
 
+from .email import EmailModel
 from .slot import Slot
 from .user import Faculty, LabAssistant, Student
 
@@ -304,7 +304,15 @@ def send_email_after_save(sender, instance, **kwargs):
                 "slot": instance.slot.description,
             },
         )
-        instance.lab_assistant.send_email(subject, text, text_html)
+        # instead of sending mail to a lab assistant send it to the common email
+        # instance.lab_assistant.send_email(subject, text, text_html)
+        EmailModel(
+            receiver="cal@hyderabad.bits-pilani.ac.in",
+            text=text,
+            text_html=text_html,
+            subject=subject,
+            sent=False,
+        ).save()
     elif instance.status == StudentRequest.APPROVED:
         slot.update_status(Slot.STATUS_3)
         subject = "Lab Booking Approved"
