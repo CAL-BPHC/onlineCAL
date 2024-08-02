@@ -134,20 +134,21 @@ def book_machine_student(request, form_class, form_model_class):
 
             # base cost
             mode_id = cleaned_data.get("mode")
-            mode = ModePricingRules.objects.get(id=mode_id)
+            if mode_id:
+                mode = ModePricingRules.objects.get(id=mode_id)
 
-            if mode.rule_type == ModePricingRules.FLAT:
-                if mode.cost:
-                    total_cost += mode.cost
-            elif mode.rule_type == ModePricingRules.PER_SAMPLE:
-                num_samples = cleaned_data.get("number_of_samples")
-                if num_samples and mode.cost:
-                    total_cost += mode.cost * num_samples
-            elif mode.rule_type == ModePricingRules.PER_TIME_UNIT:
-                if duration and mode.cost:
-                    total_cost += mode.cost * (
-                        duration_in_minutes / mode.time_in_minutes
-                    )
+                if mode.rule_type == ModePricingRules.FLAT:
+                    if mode.cost:
+                        total_cost += mode.cost
+                elif mode.rule_type == ModePricingRules.PER_SAMPLE:
+                    num_samples = cleaned_data.get("number_of_samples")
+                    if num_samples and mode.cost:
+                        total_cost += mode.cost * num_samples
+                elif mode.rule_type == ModePricingRules.PER_TIME_UNIT:
+                    if duration and mode.cost:
+                        total_cost += mode.cost * (
+                            duration_in_minutes / mode.time_in_minutes
+                        )
 
             # additional costs
             for key, value in cleaned_data.items():
@@ -306,20 +307,21 @@ def book_machine(request, instr_id):
 
             # base cost
             mode_id = cleaned_data.get("mode")
-            mode = ModePricingRules.objects.get(id=mode_id)
+            if mode_id:
+                mode = ModePricingRules.objects.get(id=mode_id)
 
-            if mode.rule_type == ModePricingRules.FLAT:
-                if mode.cost:
-                    total_cost += mode.cost
-            elif mode.rule_type == ModePricingRules.PER_SAMPLE:
-                num_samples = cleaned_data.get("number_of_samples")
-                if num_samples and mode.cost:
-                    total_cost += mode.cost * num_samples
-            elif mode.rule_type == ModePricingRules.PER_TIME_UNIT:
-                if duration and mode.cost:
-                    total_cost += mode.cost * (
-                        duration_in_minutes / mode.time_in_minutes
-                    )
+                if mode.rule_type == ModePricingRules.FLAT:
+                    if mode.cost:
+                        total_cost += mode.cost
+                elif mode.rule_type == ModePricingRules.PER_SAMPLE:
+                    num_samples = cleaned_data.get("number_of_samples")
+                    if num_samples and mode.cost:
+                        total_cost += mode.cost * num_samples
+                elif mode.rule_type == ModePricingRules.PER_TIME_UNIT:
+                    if duration and mode.cost:
+                        total_cost += mode.cost * (
+                            duration_in_minutes / mode.time_in_minutes
+                        )
 
             # additional costs
             for key, value in cleaned_data.items():

@@ -60,8 +60,12 @@ class UserDetailsForm(forms.ModelForm):
             self.fields.pop("sup_name", None)
             self.fields.pop("sup_dept", None)
         instrument_id = self.get_instrument_id()
-        self.fields["mode"] = forms.ChoiceField(choices=[], required=False)
-        self.fields["mode"].choices = ModePricingRules.get_mode_choices(instrument_id)
+        modes = ModePricingRules.get_mode_choices(instrument_id)
+        if len(modes) > 0:
+            self.fields["mode"] = forms.ChoiceField(choices=[], required=False)
+            self.fields["mode"].choices = ModePricingRules.get_mode_choices(
+                instrument_id
+            )
         self.add_additional_pricing_fields(instrument_id)
 
     def save(self, commit=True):
