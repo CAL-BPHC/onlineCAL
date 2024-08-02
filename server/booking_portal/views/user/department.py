@@ -104,4 +104,3 @@ def department_reject(request, id):
                 return HttpResponse("Bad Request")
     except Exception:
         raise Http404("Page Not Found")
-        raise Http404("Page Not Found")
