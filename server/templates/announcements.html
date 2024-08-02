@@ -16,7 +16,7 @@
         <div class="card-header">{{ announcement.date }}</div>
         <div class="card-body">
         <h5 class="card-title">{{ announcement.title }}</h5>
-        <p class="card-text">{{ announcement.text|linebreaks }}</p>
+        <p class="card-text">{{ announcement.text|linebreaks|urlize }}</p>
         </div>
     </div>
 
