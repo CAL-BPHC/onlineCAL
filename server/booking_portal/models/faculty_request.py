@@ -258,7 +258,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text = render_to_string(
             "email/lab_assistant_pending.txt",
             {
-                "receipent_name": instance.lab_assistant.name,
+                "receipent_name": "Lab Technicians",
                 "student_name": instance.faculty.name,
                 "instrument_name": instance.instrument.name,
                 "faculty_name": instance.faculty.name,
@@ -268,7 +268,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text_html = render_to_string(
             "email/lab_assistant_pending.html",
             {
-                "receipent_name": instance.lab_assistant.name,
+                "receipent_name": "Lab Technicians",
                 "student_name": instance.faculty.name,
                 "instrument_name": instance.instrument.name,
                 "faculty_name": instance.faculty.name,
