@@ -1,6 +1,6 @@
 {% extends 'email/base.txt' %}
 
-{% block message %}We have a booking awaiting your approval from {{ student_name }} under faculty {{ faculty_name }} for
+{% block message %}We have a booking awaiting your approval from {{ faculty_name }} for
 Machine: {{ instrument_name }} and Time Slot {{ slot }}.
 
 Please sign-in to the portal to view application details.{% endblock %}
