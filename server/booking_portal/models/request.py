@@ -33,13 +33,19 @@ class StudentRequestManager(models.Manager):
             ):
                 raise ValueError("Upcoming slot for instrument already booked.")
 
-            mode_id = form_instance.cleaned_data.get("mode")
-            if not mode_id:
-                raise ValueError("Mode is required for booking.")
+            # mode_id = form_instance.cleaned_data.get("mode")
+            # if not mode_id:
+            #     raise ValueError("Mode is required for booking.")
 
-            mode = booking_portal.models.instrument.ModePricingRules.objects.get(
-                id=mode_id
-            )
+            # mode = booking_portal.models.instrument.ModePricingRules.objects.get(
+            #     id=mode_id
+            # )
+            mode_id = form_instance.cleaned_data.get("mode")
+            mode = None
+            if mode_id:
+                mode = booking_portal.models.instrument.ModePricingRules.objects.get(
+                    id=mode_id
+                )
 
             # handle additional fields
             data_to_store = []
@@ -79,10 +85,10 @@ class StudentRequestManager(models.Manager):
                 slot=slot,
                 status=StudentRequest.WAITING_FOR_FACULTY,
                 content_object=form_saved,
-                mode_description=mode.description,
-                mode_cost=mode.cost,
-                mode_rule_type=mode.rule_type,
-                mode_time_in_minutes=mode.time_in_minutes,
+                mode_description=mode.description if mode else "",
+                mode_cost=mode.cost if mode else 0,
+                mode_rule_type=mode.rule_type if mode else "",
+                mode_time_in_minutes=mode.time_in_minutes if mode else 0,
                 additional_charges=data_to_store,
             )
             slot.update_status(Slot.STATUS_2)
