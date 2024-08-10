@@ -36,4 +36,5 @@ from .requests import (
     UserDetail,
     UserRemark,
     UVSpectrophotometer,
+    FreezeDryer,
 )

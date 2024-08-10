@@ -52,7 +52,8 @@ form_template_dict = {
     33: (Fluorolog3Form, Fluorolog3),
     34: (FluoromaxForm, Fluoromax),
     35: (SpectraFluorimeterForm, SpectraFluorimeter),
-    36: (UltracentrifugeForm, Ultracentrifuge)
+    36: (UltracentrifugeForm, Ultracentrifuge),
+    37: (FreezeDryerForm, FreezeDryer)
 }
 
 view_application_dict = {model: form

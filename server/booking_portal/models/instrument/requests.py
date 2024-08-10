@@ -965,3 +965,20 @@ class Ultracentrifuge(UserDetail, UserRemark):
     class Meta:
         verbose_name = "Ultracentrifuge"
         verbose_name_plural = "Ultracentrifuge"
+
+class FreezeDryer(UserDetail, UserRemark):
+    sample_code = models.CharField(max_length=75)
+    solvent = models.CharField(max_length=75)
+    freezing_point = models.CharField(max_length=75)
+    quantity = models.IntegerField(validators=[MinValueValidator(1)])
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "Freeze Dryer",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year),
+        )
+    class Meta:
+        verbose_name = "Freeze Dryer"
+        verbose_name_plural = "Freeze Dryer"

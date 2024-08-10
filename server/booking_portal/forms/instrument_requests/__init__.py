@@ -34,3 +34,4 @@ from .fluorolog3 import Fluorolog3Form
 from .fluoromax import FluoromaxForm
 from .spectrafluorimeter import SpectraFluorimeterForm
 from .ultracentrifuge import UltracentrifugeForm
+from .freezedryer import FreezeDryerForm
