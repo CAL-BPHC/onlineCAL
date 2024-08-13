@@ -2,6 +2,7 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 {% load query_utils %}
+{% load subtract %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -34,12 +35,17 @@
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
+                    {% if not faculty_request %}
+                    {% if not user_type == 'department' %}
                     <th scope="col">Student Name</th>
+                    {% endif %}
+                    {% endif %}
                     <th scope="col">Faculty</th>
                     <th scope="col">Instrument</th>
                     <th scope="col">Slot</th>
                     <th scope="col">Status</th>
                     <th scope="col">Application</th>
+                    <th scope="col">Total Cost</th>
                     {% if not user_is_student %}
                       <th scope="col" colspan="2">Actions</th>
                     {% endif %}
@@ -50,7 +56,11 @@
                 {% for request in page_obj %}
                   <tr>
                     <th scope="row">{{ request.pk }}</th>
+                    {% if not faculty_request %}
+                    {% if not user_type == 'department' %}
                     <td>{{ request.student }}</td>
+                    {% endif %}
+                    {% endif %}
                     <td>{{ request.faculty }}</td>
                     <td>{{ request.instrument }}</td>
                     <td>{{ request.slot.description }}</td>
@@ -64,16 +74,90 @@
                       <td>Rejected</td>
                     {% elif request.status == 'R5' %}
                       <td>Cancelled</td>
+                    {% elif request.status == 'R6' %}
+                      <td>Waiting for Department Approval</td>
                     {% endif %}
-                    <td><a href={% url 'view-application' id=request.id %} target="_blank"> View Application </a></td>
+                    <td><a href="{% url 'view-application' id=request.id %}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" target="_blank"> View Application </a></td>
+                    <td>{{ request.total_cost }}</td>
                     {% if not user_is_student %}
                       {% if request.status == modifiable_request_status %}
-                        <td><a href="/requests_{{ user_type }}/accept/{{request.id}}">
-                          <button type="button" class="btn btn-success">Accept</button>
-                        </a></td>
+                      {% if user_type == 'faculty' %}
+                        <td>
+                          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal{{request.id}}">Accept</button>
+                        </td>
                         <td><a href="/requests_{{  user_type }}/reject/{{request.id}}">
                           <button type="button" class="btn btn-danger">Reject</button>
                         </a></td>
+                        <div class="modal fade" id="confirmationModal{{request.id}}" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="confirmationModalLable">Please confirm the following</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
+
+                                <p><b>Note: If your request is routed through your department then your balance is not affected.</b></p>
+                                <form action="{% url "faculty_request_accept" request.id %}" method="post">
+                                  {% csrf_token %}
+                                  {% if not department %}
+                                    Your account is not associated with any department. You cannot route this request to the department.
+                                  {% endif %}
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="departmentRoute" name="departmentRoute" {% if not department %} disabled {% endif %}>
+                                    <label for="departmentRoute" class="form-check-label">
+                                      I want to route this request to the department for further approval.
+                                    </label>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                      <button type="submit" class="btn btn-success">Confirm</button>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% elif user_type == 'department' %}
+                        <td>
+                          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal{{request.id}}{{request.is_faculty_request}}">Accept</button>
+                        </td>
+                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
+                          <button type="button" class="btn btn-danger">Reject</button>
+                        </a></td>
+
+                        <div class="modal fade" id="confirmationModal{{request.id}}{{request.is_faculty_request}}" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="confirmationModalLable">Please confirm the following</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
+                          <button type="button" class="btn btn-success">Confirm</button>
+                        </a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% elif user_type == 'assistant' %}
+                        <td><a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
+                          <button type="button" class="btn btn-success">Accept</button>
+                        </a></td>
+                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
+                          <button type="button" class="btn btn-danger">Reject</button>
+                        </a></td>
+                      {% endif %}
                       {% else %}
                         <td>
                           <button type="button" class="btn btn-success" disabled>Accept</button>

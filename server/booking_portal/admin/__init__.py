@@ -1,23 +1,52 @@
 from django.contrib import admin
 
+from booking_portal.admin.balance_top_up_log import BalanceTopUpLogAdmin
+from booking_portal.admin.pricing_rules import (
+    AdditionalPricingRulesAdmin,
+    ModePricingRulesAdmin,
+)
+from booking_portal.models.user import BalanceTopUpLog
+
+from ..models import (
+    Announcement,
+    CustomUser,
+    Department,
+    EmailModel,
+    Faculty,
+    FacultyRequest,
+    Instrument,
+    LabAssistant,
+    Slot,
+    Student,
+    StudentRequest,
+)
+from ..models.instrument.instrument import AdditionalPricingRules, ModePricingRules
+from ..models.instrument.requests import *
+from .announcement import AnnouncementAdmin
 from .email import EmailAdmin
 from .instrument import InstrumentAdmin
-from .request import RequestAdmin
+from .request import FacultyRequestAdmin, RequestAdmin
 from .slot import SlotAdmin
-from .user import CustomUserAdmin, FacultyAdmin, StudentAdmin
-from .announcement import AnnouncementAdmin
-from ..models import (Announcement, CustomUser, EmailModel, Faculty,
-                      Instrument, LabAssistant, Request, Slot, Student)
-from ..models.instrument.requests import *
+from .user import (
+    CustomUserAdmin,
+    DepartmentAdmin,
+    FacultyAdmin,
+    LabAssistantAdmin,
+    StudentAdmin,
+)
 
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Faculty, FacultyAdmin)
 admin.site.register(EmailModel, EmailAdmin)
-admin.site.register(LabAssistant, CustomUserAdmin)
+admin.site.register(LabAssistant, LabAssistantAdmin)
 admin.site.register(Instrument, InstrumentAdmin)
-admin.site.register(Request, RequestAdmin)
+admin.site.register(StudentRequest, RequestAdmin)
+admin.site.register(FacultyRequest, FacultyRequestAdmin)
 admin.site.register(Slot, SlotAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Department, DepartmentAdmin)
+admin.site.register(AdditionalPricingRules, AdditionalPricingRulesAdmin)
+admin.site.register(ModePricingRules, ModePricingRulesAdmin)
 admin.site.register(UserDetail)
 admin.site.register(FTIR)
 admin.site.register(FESEM)
@@ -55,4 +84,6 @@ admin.site.register(Fluorolog3)
 admin.site.register(Fluoromax)
 admin.site.register(SpectraFluorimeter)
 admin.site.register(Ultracentrifuge)
+admin.site.register(FreezeDryer)
 admin.site.register(Announcement, AnnouncementAdmin)
+admin.site.register(BalanceTopUpLog, BalanceTopUpLogAdmin)

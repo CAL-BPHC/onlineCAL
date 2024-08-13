@@ -15,6 +15,7 @@
         {% elif status == 'R3' %} Approved
         {% elif status == 'R4' %} Rejected
         {% elif status == 'R5' %} Cancelled
+        {% elif status == 'R6' %} Waiting for Department Approval
         {% endif %}
     </h6>
 </div>
@@ -23,7 +24,7 @@
 {% if edit %}
 <form action="" method="POST">
 {% elif user_type != 'student' %}
-<form action={% url 'add_remarks' id=id %} method="POST">
+<form action="{% url 'add_remarks' id=id %}{% if faculty_request %}?is_faculty=true{% endif %}" method="POST">
 {% endif%}
     <script>
         $('form').submit(function(e) {
@@ -39,9 +40,17 @@
     </p>
     <div style="text-align: center;">
     {% if edit %}
-        <input type="submit" class="btn btn-primary" value="Submit">
+        <input type="hidden" name="calculation_done" value="{{ calculation_done }}">
+        <button type="submit" class="btn btn-primary" name="action" value='calculate'>Calculate cost</button>
+        {% if calculation_done %}
+            <p>Total cost: {{ total_cost }}</p>
+            <button type="submit" class="btn btn-primary" name="action" value='submit'>Submit</button>
+        {% else %}
+            <button type="submit" class="btn btn-primary" name="action" value='submit' disabled>Submit</button>
+        {% endif %}
     {% else %}
-      <input type="submt" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
+        <p>Total cost: {{ total_cost }}</p>
+        <input type="submt" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
     {% endif %}
 
     {% if user_type != 'student' %}
@@ -52,3 +61,24 @@
 {% endblock %}
 
 {% block facility %} {{ instrument_verbose_name }} {% endblock %}
+{% block script %}
+{% if edit %}
+<script>
+    $(document).ready(function() {
+        $('input[data-conditional]').change(function() {
+            var conditionalField = $(this).data('conditional');
+            var isChecked = $(this).prop('checked');
+            
+            if (isChecked) {
+                $('[data-quantity-for="' + conditionalField + '"]').show();
+                $('[data-quantity-for="' + conditionalField + '"]').parent().show();
+            } else {
+                $('[data-quantity-for="' + conditionalField + '"]').hide();
+                $('[data-quantity-for="' + conditionalField + '"]').parent().hide();
+            }
+        });
+        $('input[data-conditional]').change();
+    });
+</script>
+{% endif%}
+{% endblock script %}

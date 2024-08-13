@@ -13,9 +13,13 @@ if TYPE_CHECKING:
 
 class SlotManager(models.Manager):
     @staticmethod
-    def get_valid_slot_days(start_date: datetime.date, day_count: int) -> List[datetime.date]:
+    def get_valid_slot_days(
+        start_date: datetime.date, day_count: int
+    ) -> List[datetime.date]:
         # get the next `num_of_days`, skipping sundays
-        next_days = [start_date + datetime.timedelta(days=var) for var in range(0, day_count)]
+        next_days = [
+            start_date + datetime.timedelta(days=var) for var in range(0, day_count)
+        ]
         return [day for day in next_days if not day.weekday() == 6]
 
     def is_slot_overlapping(self, slot: Slot) -> bool:
@@ -24,18 +28,18 @@ class SlotManager(models.Manager):
                 # Completely inside existing slot
                 start_time__lte=slot.start_time,
                 end_time__gte=slot.end_time,
-            ) |
-            Q(
+            )
+            | Q(
                 # Begins before existing slot ends and ends after
                 end_time__gt=slot.start_time,
                 end_time__lt=slot.end_time,
-            ) |
-            Q(
+            )
+            | Q(
                 # Ends after existing slot begins
                 start_time__gt=slot.start_time,
                 start_time__lt=slot.end_time,
-            ) |
-            Q(
+            )
+            | Q(
                 # Subsumes existing slot
                 start_time__gte=slot.start_time,
                 end_time__lte=slot.end_time,
@@ -44,9 +48,15 @@ class SlotManager(models.Manager):
 
         return self.filter(q, instrument=slot.instrument, date=slot.date).exists()
 
-    def bulk_create_slots(self, instr: Instrument, start_date: datetime.date, start_time: datetime.time,
-                          end_time: datetime.time, duration: datetime.timedelta,
-                          day_count: int) -> Tuple[int, int]:
+    def bulk_create_slots(
+        self,
+        instr: Instrument,
+        start_date: datetime.date,
+        start_time: datetime.time,
+        end_time: datetime.time,
+        duration: datetime.timedelta,
+        day_count: int,
+    ) -> Tuple[int, int]:
         next_days = SlotManager.get_valid_slot_days(start_date, day_count)
 
         all_slots = {}
@@ -63,8 +73,9 @@ class SlotManager(models.Manager):
         slots = []
         for day, time_slots in all_slots.items():
             for slot_begin in time_slots:
-                slot_end = (datetime.datetime.combine(day, slot_begin) +
-                            duration).time()
+                slot_end = (
+                    datetime.datetime.combine(day, slot_begin) + duration
+                ).time()
                 total_slots += 1
                 slot = Slot(
                     instrument=instr,
@@ -80,9 +91,9 @@ class SlotManager(models.Manager):
         return total_slots, slots_created
 
     def get_instr_from_slot_id(self, slot_id, lock=False):
-        slot = self.select_related('instrument').filter(pk=slot_id)
+        slot = self.select_related("instrument").filter(pk=slot_id)
         if lock:
-            slot.select_for_update(of='self')
+            slot.select_for_update(of="self")
         if slot:
             return slot[0], slot[0].instrument
         return None, None
@@ -98,10 +109,10 @@ class Slot(models.Model):
         (STATUS_1, "Empty"),
         (STATUS_2, "In Process"),
         (STATUS_3, "Filled"),
-        (STATUS_4, "Passed")
+        (STATUS_4, "Passed"),
     ]
 
-    objects = SlotManager()
+    objects: SlotManager = SlotManager()
 
     ## TODO: Update Duration to TimeField
     instrument = models.ForeignKey("Instrument", on_delete=models.PROTECT)
@@ -116,14 +127,9 @@ class Slot(models.Model):
         return self.status == Slot.STATUS_1
 
     def update_status(self, status):
-        assert status in (
-                Slot.STATUS_1,
-                Slot.STATUS_2,
-                Slot.STATUS_3,
-                Slot.STATUS_4
-        )
+        assert status in (Slot.STATUS_1, Slot.STATUS_2, Slot.STATUS_3, Slot.STATUS_4)
         self.status = status
-        self.save(update_fields=['status'])
+        self.save(update_fields=["status"])
 
     @property
     def duration(self):
