@@ -101,17 +101,19 @@
                                 Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
 
                                 <p><b>Note: If your request is routed through your department then your balance is not affected.</b></p>
-                                <form action="{% url "faculty_request_accept" request.id %}" method="post">
+                                <form action="{% url 'faculty_request_accept' request.id %}" method="post">
                                   {% csrf_token %}
                                   {% if not department %}
-                                    Your account is not associated with any department. You cannot route this request to the department.
+                                    Your account is not associated with any department. You cannot route this request to the department. Please contact the admin and report this issue.
                                   {% endif %}
                                   <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="departmentRoute" name="departmentRoute" {% if not department %} disabled {% endif %}>
+                                    <input type="hidden" name="departmentRoute" value="True">
+                                    <input class="form-check-input" type="checkbox" id="departmentRoute" name="departmentRoute" disabled checked>
                                     <label for="departmentRoute" class="form-check-label">
                                       I want to route this request to the department for further approval.
                                     </label>
                                   </div>
+                                  <p><b>Note: For now, all requests must be routed through the department, as faculty-level balance is not yet active.</b></p>
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                       <button type="submit" class="btn btn-success">Confirm</button>
