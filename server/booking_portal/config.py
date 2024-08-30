@@ -53,8 +53,13 @@ form_template_dict = {
     34: (FluoromaxForm, Fluoromax),
     35: (SpectraFluorimeterForm, SpectraFluorimeter),
     36: (UltracentrifugeForm, Ultracentrifuge),
-    37: (FreezeDryerForm, FreezeDryer)
+    37: (FreezeDryerForm, FreezeDryer),
+    38: (TubularFurnaceForm, TubularMuffleFurnace),
+    39: (MuffleFurnace1Form, TubularMuffleFurnace),
+    40: (MuffleFurnace2Form, TubularMuffleFurnace),
+    41: (MuffleFurnace3Form, TubularMuffleFurnace),
 }
 
-view_application_dict = {model: form
-                         for idx, (form, model) in form_template_dict.items()}
+view_application_dict = {
+    model: form for idx, (form, model) in form_template_dict.items()
+}

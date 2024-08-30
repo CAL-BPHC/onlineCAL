@@ -37,4 +37,5 @@ from .requests import (
     UserRemark,
     UVSpectrophotometer,
     FreezeDryer,
+    TubularMuffleFurnace,
 )

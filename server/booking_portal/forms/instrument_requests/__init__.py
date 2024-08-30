@@ -35,3 +35,7 @@ from .fluoromax import FluoromaxForm
 from .spectrafluorimeter import SpectraFluorimeterForm
 from .ultracentrifuge import UltracentrifugeForm
 from .freezedryer import FreezeDryerForm
+from .tubularfurnace import TubularFurnaceForm
+from .mufflefurnace1 import MuffleFurnace1Form
+from .mufflefurnace2 import MuffleFurnace2Form
+from .mufflefurnace3 import MuffleFurnace3Form

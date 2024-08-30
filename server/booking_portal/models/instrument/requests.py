@@ -966,6 +966,7 @@ class Ultracentrifuge(UserDetail, UserRemark):
         verbose_name = "Ultracentrifuge"
         verbose_name_plural = "Ultracentrifuge"
 
+
 class FreezeDryer(UserDetail, UserRemark):
     sample_code = models.CharField(max_length=75)
     solvent = models.CharField(max_length=75)
@@ -979,6 +980,32 @@ class FreezeDryer(UserDetail, UserRemark):
             calendar.month_name[self.date.month],
             str(self.date.year),
         )
+
     class Meta:
         verbose_name = "Freeze Dryer"
         verbose_name_plural = "Freeze Dryer"
+
+
+class TubularMuffleFurnace(UserDetail, UserRemark):
+    sample_code = models.CharField(max_length=75)
+    sample_nature = models.CharField(
+        max_length=10,
+        choices=[
+            ("Powder", "Powder"),
+            ("Film", "Film"),
+        ],
+    )
+    temperature = models.IntegerField()
+    quantity = models.IntegerField(validators=[MinValueValidator(1)])
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "Tubular/Muffle Furnace",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year),
+        )
+
+    class Meta:
+        verbose_name = "Tubular/Muffle Furnace"
+        verbose_name_plural = "Tubular/Muffle Furnace"
