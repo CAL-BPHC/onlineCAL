@@ -123,7 +123,7 @@ class ModePricingRules(models.Model):
     ]
     instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE)
     rule_type = models.CharField(max_length=100, choices=RULE_TYPE_CHOICES)
-    description = models.CharField(max_length=200, null=True, blank=True)
+    description = models.CharField(max_length=200)
 
     cost = models.IntegerField(default=0, null=True, blank=True)
     time_in_minutes = models.IntegerField(default=0, null=True, blank=True)
