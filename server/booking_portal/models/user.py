@@ -14,7 +14,7 @@ from .manager import CustomUserManager
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(gettext_lazy("email address"), unique=True, max_length=50)
+    email = models.EmailField(gettext_lazy("email address"), unique=True, max_length=75)
     name = models.CharField(max_length=100)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
