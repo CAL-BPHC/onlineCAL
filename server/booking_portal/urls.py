@@ -54,6 +54,7 @@ urlpatterns = [
     path("application/edit/remarks/<int:id>", views.add_remarks, name="add_remarks"),
     path("admin-portal/", views.admin_portal, name="admin_portal"),
     path("about-us/", views.about_us, name="about_us"),
+    path("guidelines/", views.guidelines, name="guidelines"),
     path("announcements/", views.announcements, name="announcements"),
     path("profile", views.user_profile, name="profile"),
 ]

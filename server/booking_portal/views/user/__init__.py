@@ -14,4 +14,4 @@ from .lab_assistant import (
 )
 from .profile import user_profile
 from .student import book_machine, student_portal
-from .user import about_us, announcements, change_password
+from .user import about_us, announcements, change_password, guidelines
