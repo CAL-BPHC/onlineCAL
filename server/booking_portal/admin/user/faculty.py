@@ -1,10 +1,11 @@
+from booking_portal.forms.admin import TopUpForm
+from booking_portal.models.user import BalanceTopUpLog, Department
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import validate_email
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import path
-
-from booking_portal.forms.admin import TopUpForm
-from booking_portal.models.user import BalanceTopUpLog
 
 from ... import forms
 from ...models import CustomUser, Faculty
@@ -30,7 +31,20 @@ class FacultyAdmin(CustomUserAdmin):
     )
 
     def _validate_record(self, record):
-        return super()._validate_record(record)
+        record = super()._validate_record(record)
+
+        record["department"] = record["department"].strip()
+        validate_email(record["department"])
+
+        try:
+            obj = Department.objects.get(email=record["department"])
+        except Department.DoesNotExist:
+            raise ObjectDoesNotExist(
+                f"Department doesn't exist: \"{record['department']}\""
+            )
+
+        record["department"] = obj
+        return record
 
     def get_user_type(self, request):
         return Faculty
