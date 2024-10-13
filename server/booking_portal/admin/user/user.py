@@ -104,7 +104,7 @@ class CustomUserAdmin(UserAdmin):
             record["name"] = record["name"].strip()
 
             if not record["password"]:
-                record["password"] = user_type.objects.make_random_password(8)
+                record["password"] = user_type.objects.make_random_password(12)
             raw_password = record["password"]
             record["password"] = make_password(raw_password)
 
