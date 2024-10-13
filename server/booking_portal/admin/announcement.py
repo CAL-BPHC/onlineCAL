@@ -10,7 +10,7 @@ class AnnouncementAdmin(admin.ModelAdmin):
         # We notify all users by email about the new announcement
         subject = "New Announcement Created on CAL Portal"
         context = {
-            "receipent_name": "user",
+            "recipient_name": "user",
             "announcement_title": obj.title,
             "announcement_url": "https://onlinecal.bits-hyderabad.ac.in"
             + reverse("announcements"),

@@ -230,7 +230,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text = render_to_string(
             "email/faculty_pending.txt",
             {
-                "receipent_name": instance.faculty.name,
+                "recipient_name": instance.faculty.name,
                 "student_name": instance.student.name,
                 "instrument_name": instance.instrument.name,
                 "slot": instance.slot.description,
@@ -239,7 +239,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text_html = render_to_string(
             "email/faculty_pending.html",
             {
-                "receipent_name": instance.faculty.name,
+                "recipient_name": instance.faculty.name,
                 "student_name": instance.student.name,
                 "instrument_name": instance.instrument.name,
                 "slot": instance.slot.description,
@@ -251,7 +251,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text = render_to_string(
             "email/student_pending.txt",
             {
-                "receipent_name": instance.student.name,
+                "recipient_name": instance.student.name,
                 "instrument_name": instance.instrument.name,
                 "slot": instance.slot.description,
             },
@@ -259,7 +259,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text_html = render_to_string(
             "email/student_pending.html",
             {
-                "receipent_name": instance.student.name,
+                "recipient_name": instance.student.name,
                 "instrument_name": instance.instrument.name,
                 "slot": instance.slot.description,
             },
@@ -270,7 +270,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text = render_to_string(
             "email/department_pending.txt",
             {
-                "receipent_name": instance.faculty.department.name,
+                "recipient_name": instance.faculty.department.name,
                 "student_name": instance.student.name,
                 "instrument_name": instance.instrument.name,
                 "slot": instance.slot.description,
@@ -280,7 +280,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text_html = render_to_string(
             "email/department_pending.html",
             {
-                "receipent_name": instance.faculty.department.name,
+                "recipient_name": instance.faculty.department.name,
                 "student_name": instance.student.name,
                 "instrument_name": instance.instrument.name,
                 "slot": instance.slot.description,
@@ -293,7 +293,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text = render_to_string(
             "email/lab_assistant_pending.txt",
             {
-                "receipent_name": "Lab Technicians",
+                "recipient_name": "Lab Technicians",
                 "student_name": instance.student.name,
                 "instrument_name": instance.instrument.name,
                 "faculty_name": instance.faculty.name,
@@ -303,7 +303,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text_html = render_to_string(
             "email/lab_assistant_pending.html",
             {
-                "receipent_name": "Lab Technicians",
+                "recipient_name": "Lab Technicians",
                 "student_name": instance.student.name,
                 "instrument_name": instance.instrument.name,
                 "faculty_name": instance.faculty.name,
@@ -325,14 +325,14 @@ def send_email_after_save(sender, instance, **kwargs):
         text = render_to_string(
             "email/student_accepted.txt",
             {
-                "receipent_name": instance.student.name,
+                "recipient_name": instance.student.name,
                 "slot": instance.slot.description,
             },
         )
         text_html = render_to_string(
             "email/student_accepted.html",
             {
-                "receipent_name": instance.student.name,
+                "recipient_name": instance.student.name,
                 "slot": instance.slot.description,
             },
         )
@@ -349,7 +349,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text = render_to_string(
             "email/student_rejected.txt",
             {
-                "receipent_name": instance.student.name,
+                "recipient_name": instance.student.name,
                 "slot": instance.slot.description,
                 "faculty_remarks": instance.content_object.faculty_remarks,
                 "lab_assistant_remarks": instance.content_object.lab_assistant_remarks,
@@ -358,7 +358,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text_html = render_to_string(
             "email/student_rejected.html",
             {
-                "receipent_name": instance.student.name,
+                "recipient_name": instance.student.name,
                 "slot": instance.slot.description,
                 "faculty_remarks": instance.content_object.faculty_remarks,
                 "lab_assistant_remarks": instance.content_object.lab_assistant_remarks,

@@ -1,4 +1,4 @@
-Dear {{ receipent_name}},
+Dear {{ recipient_name}},
 
 Greetings from Central Analytical Laboratory!
 
