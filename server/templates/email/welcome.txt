@@ -13,6 +13,7 @@ Here are your credentials:
 
 Please read the following instructions so that you can familiarize yourselves
 with the portal:
+Please change your password as soon as possible.
 {% if user_type|lower == "student" %}
     You can begin booking slots right away! However please note that you
     can only book another slot for the same machine once it is over (is
