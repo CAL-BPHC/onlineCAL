@@ -1,7 +1,11 @@
 __pycache__/
+
 .vscode
 .idea
-*.sqlite3
-server/SECRET.key
-backups/*
 
+db.conf
+*.env
+
+server/SECRET.key
+
+backups
