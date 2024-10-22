@@ -8,4 +8,4 @@ db.conf
 
 server/SECRET.key
 
-backups
+backups/
