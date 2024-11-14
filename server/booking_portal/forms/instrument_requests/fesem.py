@@ -8,10 +8,14 @@ from .base import UserDetailsForm, UserRemarkForm
 class FESEMForm (UserDetailsForm, UserRemarkForm):
     title = "Field Emission Scanning Electron Microscope"
     subtitle = "Field Emission Scanning Electron Microscope"
-    help_text = '''
-    <strong>Note:</strong> 1. Morning slot samples submit 9.00am to 9.15am(from 9.30  to 1.00pm slot's) <br>
-    2. Afternoon slot samples submit 12.00pm ( from 2.00pm to 5.00 pm slot's).
-    '''
+    help_text = """
+    <b>Note:</b>
+    <p>1. Morning slots (9.30AM to 1.00PM): Submit samples at 9.00AM.</p>
+    <p>2. Afternoon slots (2.00PM to 5.00PM): Submit samples at 12.00PM.</p>
+    <p>3. Evening slots (5.00PM to 8.00PM): Submit samples at 3.00PM.</p>
+    <p>4. Maximum number of samples per slot is 3.</p>
+    <p>5. Make sure to choose the right mode while booking the instrument.</p>
+    """
 
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
         model = FESEM
