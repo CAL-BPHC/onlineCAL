@@ -1,5 +1,5 @@
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
 
 from ..models import EmailModel
 
@@ -9,6 +9,6 @@ def email(request):
     ## returns emails of all users.
     emails = EmailModel.objects.all()
     context = {
-        'emails': emails,
+        "emails": emails,
     }
-    return render(request, 'email.html', context=context)
+    return render(request, "email.html", context=context)

@@ -1,15 +1,14 @@
 import datetime
 from datetime import timedelta
 
-from django.core.management import call_command
-from django.test import Client, TestCase
-
 from booking_portal.factories import (
     InstrumentFactory,
     LabAssistantFactory,
     StudentFactory,
 )
 from booking_portal.models import Slot, StudentRequest
+from django.core.management import call_command
+from django.test import Client, TestCase
 
 # A valid date time will not fall on Sunday
 _VALID_DATE_TIME = datetime.datetime.now()

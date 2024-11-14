@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0003_auto_20201223_1632'),
+        ("booking_portal", "0003_auto_20201223_1632"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userdetail',
-            name='duration',
-            field=models.CharField(default='1 hr', max_length=75),
+            model_name="userdetail",
+            name="duration",
+            field=models.CharField(default="1 hr", max_length=75),
             preserve_default=False,
         ),
     ]

@@ -6,31 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0058_studentrequest_mode_time_in_minutes'),
+        ("booking_portal", "0058_studentrequest_mode_time_in_minutes"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='facultyrequest',
-            name='cost_per_sample',
+            model_name="facultyrequest",
+            name="cost_per_sample",
         ),
         migrations.RemoveField(
-            model_name='instrument',
-            name='cost_per_sample',
+            model_name="instrument",
+            name="cost_per_sample",
         ),
         migrations.RemoveField(
-            model_name='studentrequest',
-            name='cost_per_sample',
+            model_name="studentrequest",
+            name="cost_per_sample",
         ),
         migrations.AddField(
-            model_name='facultyrequest',
-            name='mode_rule_type',
-            field=models.CharField(default='', max_length=100),
+            model_name="facultyrequest",
+            name="mode_rule_type",
+            field=models.CharField(default="", max_length=100),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='facultyrequest',
-            name='mode_time_in_minutes',
+            model_name="facultyrequest",
+            name="mode_time_in_minutes",
             field=models.IntegerField(default=0),
         ),
     ]

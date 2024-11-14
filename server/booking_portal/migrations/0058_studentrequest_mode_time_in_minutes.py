@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0057_facultyrequest_additional_charges_and_more'),
+        ("booking_portal", "0057_facultyrequest_additional_charges_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='studentrequest',
-            name='mode_time_in_minutes',
+            model_name="studentrequest",
+            name="mode_time_in_minutes",
             field=models.IntegerField(default=0),
         ),
     ]

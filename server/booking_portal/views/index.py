@@ -94,13 +94,13 @@ def show_application_student(request, id):
                 "description"
             ]
         elif not rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
-            form_object.fields[
-                f"additional_charge_{charge_id}"
-            ].label = f"{charge_data['description']} - Rs {charge_data['cost']}"
+            form_object.fields[f"additional_charge_{charge_id}"].label = (
+                f"{charge_data['description']} - Rs {charge_data['cost']}"
+            )
         else:
-            form_object.fields[
-                f"additional_charge_{charge_id}"
-            ].label = f"{charge_data['description']} - Rs {charge_data['conditional_cost']} per unit"
+            form_object.fields[f"additional_charge_{charge_id}"].label = (
+                f"{charge_data['description']} - Rs {charge_data['conditional_cost']} per unit"
+            )
             form_object.fields[f"conditional_quantity_{charge_id}"].label = charge_data[
                 "conditional_text"
             ]
@@ -206,13 +206,13 @@ def show_application_faculty(request, id):
                 "description"
             ]
         elif not rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
-            form_object.fields[
-                f"additional_charge_{charge_id}"
-            ].label = f"{charge_data['description']} - Rs {charge_data['cost']}"
+            form_object.fields[f"additional_charge_{charge_id}"].label = (
+                f"{charge_data['description']} - Rs {charge_data['cost']}"
+            )
         else:
-            form_object.fields[
-                f"additional_charge_{charge_id}"
-            ].label = f"{charge_data['description']} - Rs {charge_data['conditional_cost']} per unit"
+            form_object.fields[f"additional_charge_{charge_id}"].label = (
+                f"{charge_data['description']} - Rs {charge_data['conditional_cost']} per unit"
+            )
             form_object.fields[f"conditional_quantity_{charge_id}"].label = charge_data[
                 "conditional_text"
             ]

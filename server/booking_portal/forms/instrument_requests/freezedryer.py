@@ -1,6 +1,5 @@
-from django import forms
-
 from booking_portal.models.instrument.requests import FreezeDryer
+from django import forms
 
 from .base import UserDetailsForm, UserRemarkForm
 

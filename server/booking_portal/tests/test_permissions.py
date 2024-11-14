@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from ..factories import StudentFactory, FacultyFactory, LabAssistantFactory
-from ..permissions import is_student, is_faculty, is_lab_assistant
+from ..factories import FacultyFactory, LabAssistantFactory, StudentFactory
+from ..permissions import is_faculty, is_lab_assistant, is_student
 
 
 class PermissionTestCase(TestCase):

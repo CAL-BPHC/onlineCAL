@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0048_balancetopuplog'),
+        ("booking_portal", "0048_balancetopuplog"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userremark',
-            name='department_remarks',
+            model_name="userremark",
+            name="department_remarks",
             field=models.CharField(blank=True, max_length=250, null=True),
         ),
     ]

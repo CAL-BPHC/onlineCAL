@@ -6,32 +6,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0015_auto_20210926_1137'),
+        ("booking_portal", "0015_auto_20210926_1137"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='faculty',
-            options={'default_related_name': 'faculties', 'verbose_name': 'Faculty', 'verbose_name_plural': 'Faculties'},
+            name="faculty",
+            options={
+                "default_related_name": "faculties",
+                "verbose_name": "Faculty",
+                "verbose_name_plural": "Faculties",
+            },
         ),
         migrations.AlterModelOptions(
-            name='labassistant',
-            options={'default_related_name': 'labassistants', 'verbose_name': 'Lab Assistant'},
+            name="labassistant",
+            options={
+                "default_related_name": "labassistants",
+                "verbose_name": "Lab Assistant",
+            },
         ),
         migrations.AlterModelOptions(
-            name='student',
-            options={'default_related_name': 'students', 'verbose_name': 'Student'},
+            name="student",
+            options={"default_related_name": "students", "verbose_name": "Student"},
         ),
         migrations.AddField(
-            model_name='emailmodel',
-            name='text_html',
-            field=models.TextField(default=''),
+            model_name="emailmodel",
+            name="text_html",
+            field=models.TextField(default=""),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='emailmodel',
-            name='text',
-            field=models.TextField(default=''),
+            model_name="emailmodel",
+            name="text",
+            field=models.TextField(default=""),
             preserve_default=False,
         ),
     ]

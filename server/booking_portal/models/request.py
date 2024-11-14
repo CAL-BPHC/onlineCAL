@@ -1,5 +1,7 @@
 from typing import cast
 
+import booking_portal.models.instrument
+from booking_portal.models.instrument.requests import UserDetail
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,9 +11,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils.timezone import now
-
-import booking_portal.models.instrument
-from booking_portal.models.instrument.requests import UserDetail
 
 from .email import EmailModel
 from .slot import Slot

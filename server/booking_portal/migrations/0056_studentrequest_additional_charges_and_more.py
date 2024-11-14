@@ -6,18 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0055_facultyrequest_mode_cost_and_more'),
+        ("booking_portal", "0055_facultyrequest_mode_cost_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='studentrequest',
-            name='additional_charges',
+            model_name="studentrequest",
+            name="additional_charges",
             field=models.JSONField(default=list),
         ),
         migrations.AlterField(
-            model_name='additionalpricingrules',
-            name='rule_type',
-            field=models.CharField(choices=[('FLAT', 'Flat Charge'), ('PER_SAMPLE', 'Per Sample Charge'), ('PER_TIME_UNIT', 'Per Time Unit Charge'), ('HELP_TEXT', 'Help Text'), ('CHOICE_FIELD', 'Choice Field'), ('CONDITIONAL_FIELD', 'Conditional Field')], max_length=100),
+            model_name="additionalpricingrules",
+            name="rule_type",
+            field=models.CharField(
+                choices=[
+                    ("FLAT", "Flat Charge"),
+                    ("PER_SAMPLE", "Per Sample Charge"),
+                    ("PER_TIME_UNIT", "Per Time Unit Charge"),
+                    ("HELP_TEXT", "Help Text"),
+                    ("CHOICE_FIELD", "Choice Field"),
+                    ("CONDITIONAL_FIELD", "Conditional Field"),
+                ],
+                max_length=100,
+            ),
         ),
     ]

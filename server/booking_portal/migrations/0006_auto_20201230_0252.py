@@ -6,22 +6,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0005_instrument_status'),
+        ("booking_portal", "0005_instrument_status"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Announcement',
+            name="Announcement",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=100)),
-                ('text', models.CharField(max_length=300)),
-                ('date', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=100)),
+                ("text", models.CharField(max_length=300)),
+                ("date", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.AlterField(
-            model_name='instrument',
-            name='status',
-            field=models.BooleanField(default=True, help_text="'No' will cancel all pending requests and slots for this machine", verbose_name='Available for Booking?'),
+            model_name="instrument",
+            name="status",
+            field=models.BooleanField(
+                default=True,
+                help_text="'No' will cancel all pending requests and slots for this machine",
+                verbose_name="Available for Booking?",
+            ),
         ),
     ]

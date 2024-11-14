@@ -68,7 +68,7 @@
         $('input[data-conditional]').change(function() {
             var conditionalField = $(this).data('conditional');
             var isChecked = $(this).prop('checked');
-            
+
             if (isChecked) {
                 $('[data-quantity-for="' + conditionalField + '"]').show();
                 $('[data-quantity-for="' + conditionalField + '"]').parent().show();
