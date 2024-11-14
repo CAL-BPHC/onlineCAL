@@ -9,7 +9,7 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 - `git`
 - `python` >= 3.10
 - `poetry` >= 1.7.1
-- `docker` or `mySQL`
+- `docker-compose` or `MySQL`
 
 ### Installation
 
