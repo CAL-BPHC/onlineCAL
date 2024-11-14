@@ -31,8 +31,8 @@ jobs:
             git pull origin master
 
             source $(poetry env info --path)/bin/activate
-            poetry install
-            python manage.py migrate
+            poetry install --no-root
+            python manage.py migrate --noinput
             python manage.py collectstatic --noinput
 
             sudo supervisorctl restart onlineCAL
