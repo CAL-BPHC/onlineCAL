@@ -64,10 +64,6 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
     python manage.py runserver
    ```
 
-## Hosting
-
-The project is hosted on an Ubuntu server provided by CCIT, with `supervisor` managing both the app running on `gunicorn` and the `qcluster` for email processing, while `nginx` acts as a reverse proxy. Further server configuration details are available [here](https://drive.google.com/drive/folders/1E3XOwm7TdjcMoLt7LjvtM0ODzSZpveAT?usp=sharing).
-
 ## Deployment
 
 The deployment process is automated through GitHub Actions, with a workflow available [here](https://github.com/CAL-BPHC/onlineCAL/blob/master/.github/workflows/deploy.yml) that triggers on every push to the `master` branch.
@@ -116,3 +112,7 @@ If, for any reason, changes need to be deployed manually, the following steps ca
    ```bash
     sudo supervisorctl restart onlineCAL
    ```
+
+## Hosting
+
+Server configuration details are available [here](https://drive.google.com/drive/folders/1E3XOwm7TdjcMoLt7LjvtM0ODzSZpveAT?usp=sharing).
