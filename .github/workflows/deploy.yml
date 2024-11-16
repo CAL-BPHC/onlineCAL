@@ -14,9 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Poetry environment
+      - name: Ensure Poetry is in PATH
         run: |
-            export PATH="$HOME/.poetry/bin:$PATH"
+            echo "export PATH=\"$HOME/.poetry/bin:$PATH\"" >> $GITHUB_ENV
             poetry --version
 
       - name: Deploy to Server
