@@ -11,6 +11,14 @@ jobs:
 
     steps:
 
+      - name: Add Poetry to PATH
+        run: echo "/home/ubuntu/.local/bin" >> $GITHUB_ENV
+
+      - name: Check if Poetry is in PATH
+        run: |
+          echo $PATH
+          poetry --version
+
       - name: Deploy to Server
         env:
           POETRY_VIRTUALENVS_IN_PROJECT: true
