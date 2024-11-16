@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0034_ultracentrifuge_alter_spectrafluorimeter_options'),
+        ("booking_portal", "0034_ultracentrifuge_alter_spectrafluorimeter_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='instrument',
-            name='cost_per_sample',
+            model_name="instrument",
+            name="cost_per_sample",
             field=models.IntegerField(default=0),
         ),
     ]

@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0009_hplc_fd'),
+        ("booking_portal", "0009_hplc_fd"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='instrument',
-            options={'ordering': ['name']},
+            name="instrument",
+            options={"ordering": ["name"]},
         ),
     ]

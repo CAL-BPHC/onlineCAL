@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0007_auto_20201230_0255'),
+        ("booking_portal", "0007_auto_20201230_0255"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userdetail',
-            name='phone_number',
-            field=models.CharField(default='', max_length=10),
+            model_name="userdetail",
+            name="phone_number",
+            field=models.CharField(default="", max_length=10),
             preserve_default=False,
         ),
     ]

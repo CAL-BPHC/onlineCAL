@@ -6,13 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0038_null_role'),
+        ("booking_portal", "0038_null_role"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customuser',
-            name='role',
-            field=models.CharField(choices=[('STAFF', 'Staff'), ('STUDENT', 'Student'), ('FACULTY', 'Faculty'), ('LAB_ASSISTANT', 'Lab Assistant'), ('DEPARTMENT', 'Department')], max_length=50),
+            model_name="customuser",
+            name="role",
+            field=models.CharField(
+                choices=[
+                    ("STAFF", "Staff"),
+                    ("STUDENT", "Student"),
+                    ("FACULTY", "Faculty"),
+                    ("LAB_ASSISTANT", "Lab Assistant"),
+                    ("DEPARTMENT", "Department"),
+                ],
+                max_length=50,
+            ),
         ),
     ]

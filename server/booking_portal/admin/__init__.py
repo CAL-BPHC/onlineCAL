@@ -1,11 +1,10 @@
-from django.contrib import admin
-
 from booking_portal.admin.balance_top_up_log import BalanceTopUpLogAdmin
 from booking_portal.admin.pricing_rules import (
     AdditionalPricingRulesAdmin,
     ModePricingRulesAdmin,
 )
 from booking_portal.models.user import BalanceTopUpLog
+from django.contrib import admin
 
 from ..models import (
     Announcement,

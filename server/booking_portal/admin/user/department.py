@@ -1,10 +1,9 @@
+from booking_portal.forms.admin import TopUpForm
+from booking_portal.models.user import BalanceTopUpLog
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import path
-
-from booking_portal.forms.admin import TopUpForm
-from booking_portal.models.user import BalanceTopUpLog
 
 from ...models import CustomUser, Department
 from .user import CustomUserAdmin

@@ -6,23 +6,23 @@ from django.core.exceptions import ValidationError
 
 
 class DateInput(forms.DateInput):
-    input_type = 'date'
+    input_type = "date"
 
 
 class CrispyTimeField(CrispyField):
     def __init__(self, *args, **kwargs):
-        kwargs['template'] = 'widgets/time_input.html'
-        kwargs['css_class'] = 'datetimepicker-input'
+        kwargs["template"] = "widgets/time_input.html"
+        kwargs["css_class"] = "datetimepicker-input"
         super().__init__(*args, **kwargs)
 
 
 class MinuteDurationField(forms.DurationField):
     default_error_messages = {
-        'invalid': 'The duration in minutes must be a positive integer.'
+        "invalid": "The duration in minutes must be a positive integer."
     }
 
     def to_python(self, value):
-        validation_error = ValidationError(self.error_messages['invalid'])
+        validation_error = ValidationError(self.error_messages["invalid"])
         if isinstance(value, datetime.timedelta):
             return value
 

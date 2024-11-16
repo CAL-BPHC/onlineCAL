@@ -6,19 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0056_studentrequest_additional_charges_and_more'),
+        ("booking_portal", "0056_studentrequest_additional_charges_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='facultyrequest',
-            name='additional_charges',
+            model_name="facultyrequest",
+            name="additional_charges",
             field=models.JSONField(default=list),
         ),
         migrations.AddField(
-            model_name='studentrequest',
-            name='mode_rule_type',
-            field=models.CharField(default='', max_length=100),
+            model_name="studentrequest",
+            name="mode_rule_type",
+            field=models.CharField(default="", max_length=100),
             preserve_default=False,
         ),
     ]

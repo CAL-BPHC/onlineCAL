@@ -1,0 +1,6 @@
+[client]
+database = onlinecal
+host = 127.0.0.1
+user = onlinecal
+password = onlinecal
+default-character-set = utf8

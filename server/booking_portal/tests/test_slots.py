@@ -2,10 +2,9 @@ import datetime
 from datetime import timedelta
 
 from django.conf import settings
-from django.contrib.messages import get_messages
 from django.contrib import messages
-from django.test import Client
-from django.test import TestCase
+from django.contrib.messages import get_messages
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from ..factories import InstrumentFactory, LabAssistantFactory
@@ -22,8 +21,13 @@ class OverlappingSlotTestCase(TestCase):
     def setUp(self):
         self.now = _VALID_DATE_TIME
         instr = InstrumentFactory()
-        self.slot = Slot.objects.create(instrument=instr, status=Slot.STATUS_1, date=datetime.date.today(),
-                                        start_time=self.now, end_time=self.now + timedelta(minutes=30))
+        self.slot = Slot.objects.create(
+            instrument=instr,
+            status=Slot.STATUS_1,
+            date=datetime.date.today(),
+            start_time=self.now,
+            end_time=self.now + timedelta(minutes=30),
+        )
 
     def test_when_new_completely_inside_old(self):
         slot = self.slot
@@ -93,45 +97,50 @@ class BulkCreateSlotsFormTestCase(TestCase):
     def setUp(self):
         # We create a base valid form. Each test will modify and make it invalid.
         self.now = _VALID_DATE_TIME
-        self.form = BulkCreateSlotsForm(data={
-            'instrument': str(self.instr.pk),
-            'start_date': str(datetime.date.today()),
-            'start_time': str(self.now.time()),
-            'end_time': str((self.now + timedelta(minutes=30)).time()),
-            'slot_duration': "30",
-            'for_the_next': "7",
-        })
+        self.form = BulkCreateSlotsForm(
+            data={
+                "instrument": str(self.instr.pk),
+                "start_date": str(datetime.date.today()),
+                "start_time": str(self.now.time()),
+                "end_time": str((self.now + timedelta(minutes=30)).time()),
+                "slot_duration": "30",
+                "for_the_next": "7",
+            }
+        )
 
     def test_invalid_duration(self):
         form = self.form
-        form.data['slot_duration'] = "0"
+        form.data["slot_duration"] = "0"
 
-        self.assertIn('slot_duration', form.errors)
+        self.assertIn("slot_duration", form.errors)
         self.assertEqual(
-            form.errors['slot_duration'], ["The duration in minutes must be a positive integer."]
+            form.errors["slot_duration"],
+            ["The duration in minutes must be a positive integer."],
         )
 
     def test_start_time_after_end_time(self):
         form = self.form
-        form.data['start_time'] = str((self.now + timedelta(minutes=31)).time())
+        form.data["start_time"] = str((self.now + timedelta(minutes=31)).time())
 
-        self.assertIn('start_time', form.errors)
+        self.assertIn("start_time", form.errors)
         self.assertEqual(
-            form.errors['start_time'], ["Start time cannot be after end time."]
+            form.errors["start_time"], ["Start time cannot be after end time."]
         )
 
     def test_start_date_before_today(self):
         form = self.form
-        form.data['start_date'] = str((datetime.datetime.now() - timedelta(days=1)).date())
+        form.data["start_date"] = str(
+            (datetime.datetime.now() - timedelta(days=1)).date()
+        )
 
-        self.assertIn('start_date', form.errors)
+        self.assertIn("start_date", form.errors)
         self.assertEqual(
-            form.errors['start_date'], ["Start date cannot be before today."]
+            form.errors["start_date"], ["Start date cannot be before today."]
         )
 
     def test_duration_gives_whole_number_of_slots(self):
         form = self.form
-        form.data['slot_duration'] = "31"
+        form.data["slot_duration"] = "31"
         self.assertIn(
             "Cannot create whole number of slots between specified start and "
             "end time with the given duration.",
@@ -154,23 +163,28 @@ class BulkCreateSlotsTestCase(TestCase):
         self.now = _VALID_DATE_TIME
 
     def test_successful_slot_creation(self):
-        url = reverse('admin:booking_portal_slot_bulk-slots_create')
+        url = reverse("admin:booking_portal_slot_bulk-slots_create")
         # Set a date that is not Sunday
         response = self.client.post(
             url,
             {
-                'instrument': self.instr.pk,
-                'start_date': self.now.date(),
-                'start_time': self.now.time(),
-                'end_time': (self.now + timedelta(minutes=60)).time(),
-                'slot_duration': '10',
-                'for_the_next': 1,
-            }
+                "instrument": self.instr.pk,
+                "start_date": self.now.date(),
+                "start_time": self.now.time(),
+                "end_time": (self.now + timedelta(minutes=60)).time(),
+                "slot_duration": "10",
+                "for_the_next": 1,
+            },
         )
 
-        message_list = [(x.message, x.level_tag) for x in get_messages(response.wsgi_request)]
+        message_list = [
+            (x.message, x.level_tag) for x in get_messages(response.wsgi_request)
+        ]
         self.assertIn(
-            ("All slots were created successfully.", settings.MESSAGE_TAGS[messages.SUCCESS]),
+            (
+                "All slots were created successfully.",
+                settings.MESSAGE_TAGS[messages.SUCCESS],
+            ),
             message_list,
         )
 
@@ -185,24 +199,28 @@ class BulkCreateSlotsTestCase(TestCase):
         )
 
         # Now try creating partially overlapping slots
-        url = reverse('admin:booking_portal_slot_bulk-slots_create')
+        url = reverse("admin:booking_portal_slot_bulk-slots_create")
         response = self.client.post(
             url,
             {
-                'instrument': self.instr.pk,
-                'start_date': self.now.date(),
-                'start_time': self.now.time(),
-                'end_time': (self.now + timedelta(minutes=60)).time(),
-                'slot_duration': '10',
-                'for_the_next': 7,
-            }
+                "instrument": self.instr.pk,
+                "start_date": self.now.date(),
+                "start_time": self.now.time(),
+                "end_time": (self.now + timedelta(minutes=60)).time(),
+                "slot_duration": "10",
+                "for_the_next": 7,
+            },
         )
         expected_total_slots = 36  # 6 slots a day for 6 days (no slots on Sunday)
         expected_created_slots = 30  # everything clashes on day 1
-        expected_message = (f"{expected_created_slots} out of {expected_total_slots} slots created. Some slots may not "
-                            f"have been created due to clashes with existing slots.")
+        expected_message = (
+            f"{expected_created_slots} out of {expected_total_slots} slots created. Some slots may not "
+            f"have been created due to clashes with existing slots."
+        )
 
-        message_list = [(x.message, x.level_tag) for x in get_messages(response.wsgi_request)]
+        message_list = [
+            (x.message, x.level_tag) for x in get_messages(response.wsgi_request)
+        ]
         self.assertIn(
             (expected_message, settings.MESSAGE_TAGS[messages.WARNING]),
             message_list,
@@ -219,24 +237,28 @@ class BulkCreateSlotsTestCase(TestCase):
         )
 
         # Now try to create overlapping slots
-        url = reverse('admin:booking_portal_slot_bulk-slots_create')
+        url = reverse("admin:booking_portal_slot_bulk-slots_create")
         response = self.client.post(
             url,
             {
-                'instrument': self.instr.pk,
-                'start_date': self.now.date(),
-                'start_time': self.now.time(),
-                'end_time': (self.now + timedelta(minutes=60)).time(),
-                'slot_duration': '10',
-                'for_the_next': 1,
-            }
+                "instrument": self.instr.pk,
+                "start_date": self.now.date(),
+                "start_time": self.now.time(),
+                "end_time": (self.now + timedelta(minutes=60)).time(),
+                "slot_duration": "10",
+                "for_the_next": 1,
+            },
         )
         expected_total_slots = 6
         expected_created_slots = 0
-        expected_message = (f"{expected_created_slots} out of {expected_total_slots} slots created. Some slots may not "
-                            f"have been created due to clashes with existing slots.")
+        expected_message = (
+            f"{expected_created_slots} out of {expected_total_slots} slots created. Some slots may not "
+            f"have been created due to clashes with existing slots."
+        )
 
-        message_list = [(x.message, x.level_tag) for x in get_messages(response.wsgi_request)]
+        message_list = [
+            (x.message, x.level_tag) for x in get_messages(response.wsgi_request)
+        ]
         self.assertIn(
             (expected_message, settings.MESSAGE_TAGS[messages.WARNING]),
             message_list,

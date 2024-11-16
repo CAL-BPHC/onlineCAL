@@ -17,7 +17,7 @@
   <title>{% block title %}OnlineCAL{% endblock %}</title>
 
   {% block head %}{% endblock %}
-  
+
   <style>
     select {width: 100%;}
   </style>
@@ -62,13 +62,13 @@
         <li class="nav-item active">
           <a class="nav-link" href="{% url 'announcements' %}">Announcements<span class="sr-only"> (current)</span></a>
         </li>
-        
+
         <li class="nav-item active">
           <a class="nav-link" href="{% url 'about_us' %}">About Us<span class="sr-only"> (current)</span></a>
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">
-        
+
 
         {% if user.is_authenticated %}
         <li class="nav-item active">
@@ -119,6 +119,6 @@
   {% endif %}
   {% block content %}
   {% endblock %}
-  
+
 </body>
 </html>

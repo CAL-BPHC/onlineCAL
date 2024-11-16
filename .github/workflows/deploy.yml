@@ -1,4 +1,4 @@
-name: Deploy onlineCAL 
+name: Deploy onlineCAL
 
 on:
   push:
@@ -7,25 +7,17 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        uses: actions/checkout@v4
 
       - name: Deploy to Server
         env:
           POETRY_VIRTUALENVS_IN_PROJECT: true
         run: |
-
-          ssh -o StrictHostKeyChecking=no ubuntu@onlinecal.bits-hyderabad.ac.in << 'EOF'
-
             cd /home/ubuntu/onlineCAL/server
 
             git pull origin master
@@ -36,4 +28,3 @@ jobs:
             python manage.py collectstatic --noinput
 
             sudo supervisorctl restart onlineCAL
-          EOF

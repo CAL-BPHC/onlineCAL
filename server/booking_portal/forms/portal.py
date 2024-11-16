@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, ButtonHolder, Submit
+from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
 from django.urls import reverse
 from django.utils.timezone import now
@@ -19,6 +19,7 @@ class SlotModelChoiceField(forms.ModelChoiceField):
 
 class InstrumentList(forms.Form):
     """Form for selecting instruments for booking"""
+
     instruments = forms.ModelChoiceField(queryset=Instrument.objects.all())
 
     def __init__(self, *args, **kwargs):
@@ -26,35 +27,34 @@ class InstrumentList(forms.Form):
 
         self.helper = FormHelper(self)
         self.helper.form_show_labels = False
-        self.helper.form_action = reverse('slot-list')
+        self.helper.form_action = reverse("slot-list")
         self.helper.layout = Layout(
-            'instruments',
+            "instruments",
             ButtonHolder(
-                Submit('proceed', value="Proceed", css_class='btn-primary btn-md')
-            )
+                Submit("proceed", value="Proceed", css_class="btn-primary btn-md")
+            ),
         )
 
 
 class SlotList(forms.Form):
     """Form for selecting an empty slot of a given
     instrument"""
+
     def __init__(self, instr, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['slots'] = SlotModelChoiceField(
+        self.fields["slots"] = SlotModelChoiceField(
             queryset=Slot.objects.filter(
-                instrument=instr,
-                status=Slot.STATUS_1,
-                date__gte=now().date()
+                instrument=instr, status=Slot.STATUS_1, date__gte=now().date()
             )
         )
 
         self.helper = FormHelper(self)
         self.helper.form_show_labels = False
-        self.helper.form_action = reverse('book-machine', kwargs={'instr_id': instr.pk})
-        self.helper.form_method = 'GET'
+        self.helper.form_action = reverse("book-machine", kwargs={"instr_id": instr.pk})
+        self.helper.form_method = "GET"
         self.helper.layout = Layout(
-            'slots',
+            "slots",
             ButtonHolder(
-                Submit('proceed', value="Proceed", css_class='btn-primary btn-md')
-            )
+                Submit("proceed", value="Proceed", css_class="btn-primary btn-md")
+            ),
         )

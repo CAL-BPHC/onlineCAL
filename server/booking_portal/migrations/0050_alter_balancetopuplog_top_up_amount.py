@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0049_userremark_department_remarks'),
+        ("booking_portal", "0049_userremark_department_remarks"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='balancetopuplog',
-            name='top_up_amount',
-            field=models.IntegerField(validators=[django.core.validators.MinValueValidator(0)]),
+            model_name="balancetopuplog",
+            name="top_up_amount",
+            field=models.IntegerField(
+                validators=[django.core.validators.MinValueValidator(0)]
+            ),
         ),
     ]

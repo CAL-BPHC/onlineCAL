@@ -1,6 +1,3 @@
-from django import forms
-from django.contrib.contenttypes.models import ContentType
-
 import booking_portal.config as config
 from booking_portal.models import (
     AdditionalPricingRules,
@@ -11,6 +8,8 @@ from booking_portal.models import (
     UserDetail,
     UserRemark,
 )
+from django import forms
+from django.contrib.contenttypes.models import ContentType
 
 
 class MyModelChoiceField(forms.ModelChoiceField):

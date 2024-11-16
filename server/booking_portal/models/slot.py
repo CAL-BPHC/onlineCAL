@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import calendar
 import datetime
-from typing import List, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Tuple
 
 from django.db import models
 from django.db.models import Q

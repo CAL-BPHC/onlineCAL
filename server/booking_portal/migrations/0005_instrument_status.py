@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0004_userdetail_duration'),
+        ("booking_portal", "0004_userdetail_duration"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='instrument',
-            name='status',
-            field=models.BooleanField(default=True, help_text='Will cancel all slot of this instrument', verbose_name='Current Status'),
+            model_name="instrument",
+            name="status",
+            field=models.BooleanField(
+                default=True,
+                help_text="Will cancel all slot of this instrument",
+                verbose_name="Current Status",
+            ),
         ),
     ]

@@ -6,21 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('booking_portal', '0014_alter_utm_temperature'),
+        ("booking_portal", "0014_alter_utm_temperature"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='utm',
-            options={'verbose_name': 'UTM', 'verbose_name_plural': 'UTM'},
+            name="utm",
+            options={"verbose_name": "UTM", "verbose_name_plural": "UTM"},
         ),
         migrations.RemoveField(
-            model_name='emailmodel',
-            name='request',
+            model_name="emailmodel",
+            name="request",
         ),
         migrations.AddField(
-            model_name='emailmodel',
-            name='sent',
+            model_name="emailmodel",
+            name="sent",
             field=models.BooleanField(default=True),
             preserve_default=False,
         ),

@@ -1,8 +1,7 @@
+from booking_portal.models import CustomUser
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
-
-from booking_portal.models import CustomUser
 
 
 class AnnouncementAdmin(admin.ModelAdmin):
