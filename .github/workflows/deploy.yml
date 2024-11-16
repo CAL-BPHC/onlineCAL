@@ -15,7 +15,7 @@ jobs:
         run: |
             export PATH="$HOME/.poetry/bin:$PATH"
             echo $PATH
-            poetry --version
+            $HOME/.poetry/bin/poetry --version
 
       - name: Deploy to Server
         env:
