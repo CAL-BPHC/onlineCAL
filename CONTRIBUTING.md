@@ -1,12 +1,12 @@
 # Contributing
 
-There aren't any formal guidelines for contributing to this project. However, the following steps are recommended:
+1. Each feature or bug fix should be developed in a separate branch. Changes must be merged into the `master` branch through a pull request. Direct pushes to `master` are blocked to ensure only production-ready changes are deployed. Repository admins can bypass this rule if necessary.
 
-1. Install pre-commit hooks by running `pre-commit install` in the project directory. Github Actions will run the same checks on every push to the repository.
+2. Install pre-commit hooks by running `pre-commit install` in the project directory. Github Actions will run the same checks on every push to the repository.
 
-2. Use a consistent commit format. [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) is recommended.
+3. Use a consistent commit format. [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) is recommended.
 
-3. Use your personal account for contributing rather than the `CAL-BPHC` account.
+4. Use your personal account for contributing rather than the `CAL-BPHC` account.
 
 ## Important Note on Adding New Instruments
 
