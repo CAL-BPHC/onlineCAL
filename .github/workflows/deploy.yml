@@ -11,12 +11,10 @@ jobs:
 
     steps:
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Ensure Poetry is in PATH
         run: |
-            echo "export PATH=\"$HOME/.poetry/bin:$PATH\"" >> $GITHUB_ENV
+            export PATH="$HOME/.poetry/bin:$PATH"
+            echo $PATH
             poetry --version
 
       - name: Deploy to Server
