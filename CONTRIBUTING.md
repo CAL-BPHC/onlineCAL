@@ -14,8 +14,8 @@ If the database is reset, instruments must be added in a specific order. Refer t
 
 When adding a new instrument:
 
-1. Review any [previous commit](https://github.com/CAL-BPHC/onlineCAL/commit/8693641775f9896962137c468788d0baa82b773b) where an instrument was added to get useful context.
+1. Review any [previous commit](https://github.com/CAL-BPHC/onlineCAL/commit/9ddd08d1f19cbd511df680a8eeb6bc0032b04b21) where an instrument was added to get useful context.
 
 2. Make sure to add a new entry to `form_template_dict` in `config.py` with the next integer as the key and `(InstrumentFormClass, InstrumentModelClass)` as the value.
 
-3. After updating `config.py`, ensure the new instrument is added to the database.
+3. After updating `config.py`, you also need to add the new instrument to the `Instrument` table in the database.
