@@ -1,4 +1,5 @@
 from .aas import AASForm
+from .afm import AFMForm
 from .bdfacs import BDFACSForm
 from .bet import BETForm
 from .cdspectrophotometer import CDSpectrophotometerForm

@@ -58,6 +58,7 @@ form_template_dict = {
     39: (MuffleFurnace1Form, TubularMuffleFurnace),
     40: (MuffleFurnace2Form, TubularMuffleFurnace),
     41: (MuffleFurnace3Form, TubularMuffleFurnace),
+    42: (AFMForm, AFM),
 }
 
 view_application_dict = {

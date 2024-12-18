@@ -1,6 +1,7 @@
 from .instrument import AdditionalPricingRules, Instrument, ModePricingRules
 from .requests import (
     AAS,
+    AFM,
     BDFACS,
     BET,
     CHNS,

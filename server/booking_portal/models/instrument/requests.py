@@ -1009,3 +1009,41 @@ class TubularMuffleFurnace(UserDetail, UserRemark):
     class Meta:
         verbose_name = "Tubular/Muffle Furnace"
         verbose_name_plural = "Tubular/Muffle Furnace"
+
+
+class AFM(UserDetail, UserRemark):
+    sample_code = models.CharField(max_length=75)
+    sample_nature = models.CharField(
+        max_length=10,
+        choices=[
+            ("Film", "Film"),
+        ],
+    )
+    imaging_mode = models.CharField(
+        max_length=50,
+        choices=[
+            ("Static Force", "Static Force"),
+            ("Dynamic Force", "Dynamic Force"),
+            ("Phase Contrast", "Phase Contrast"),
+            ("Lateral Force", "Lateral Force"),
+            ("Standard Spectroscopy", "Standard Spectroscopy"),
+            ("Force Modulation", "Force Modulation"),
+            ("Standard Lithography", "Standard Lithography"),
+            ("Standard Conductive AFM", "Standard Conductive AFM"),
+            ("EFM", "EFM"),
+            ("MFM", "MFM"),
+            ("Liquid Cell Imaging", "Liquid Cell Imaging"),
+        ],
+    )
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "AFM",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year),
+        )
+
+    class Meta:
+        verbose_name = "AFM"
+        verbose_name_plural = "AFM"
