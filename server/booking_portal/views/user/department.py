@@ -27,13 +27,10 @@ def department_portal(request):
         .select_related("slot")
         .annotate(is_faculty_request=Value(True, output_field=BooleanField()))
     )
-
-    combined_requests = faculty_requests.union(student_requests)
-    combined_requests = combined_requests.order_by("-slot__date", "pk")
-
     f = BasePortalFilter(
         request.GET,
-        queryset=(combined_requests),
+        student_queryset=student_requests,
+        faculty_queryset=faculty_requests,
     )
     page_obj = f.paginate()
     department = models.Department.objects.get(id=request.user.id)

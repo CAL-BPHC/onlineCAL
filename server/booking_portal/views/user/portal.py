@@ -37,6 +37,43 @@ class BasePortalFilter(FilterSet):
 
     order = OrderingFilter(fields=(("slot", "slot__date"),))
 
+    def __init__(self, *args, **kwargs):
+        self.student_queryset = kwargs.pop("student_queryset", None)
+        self.faculty_queryset = kwargs.pop("faculty_queryset", None)
+        super().__init__(*args, **kwargs)
+
+    @staticmethod
+    def apply_filter(queryset, field, value):
+        if field == "from_date":
+            return queryset.filter(slot__date__gte=value)
+        elif field == "to_date":
+            return queryset.filter(slot__date__lte=value)
+        else:
+            return queryset.filter(**{f"{field}__exact": value})
+
+    @property
+    def qs(self):
+        # For department portal, we need to filter on both student and faculty requests
+        # Django doesn't support filtering on union queryset directly
+        if (
+            self.student_queryset is not None
+            and self.faculty_queryset is not None
+            and self.form.is_valid()
+        ):
+            student_filtered = self.student_queryset
+            faculty_filtered = self.faculty_queryset
+            cleaned_data = {k: v for k, v in self.form.cleaned_data.items() if v}
+            order_by = cleaned_data.pop("order", ["slot__date"])
+            for field, value in cleaned_data.items():
+                student_filtered = BasePortalFilter.apply_filter(
+                    student_filtered, field, value
+                )
+                faculty_filtered = BasePortalFilter.apply_filter(
+                    faculty_filtered, field, value
+                )
+            return student_filtered.union(faculty_filtered).order_by(*order_by)
+        return super().qs
+
     @property
     def form(self):
         form = super().form
