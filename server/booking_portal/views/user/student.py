@@ -76,11 +76,11 @@ def book_machine_student(request, form_class, form_model_class):
             messages.error(request, "Sorry, This slot is not available anymore.")
             return HttpResponseRedirect(reverse("instrument-list"))
 
-        if StudentRequest.objects.has_student_booked_upcoming_instrument_slot(
+        if StudentRequest.objects.does_student_have_three_pending_requests(
             instr, student
         ):
             messages.error(
-                request, "You already have an ongoing application for this machine."
+                request, "You already have 3 ongoing applications for this machine."
             )
             return HttpResponseRedirect(reverse("instrument-list"))
 

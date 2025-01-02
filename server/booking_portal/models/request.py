@@ -27,10 +27,10 @@ class StudentRequestManager(models.Manager):
             if not slot.is_available_for_booking():
                 raise ValueError("Slot is not available for booking.")
 
-            if StudentRequest.objects.has_student_booked_upcoming_instrument_slot(
+            if StudentRequest.objects.does_student_have_three_pending_requests(
                 instr, student
             ):
-                raise ValueError("Upcoming slot for instrument already booked.")
+                raise ValueError("3 upcoming slots for instrument already booked.")
 
             # mode_id = form_instance.cleaned_data.get("mode")
             # if not mode_id:
@@ -105,6 +105,23 @@ class StudentRequestManager(models.Manager):
             student=student,
             slot__date__gte=date,
         ).exists()
+
+    @staticmethod
+    def does_student_have_three_pending_requests(instr, student, date=now().date()):
+        """Check if a student has three pending requests for an instrument"""
+        return (
+            StudentRequest.objects.filter(
+                ~(
+                    Q(status=StudentRequest.REJECTED)
+                    | Q(status=StudentRequest.CANCELLED)
+                    | Q(status=StudentRequest.APPROVED)
+                ),
+                instrument=instr,
+                student=student,
+                slot__date__gte=date,
+            ).count()
+            >= 3
+        )
 
 
 class StudentRequest(models.Model):

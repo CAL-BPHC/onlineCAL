@@ -18,8 +18,9 @@
     <li>Please change your password as soon as possible.</li>
     {% if user_type|lower == "student" %}
     <li>You can start booking slots right away! However,
-        please note that you can only book another slot for the same machine once it is over (is in the past) or an existing
-        application has been rejected. You can book slots for other machines while you may have pending requests.
+        please note that you can only have up to three active requests for the same machine at any given time.
+        If this limit is reached, you must wait for one or more requests to either be completed (in the past)
+        or rejected before making additional bookings. You can book slots for other machines while you may have pending requests.
         You will receive an email once there is a final decision on your application.</li>
     {% elif user_type|lower == "lab assistant" %}
     <li>You cannot book a slot for a machine. You can only review an application and

@@ -34,10 +34,12 @@ def slot_list(request):
                 "form": InstrumentList(),
             },
         )
-    if StudentRequest.objects.has_student_booked_upcoming_instrument_slot(
+    if StudentRequest.objects.does_student_have_three_pending_requests(
         instr, request.user
     ):
-        messages.error(request, "You already have pending request for this instrument.")
+        messages.error(
+            request, "You already have 3 pending requests for this instrument."
+        )
         return render(
             request,
             "booking_portal/portal_forms/instrument_list.html",
