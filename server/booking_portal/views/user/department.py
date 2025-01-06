@@ -70,7 +70,7 @@ def department_accept(request, id):
             if department == request_object.faculty.department:
                 request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
                 request_object.save()
-                return redirect("department_portal")
+                return redirect(request.META.get("HTTP_REFERER", "department_portal"))
             else:
                 return HttpResponse("Bad Request")
     except Exception as e:
@@ -96,7 +96,7 @@ def department_reject(request, id):
             if department == models.Department.objects.get(id=request.user.id):
                 request_object.status = models.StudentRequest.REJECTED
                 request_object.save()
-                return redirect("department_portal")
+                return redirect(request.META.get("HTTP_REFERER", "department_portal"))
             else:
                 return HttpResponse("Bad Request")
     except Exception:

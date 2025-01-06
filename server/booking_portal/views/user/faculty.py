@@ -100,7 +100,7 @@ def faculty_request_accept(request, id):
                         models.LabAssistant.objects.filter(is_active=True)
                     )
                     request_object.save()
-                    return redirect("faculty_portal")
+                    return redirect(request.META.get("HTTP_REFERER", "faculty_portal"))
                 else:
                     return HttpResponse("Bad Request")
         except Exception as e:
@@ -122,7 +122,7 @@ def faculty_request_reject(request, id):
             if faculty == models.Faculty.objects.get(id=request.user.id):
                 request_object.status = models.StudentRequest.REJECTED
                 request_object.save()
-                return redirect("faculty_portal")
+                return redirect(request.META.get("HTTP_REFERER", "faculty_portal"))
             else:
                 return HttpResponse("Bad Request")
     except Exception:

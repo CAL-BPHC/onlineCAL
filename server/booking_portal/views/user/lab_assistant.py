@@ -86,7 +86,10 @@ def lab_assistant_accept(request, id):
             request_object.status = models.StudentRequest.APPROVED
             request_object.save()
             return redirect(
-                "lab_assistant_faculty_portal" if is_faculty else "lab_assistant"
+                request.META.get(
+                    "HTTP_REFERER",
+                    "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
+                )
             )
     except Exception:
         raise Http404("Page Not Found")
@@ -112,7 +115,10 @@ def lab_assistant_reject(request, id):
             request_object.status = models.StudentRequest.REJECTED
             request_object.save()
             return redirect(
-                "lab_assistant_faculty_portal" if is_faculty else "lab_assistant"
+                request.META.get(
+                    "HTTP_REFERER",
+                    "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
+                )
             )
     except Exception:
         raise Http404("Page Not Found")
