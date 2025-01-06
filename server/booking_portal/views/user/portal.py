@@ -63,7 +63,7 @@ class BasePortalFilter(FilterSet):
             student_filtered = self.student_queryset
             faculty_filtered = self.faculty_queryset
             cleaned_data = {k: v for k, v in self.form.cleaned_data.items() if v}
-            order_by = cleaned_data.pop("order", ["slot__date"])
+            order_by = cleaned_data.pop("order", ["-slot__date"])
             for field, value in cleaned_data.items():
                 student_filtered = BasePortalFilter.apply_filter(
                     student_filtered, field, value
