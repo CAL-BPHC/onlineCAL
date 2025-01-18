@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+{% load i18n admin_urls admin_modify %}
+{% load crispy_forms_tags %}
+
+{% block submit_buttons_bottom %}
+    <div style="margin-bottom: 15px;">
+        {% if top_up_wallet %}
+            <a class="button" style="margin-right: 5px;" href="{% url top_up_url object_id %}">Top Up Balance</a>
+        {% endif %}
+        {% if utilisation_report %}
+            <a class="button" href="{% url utilisation_report_url object_id %}">Utilisation Report</a>
+        {% endif %}
+    </div>
+    {{ block.super }}
+{% endblock %}

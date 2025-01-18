@@ -14,7 +14,7 @@ from .user import CustomUserAdmin
 
 class FacultyAdmin(CustomUserAdmin):
     CSV_HEADERS_FACULTY = ("department",)
-    change_form_template = "admin/top_up_change_form.html"
+    change_form_template = "admin/department_change_form.html"
     form = forms.FacultyChangeForm
     add_form = forms.FacultyCreationForm
 
