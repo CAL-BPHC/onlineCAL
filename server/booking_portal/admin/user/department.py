@@ -120,13 +120,13 @@ class DepartmentAdmin(CustomUserAdmin):
         writer.writeheader()
 
         student_requests = StudentRequest.objects.filter(
-            student__supervisor__department__email=department.email,
+            student__supervisor__department=department,
             slot__date__gte=start_date,
             slot__date__lte=end_date,
         ).select_related("slot")
 
         faculty_requests = FacultyRequest.objects.filter(
-            faculty__department__email=department.email,
+            faculty__department=department,
             slot__date__gte=start_date,
             slot__date__lte=end_date,
         ).select_related("slot")
