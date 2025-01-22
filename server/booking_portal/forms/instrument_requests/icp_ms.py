@@ -9,7 +9,7 @@ class ICPMSForm(UserDetailsForm, UserRemarkForm):
     subtitle = "Inductively Coupled Plasma-Mass Spectroscopy (ICP-MS)"
     help_text = """
     <b>Note:</b>
-    <p>1. CAL will not provide acids (Supra pure 5% HNO<sub>3</sub>, 5% HCl, 5% H2SO<sub>4</sub>, etc.) for sample preparation and acid micro digestion.</p>
+    <p>1. Users need to provide acids (Supra pure 5% HNO<sub>3</sub>, 5% HCl, 5% H2SO<sub>4</sub>, etc.) for sample preparation and acid micro digestion.</p>
     <p>2. Sample extracted with HF digestion cannot be run on the ICP-MS system.</p>
     <p>3. Acid micro digestion is mandatory for samples with high organic matter content.</p>
     <p>4. CAL will not under any circumstances store samples after analysis.</p>
