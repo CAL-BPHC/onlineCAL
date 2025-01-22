@@ -14,6 +14,7 @@ from .requests import (
     GC,
     GPC,
     HPLC,
+    ICPMS,
     LCMS,
     LSCM,
     NMR,

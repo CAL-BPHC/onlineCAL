@@ -19,6 +19,7 @@ from .gc import GCForm
 from .gpc import GPCForm
 from .hplc import HPLCForm
 from .hplc_fd import HPLC_FDForm
+from .icp_ms import ICPMSForm
 from .lcms import LCMSForm
 from .lscm import LSCMForm
 from .mufflefurnace1 import MuffleFurnace1Form
