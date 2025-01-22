@@ -1072,6 +1072,7 @@ class ICPMS(UserDetail, UserRemark):
         max_length=75,
         choices=[("Standard", "Standard"), ("Literature", "Literature")],
     )
+    elements = models.CharField(max_length=75)
 
     def __str__(self):
         return "{} : {} {} {}".format(

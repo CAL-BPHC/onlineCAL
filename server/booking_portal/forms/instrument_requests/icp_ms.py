@@ -19,8 +19,6 @@ class ICPMSForm(UserDetailsForm, UserRemarkForm):
     <p>8. Samples should be properly labeled.</p>
     <p>9. Relevant standards for calibration should be provided.</p>
     <p>10. At least 10-15 ml must be provided for each sample.</p>
-    <p>11. Available Standard (Multi-standard) elements are:
-    <p>Ag, Al, B, Ba, Bi, Ca, Cd, Co, Cr, Cu, Fe, Ga, In, K, Li, Mg, Mn, Na, Ni, Pb, Sr, Ti, Zn, Hf, Ir, Sb, Sn, Ta, Ti, Zr, Ce, Y, Au.</p>
     """
 
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
@@ -28,6 +26,7 @@ class ICPMSForm(UserDetailsForm, UserRemarkForm):
         fields = (
             UserDetailsForm.Meta.fields
             + (
+                "elements",
                 "sample_code",
                 "sample_state",
                 "digestion_carried_out",
@@ -43,6 +42,8 @@ class ICPMSForm(UserDetailsForm, UserRemarkForm):
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
             **{
+                "elements": """Details of analysis required (List of Expected Elements);
+                Available Standard (Multi-standard) elements are: Ag, Al, B, Ba, Bi, Ca, Cd, Co, Cr, Cu, Fe, Ga, In, K, Li, Mg, Mn, Na, Ni, Pb, Sr, Ti, Zn, Hf, Ir, Sb, Sn, Ta, Ti, Zr, Ce, Y, Au.""",
                 "sample_code": "Sample Code",
                 "sample_state": "Sample State (Aqueous, Acid extract, etc.)",
                 "digestion_carried_out": "For samples containing organic matter, was digestion carried out?",
@@ -57,6 +58,11 @@ class ICPMSForm(UserDetailsForm, UserRemarkForm):
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
             **{
+                "elements": forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                    }
+                ),
                 "sample_code": forms.TextInput(
                     attrs={
                         "class": "form-control",
