@@ -19,6 +19,7 @@ class ICPMSForm(UserDetailsForm, UserRemarkForm):
     <p>8. Samples should be properly labeled.</p>
     <p>9. Relevant standards for calibration should be provided.</p>
     <p>10. At least 10-15 ml must be provided for each sample.</p>
+    <p>11. "Ar" gas should be replaced by the user after 50 sample analyses.</p>
     """
 
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
