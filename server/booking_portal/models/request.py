@@ -328,13 +328,15 @@ def send_email_after_save(sender, instance, **kwargs):
         )
         # instead of sending mail to a lab assistant send it to the common email
         # instance.lab_assistant.send_email(subject, text, text_html)
-        EmailModel(
-            receiver="cal@hyderabad.bits-pilani.ac.in",
-            text=text,
-            text_html=text_html,
-            subject=subject,
-            sent=False,
-        ).save()
+
+        # Don't send emails as they are too many, and lab assts check the portal for pending requests
+        # EmailModel(
+        #     receiver="cal@hyderabad.bits-pilani.ac.in",
+        #     text=text,
+        #     text_html=text_html,
+        #     subject=subject,
+        #     sent=False,
+        # ).save()
     elif instance.status == StudentRequest.APPROVED:
         slot.update_status(Slot.STATUS_3)
         subject = "Lab Booking Approved"
