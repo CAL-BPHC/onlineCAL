@@ -22,6 +22,7 @@ class Command(BaseCommand):
         print(f"Sending {len(emails)} emails")
         start = time.time()
         datatuple = []
+        email_objects = []
         for email in emails:
             message = (
                 email.subject,
@@ -32,15 +33,18 @@ class Command(BaseCommand):
             )
             print(email.receiver)
             datatuple.append(message)
-            email.sent = True
-        send_mass_html_mail(datatuple, fail_silently=False)
+            email_objects.append(email)
+
+        sent_count = send_mass_html_mail(datatuple, fail_silently=True)
 
         end = time.time()
         elapsed = end - start
         print(f"Sent {len(emails)} emails in {elapsed:.2f} seconds")
 
         start = time.time()
-        EmailModel.objects.bulk_update(emails, ["sent"])
+        for email in email_objects[:sent_count]:
+            email.sent = True
+        EmailModel.objects.bulk_update(email_objects[:sent_count], ["sent"])
         end = time.time()
         elapsed = end - start
         print(f"Updated {len(emails)} emails in {elapsed:.2f} seconds")
