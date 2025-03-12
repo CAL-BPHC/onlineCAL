@@ -1,5 +1,8 @@
+import csv
 from io import StringIO
 
+from booking_portal.models.faculty_request import FacultyRequest
+from booking_portal.models.request import StudentRequest
 from django.contrib import admin, messages
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ValidationError
@@ -22,6 +25,7 @@ class InstrumentAdmin(admin.ModelAdmin):
     list_filter = admin.ModelAdmin.list_filter + ("status",)
     list_display = admin.ModelAdmin.list_display + ("status",)
     actions = ("instrument_usage_report_action",)
+    change_form_template = "admin/instrument_change_form.html"
 
     # only superuser has permission to add instruments
     def has_add_permission(self, request):
@@ -61,6 +65,13 @@ class InstrumentAdmin(admin.ModelAdmin):
             form = InstrumentUsageReportForm()
             return InstrumentAdmin.render_instrument_usage_report_form(request, form)
 
+    def changeform_view(self, request, object_id, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["utilisation_report"] = True
+        extra_context["utilisation_report_url"] = "admin:instrument_utilisation_report"
+        extra_context["object_id"] = object_id
+        return super().changeform_view(request, object_id, form_url, extra_context)
+
     def get_urls(self):
         urls = super().get_urls()
         info = self.model._meta.app_label, self.model._meta.model_name
@@ -70,9 +81,94 @@ class InstrumentAdmin(admin.ModelAdmin):
                 "usage-report/",
                 InstrumentAdmin.instrument_usage_report_form,
                 name="%s_%s_usage-report" % info,
-            )
+            ),
+            path(
+                "report/instrument/<int:instrument_id>",
+                self.admin_site.admin_view(self.export_utilisation_report),
+                name="instrument_utilisation_report",
+            ),
         ]
         return my_urls + urls
+
+    def export_utilisation_report(self, request, instrument_id):
+        instrument = self.get_object(request, instrument_id)
+        if request.method == "POST":
+            form = InstrumentUsageReportForm(request.POST)
+            if not form.is_valid():
+                return render(
+                    request,
+                    "admin/utilisation_report_entity.html",
+                    {
+                        "form": form,
+                        "instrument": instrument,
+                        "cancel_url": "admin:booking_portal_instrument_changelist",
+                    },
+                )
+            start_date = form.cleaned_data["start_date"]
+            end_date = form.cleaned_data["end_date"]
+
+            csv_file = StringIO()
+            self.create_utilisation_report(instrument, start_date, end_date, csv_file)
+            response = HttpResponse(csv_file.getvalue(), content_type="text/csv")
+            response["Content-Disposition"] = (
+                f'attachment; filename="{instrument.name} Utilisation Report.csv"'
+            )
+            csv_file.close()
+            return response
+
+        else:
+            form = InstrumentUsageReportForm()
+            return render(
+                request,
+                "admin/utilisation_report_entity.html",
+                {
+                    "form": form,
+                    "instrument": instrument,
+                    "cancel_url": "admin:booking_portal_instrument_changelist",
+                },
+            )
+
+    def create_utilisation_report(self, instrument, start_date, end_date, csv_file):
+        headers = (
+            "Request ID",
+            "Faculty",
+            "Student",
+            "Department",
+            "Slot",
+            "Total Cost",
+            "Status",
+        )
+        writer = csv.DictWriter(csv_file, headers)
+        writer.writeheader()
+
+        student_requests = StudentRequest.objects.filter(
+            instrument=instrument,
+            slot__date__gte=start_date,
+            slot__date__lte=end_date,
+        ).select_related("slot")
+
+        faculty_requests = FacultyRequest.objects.filter(
+            instrument=instrument,
+            slot__date__gte=start_date,
+            slot__date__lte=end_date,
+        ).select_related("slot")
+
+        requests = student_requests.union(faculty_requests).order_by(
+            "slot__date", "slot__start_time"
+        )
+
+        for req in requests:
+            writer.writerow(
+                {
+                    "Request ID": req.id,
+                    "Faculty": req.faculty,
+                    "Student": req.student if hasattr(req, "student") else "-",
+                    "Department": req.faculty.department.name.title(),
+                    "Slot": req.slot,
+                    "Total Cost": req.total_cost,
+                    "Status": req.get_status_display(),
+                }
+            )
 
     @admin.action(description="Download Instrument Usage Report")
     def instrument_usage_report_action(self, request, queryset):
