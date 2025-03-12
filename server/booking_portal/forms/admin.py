@@ -240,7 +240,7 @@ class InstrumentChangeForm(forms.ModelForm):
 
 class InstrumentUsageReportForm(forms.Form):
     start_date = forms.DateField(
-        initial=datetime.date.today,
+        initial=datetime.date(2024, 8, 1),
         widget=DateInput,
         label="Start date for usage report",
     )
