@@ -10,7 +10,7 @@
 
 ## Important Note on Adding New Instruments
 
-If the database is reset, instruments must be added in a specific order. Refer to [`config.py`](https://github.com/CAL-BPHC/onlineCAL/blob/master/server/booking_portal/config.py) for more information.
+If the database is reset, instruments must be added in a specific order. Refer to [`config.py`](server/booking_portal/config.py) for more information.
 
 When adding a new instrument:
 

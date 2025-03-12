@@ -28,7 +28,7 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 
 3. Setup the database
 
-   - The project uses MySQL as the database. You can either install MySQL or use the [docker-compose file](https://github.com/CAL-BPHC/onlineCAL/blob/master/server/docker-compose.yaml) provided.
+   - The project uses MySQL as the database. You can either install MySQL or use the [docker-compose file](server/docker-compose.yaml) provided.
 
    - If you are using MySQL, create a database that you will use for the project.
 
@@ -38,7 +38,7 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
      docker-compose -f server/docker-compose.yaml up
      ```
 
-   - Create a `db.conf` file in the `server` directory following the format in [`db.conf.example`](https://github.com/CAL-BPHC/onlineCAL/blob/master/server/db.conf.example). Use the same details if you're using Docker; otherwise, adjust them to match your MySQL setup.
+   - Create a `db.conf` file in the `server` directory following the format in [`db.conf.example`](server/db.conf.example). Use the same details if you're using Docker; otherwise, adjust them to match your MySQL setup.
 
 4. Activate the virtual environment
 
@@ -66,7 +66,7 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 
 ## Deployment
 
-The deployment process is automated through GitHub Actions, with a workflow available [here](https://github.com/CAL-BPHC/onlineCAL/blob/master/.github/workflows/deploy.yml) that triggers on every push to the `master` branch.
+The deployment process is automated through GitHub Actions, with a workflow available [here](.github/workflows/deploy.yml) that triggers on every push to the `master` branch.
 
 If, for any reason, changes need to be deployed manually, the following steps can be followed, as they mirror the actions performed by the workflow:
 
