@@ -173,6 +173,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
+API_KEY = os.getenv("API_KEY", "testkey")
+
 FILTERS_EMPTY_CHOICE_LABEL = "Any"
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
