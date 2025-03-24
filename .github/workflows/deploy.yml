@@ -27,7 +27,7 @@ jobs:
 
             git pull origin master
 
-            poetry install --no-root
+            poetry sync --no-root
             poetry run python manage.py migrate --noinput
             poetry run python manage.py collectstatic --noinput
 

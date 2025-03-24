@@ -8,7 +8,7 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 
 - `git`
 - `python` >= 3.10
-- `poetry` >= 1.8.4
+- `poetry` >= 2.1.1
 - `docker-compose` or `MySQL`
 
 ### Installation
@@ -23,7 +23,7 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 
    ```bash
    cd onlineCAL
-   poetry install
+   poetry sync --no-root
    ```
 
 3. Setup the database
@@ -40,25 +40,19 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 
    - Create a `db.conf` file in the `server` directory following the format in [`db.conf.example`](server/db.conf.example). Use the same details if you're using Docker; otherwise, adjust them to match your MySQL setup.
 
-4. Activate the virtual environment
-
-   ```bash
-   poetry shell
-   ```
-
-5. Run the migrations
+4. Run the migrations
 
    ```bash
     python manage.py migrate
    ```
 
-6. Create a superuser for accessing the admin panel
+5. Create a superuser for accessing the admin panel
 
    ```bash
    python manage.py createsuperuser
    ```
 
-7. Run the server
+6. Run the server
 
    ```bash
     python manage.py runserver
@@ -83,31 +77,25 @@ If, for any reason, changes need to be deployed manually, the following steps ca
     git pull origin master
    ```
 
-4. Start the poetry shell
+4. (Optional) Update dependencies if there have been any changes to them
 
    ```bash
-    poetry shell
+    poetry sync --no-root
    ```
 
-5. (Optional) Install dependencies if there have been any updates to them
-
-   ```bash
-    poetry install --no-root
-   ```
-
-6. (Optional) Run migrations if there are any new ones
+5. (Optional) Run migrations if there are any new ones
 
    ```bash
     python manage.py migrate
    ```
 
-7. (Optional) Collect static files if there have been any changes
+6. (Optional) Collect static files if there have been any changes
 
    ```bash
     python manage.py collectstatic
    ```
 
-8. Restart supervisor
+7. Restart supervisor
 
    ```bash
     sudo supervisorctl restart onlineCAL
