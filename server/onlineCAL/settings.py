@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Load Environment
-ENV_LOCATION = os.path.join(BASE_DIR, "proj.env")
+ENV_LOCATION = os.path.join(BASE_DIR, ".env")
 if os.path.exists(ENV_LOCATION):
     load_dotenv(ENV_LOCATION)
 
@@ -172,6 +172,8 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD", "test@123")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+API_KEY = os.getenv("API_KEY", "testkey")
 
 FILTERS_EMPTY_CHOICE_LABEL = "Any"
 
