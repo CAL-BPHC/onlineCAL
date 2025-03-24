@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Load Environment
-ENV_LOCATION = os.path.join(BASE_DIR, "proj.env")
+ENV_LOCATION = os.path.join(BASE_DIR, ".env")
 if os.path.exists(ENV_LOCATION):
     load_dotenv(ENV_LOCATION)
 
