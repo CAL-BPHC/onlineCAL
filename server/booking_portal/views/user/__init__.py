@@ -1,4 +1,4 @@
-from .admin import admin_portal, create_student
+from .admin import admin_portal, create_faculty, create_student, get_faculty
 from .department import department_accept, department_portal, department_reject
 from .faculty import (
     faculty_portal,
