@@ -11,11 +11,7 @@ from django.shortcuts import redirect, render
 from django.urls import path, reverse
 
 from .. import permissions
-from ..forms import (
-    InstrumentChangeForm,
-    InstrumentCreateForm,
-    InstrumentUsageReportForm,
-)
+from ..forms import InstrumentChangeForm, InstrumentCreateForm, UtilisationReportForm
 from ..models import Instrument
 
 
@@ -45,7 +41,7 @@ class InstrumentAdmin(admin.ModelAdmin):
             return redirect(reverse("admin:%s_%s_changelist" % info))
 
         if request.method == "POST":
-            form = InstrumentUsageReportForm(request.POST)
+            form = UtilisationReportForm(request.POST)
             if not form.is_valid():
                 return InstrumentAdmin.render_bulk_slots_form(request, form)
 
@@ -62,7 +58,7 @@ class InstrumentAdmin(admin.ModelAdmin):
             csv_file.close()
             return response
         else:
-            form = InstrumentUsageReportForm()
+            form = UtilisationReportForm()
             return InstrumentAdmin.render_instrument_usage_report_form(request, form)
 
     def changeform_view(self, request, object_id, form_url="", extra_context=None):
@@ -93,7 +89,7 @@ class InstrumentAdmin(admin.ModelAdmin):
     def export_utilisation_report(self, request, instrument_id):
         instrument = self.get_object(request, instrument_id)
         if request.method == "POST":
-            form = InstrumentUsageReportForm(request.POST)
+            form = UtilisationReportForm(request.POST)
             if not form.is_valid():
                 return render(
                     request,
@@ -117,7 +113,7 @@ class InstrumentAdmin(admin.ModelAdmin):
             return response
 
         else:
-            form = InstrumentUsageReportForm()
+            form = UtilisationReportForm()
             return render(
                 request,
                 "admin/utilisation_report_entity.html",

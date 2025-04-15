@@ -1,8 +1,7 @@
 import csv
 from io import StringIO
-from itertools import chain
 
-from booking_portal.forms.admin import DepartmentUtilisationReportForm, TopUpForm
+from booking_portal.forms.admin import TopUpForm, UtilisationReportForm
 from booking_portal.models.user import BalanceTopUpLog
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest, HttpResponse
@@ -17,7 +16,7 @@ from .user import CustomUserAdmin
 
 class DepartmentAdmin(CustomUserAdmin):
     list_display = CustomUserAdmin.list_display + ("balance",)
-    change_form_template = "admin/department_change_form.html"
+    change_form_template = "admin/top_up_utilisation_change_form.html"
     fieldsets = CustomUserAdmin.fieldsets + (
         (
             None,
@@ -152,7 +151,7 @@ class DepartmentAdmin(CustomUserAdmin):
     def export_utilisation_report(self, request, department_id):
         department = self.get_object(request, department_id)
         if request.method == "POST":
-            form = DepartmentUtilisationReportForm(request.POST)
+            form = UtilisationReportForm(request.POST)
             if not form.is_valid():
                 return render(
                     request,
@@ -175,7 +174,7 @@ class DepartmentAdmin(CustomUserAdmin):
             return response
 
         else:
-            form = DepartmentUtilisationReportForm()
+            form = UtilisationReportForm()
             return render(
                 request,
                 "admin/utilisation_report_entity.html",

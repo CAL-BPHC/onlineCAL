@@ -8,7 +8,7 @@ from .admin import (
     FacultyCreationForm,
     InstrumentChangeForm,
     InstrumentCreateForm,
-    InstrumentUsageReportForm,
     StudentChangeForm,
     StudentCreationForm,
+    UtilisationReportForm,
 )
