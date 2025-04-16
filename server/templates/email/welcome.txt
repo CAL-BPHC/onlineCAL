@@ -15,7 +15,7 @@ Please read the following instructions so that you can familiarize yourselves
 with the portal:
 Please change your password as soon as possible.
 {% if user_type|lower == "student" %}
-    You can begin booking slots right away! However, please note that you
+    You can start booking slots right away! However, please note that you
     can only have up to three active requests for the same machine at any given time.
     If this limit is reached, you must wait for one or more requests to either be
     completed (in the past) or rejected before making additional bookings. You can book
@@ -28,10 +28,11 @@ Please change your password as soon as possible.
     applications. You will receive an email once there is a pending
     request which awaits your approval.
 {% elif user_type|lower == "faculty" %}
-    You cannot book a slot for a machine. You can only review an
-    application and approve/reject it. You can also add remarks to applications.
-    You will receive an email once there is a pending request which awaits your
-    approval.
+    You can start booking slots right away! However,
+    please note that you can only book another slot for the same machine once it is over (is in the past) or an existing
+    application has been rejected. You can book slots for other machines while you may have pending requests.
+    You can review student applications and approve/reject it. You can also add remarks to applications.
+    You will receive an email once there is a pending request which awaits your approval.
 {% endif %}
 You can also download an application from the portal. Just click on
 "View Application" on the portal.
