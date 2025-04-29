@@ -19,6 +19,9 @@ class AnnouncementAdmin(admin.ModelAdmin):
 
         users = CustomUser.objects.filter(is_active=True)
         for user in users:
+            if user.email.endswith("@email.com"):
+                # Skip sending announcements to test users
+                continue
             user.send_email(subject, text, text_html)
 
         return super().response_add(request, obj, post_url_continue)
