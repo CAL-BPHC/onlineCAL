@@ -43,14 +43,7 @@ def create_student(request):
             status=HTTPStatus.BAD_REQUEST,
         )
 
-    if Student.objects.filter(email=email).exists():
-        return JsonResponse(
-            {"error": "Student with this email already exists"},
-            status=HTTPStatus.CONFLICT,
-        )
-
     supervisor = Faculty.objects.filter(email=supervisor_email).first()
-
     if not supervisor:
         return JsonResponse(
             {"error": "Supervisor with this email does not exist"},
@@ -59,18 +52,28 @@ def create_student(request):
 
     raw_password = Student.objects.make_random_password(12)
 
-    Student.objects.create(
-        email=email,
-        name=name,
-        supervisor=supervisor,
-        password=make_password(raw_password),
-    )
+    if Student.objects.filter(email=email).exists():
+        existing = True
+        student = Student.objects.get(email=email)
+        student.name = name
+        student.supervisor = supervisor
+        student.password = make_password(raw_password)
+        student.save()
+    else:
+        existing = False
+        Student.objects.create(
+            email=email,
+            name=name,
+            supervisor=supervisor,
+            password=make_password(raw_password),
+        )
 
     return JsonResponse(
         {
             "success": True,
             "email": email,
             "password": raw_password,
+            "existing": existing,
         },
         status=HTTPStatus.CREATED,
     )
