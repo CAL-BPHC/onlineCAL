@@ -40,27 +40,33 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 
    - Create a `db.conf` file in the `server` directory following the format in [`db.conf.example`](server/db.conf.example). Use the same details if you're using Docker; otherwise, adjust them to match your MySQL setup.
 
-4. Run the migrations
+4. Change directory
 
    ```bash
-    python manage.py migrate
+   cd server
    ```
 
-5. Create a superuser for accessing the admin panel
+5. Run the migrations
+
+   ```bash
+   python manage.py migrate
+   ```
+
+6. Create a superuser for accessing the admin panel
 
    ```bash
    python manage.py createsuperuser
    ```
 
-6. Run the server
+7. Run the server
 
    ```bash
-    python manage.py runserver
+   python manage.py runserver
    ```
 
 ## Deployment
 
-The deployment process is automated through GitHub Actions, with a workflow available [here](.github/workflows/deploy.yml) that triggers on every push to the `master` branch.
+The deployment process is automated through GitHub Actions, with a [workflow](.github/workflows/deploy.yml) that triggers on every push to the `master` branch.
 
 If, for any reason, changes need to be deployed manually, the following steps can be followed, as they mirror the actions performed by the workflow:
 
@@ -74,31 +80,31 @@ If, for any reason, changes need to be deployed manually, the following steps ca
 3. Pull the latest changes from the repository
 
    ```bash
-    git pull origin master
+   git pull origin master
    ```
 
 4. (Optional) Update dependencies if there have been any changes to them
 
    ```bash
-    poetry sync --no-root
+   poetry sync --no-root
    ```
 
 5. (Optional) Run migrations if there are any new ones
 
    ```bash
-    python manage.py migrate
+   python manage.py migrate
    ```
 
 6. (Optional) Collect static files if there have been any changes
 
    ```bash
-    python manage.py collectstatic
+   python manage.py collectstatic
    ```
 
 7. Restart supervisor
 
    ```bash
-    sudo supervisorctl restart onlineCAL
+   sudo supervisorctl restart onlineCAL
    ```
 
 ## Hosting
