@@ -64,15 +64,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             subject=subject,
             sent=False,
         ).save()
-        if self.email == "hod.pharmacy@hyderabad.bits-pilani.ac.in":
-            # Prof. Punna Rao is the Acting HOD of Pharmacy until July 19, 2025.
-            EmailModel(
-                receiver="rpunnarao@hyderabad.bits-pilani.ac.in",
-                text=message,
-                text_html=html_message,
-                subject=subject,
-                sent=False,
-            ).save()
 
     def send_email(self, subject, message, html_message):
         self._create_email_obj(subject, message, html_message)
