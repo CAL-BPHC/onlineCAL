@@ -71,8 +71,6 @@ def lab_assistant_accept(request, id):
                     id=id, status=models.StudentRequest.WAITING_FOR_LAB_ASST
                 )
             if request_object.needs_department_approval:
-                print("here")
-                print(request_object.needs_department_approval)
                 department = cast(models.Department, request_object.faculty.department)
                 department.balance -= request_object.total_cost
                 department.save()

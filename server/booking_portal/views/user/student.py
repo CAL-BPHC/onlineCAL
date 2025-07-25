@@ -62,6 +62,7 @@ def book_machine_student(request, form_class, form_model_class):
         "form_notes": form_class.help_text,
         "user_type": "student",
         "status": StudentRequest.WAITING_FOR_FACULTY,
+        "notes_first": form_model_class._meta.verbose_name == "ICP-MS",
     }
 
     if request.method == "GET":
@@ -236,6 +237,7 @@ def book_machine(request, instr_id):
         "form_notes": form_class.help_text,
         "user_type": "student",
         "status": StudentRequest.WAITING_FOR_FACULTY,  # does not matter when edit is true
+        "notes_first": form_model_class._meta.verbose_name == "ICP-MS",
     }
 
     if request.method == "GET":

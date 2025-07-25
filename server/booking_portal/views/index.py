@@ -146,6 +146,7 @@ def show_application_student(request, id):
             "form_notes": form.help_text,
             "status": request_obj.status,
             "total_cost": request_obj.total_cost,
+            "notes_first": content_object._meta.verbose_name == "ICP-MS",
         },
     )
 
@@ -254,6 +255,7 @@ def show_application_faculty(request, id):
             "status": request_obj.status,
             "total_cost": request_obj.total_cost,
             "faculty_request": True,
+            "notes_first": content_object._meta.verbose_name == "ICP-MS",
         },
     )
 

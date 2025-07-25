@@ -34,10 +34,17 @@
             });
     </script>
     {% csrf_token %}
-    {{ form.as_p }}
-    <p style="text-align: justify;">
-        {{ form_notes | safe }}
-    </p>
+    {% if notes_first %}
+        <p style="text-align: justify;">
+            {{ form_notes | safe }}
+        </p>
+        {{ form.as_p }}
+    {% else %}
+        {{ form.as_p }}
+        <p style="text-align: justify;">
+            {{ form_notes | safe }}
+        </p>
+    {% endif %}
     <div style="text-align: center;">
     {% if edit %}
         <input type="hidden" name="calculation_done" value="{{ calculation_done }}">

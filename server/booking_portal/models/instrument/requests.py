@@ -1052,27 +1052,9 @@ class AFM(UserDetail, UserRemark):
 class ICPMS(UserDetail, UserRemark):
     sample_code = models.CharField(max_length=75)
     sample_state = models.CharField(max_length=75)
-    digestion_carried_out = models.CharField(
-        max_length=3,
-        choices=[("Yes", "Yes"), ("No", "No")],
-        null=True,
-        blank=True,
-    )
     target_elements_concentration = models.IntegerField(
-        validators=[MaxValueValidator(1000), MinValueValidator(1)]
+        validators=[MaxValueValidator(200), MinValueValidator(1)]
     )
-    sample_filtered = models.CharField(
-        max_length=3,
-        choices=[("Yes", "Yes"), ("No", "No")],
-    )
-    calibration_solution_concentration = models.IntegerField(
-        validators=[MaxValueValidator(1000), MinValueValidator(1)]
-    )
-    method = models.CharField(
-        max_length=75,
-        choices=[("Standard", "Standard"), ("Literature", "Literature")],
-    )
-    elements = models.CharField(max_length=75)
 
     def __str__(self):
         return "{} : {} {} {}".format(
