@@ -21,9 +21,17 @@ class BookingPortalConfig(AppConfig):
             {
                 "func": "django.core.management.call_command",
                 "args": "sendemails",
-                "name": "Send Pending Emails",  # Must be unique
+                "name": "Send Pending Emails",
                 "schedule_type": Schedule.MINUTES,
                 "minutes": 1,
+                "next_run": date,
+                "repeats": -1,
+            },
+            {
+                "func": "django.core.management.call_command",
+                "args": "cleanup_empty_slots",
+                "name": "Cleanup past empty slots",
+                "schedule_type": Schedule.DAILY,
                 "next_run": date,
                 "repeats": -1,
             },
@@ -34,9 +42,9 @@ class BookingPortalConfig(AppConfig):
                 schedule(
                     task["func"],
                     task["args"],
-                    name=task["name"],
+                    name=task["name"],  # Must be unique
                     schedule_type=task["schedule_type"],
-                    minutes=task["minutes"],
+                    minutes=task.get("minutes"),
                     next_run=task["next_run"],
                     repeats=task["repeats"],
                 )

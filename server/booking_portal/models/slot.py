@@ -123,6 +123,11 @@ class Slot(models.Model):
 
     ## Remove date and time and combine it to DateTimeField
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["status", "date"], name="slot_status_date_idx"),
+        ]
+
     def is_available_for_booking(self):
         return self.status == Slot.STATUS_1
 
