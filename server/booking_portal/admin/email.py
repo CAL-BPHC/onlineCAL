@@ -2,7 +2,9 @@ from django.contrib import admin
 
 
 class EmailAdmin(admin.ModelAdmin):
-    list_display = ("receiver", "subject", "date_time", "sent")
+    list_display = ("receiver", "email_type", "date_time", "sent")
+    list_filter = ("sent", "email_type")
+    search_fields = ("receiver", "subject")
 
     def has_add_permission(self, request):
         # Emails are internally generated

@@ -1,4 +1,5 @@
 from booking_portal.models import CustomUser
+from booking_portal.models.email import EmailModel
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -7,7 +8,7 @@ from django.urls import reverse
 class AnnouncementAdmin(admin.ModelAdmin):
     def response_add(self, request, obj, post_url_continue=None):
         # We notify all users by email about the new announcement
-        subject = "New Announcement Created on CAL Portal"
+        email_type = EmailModel.NEW_ANNOUNCEMENT
         context = {
             "recipient_name": "user",
             "announcement_title": obj.title,
@@ -22,6 +23,8 @@ class AnnouncementAdmin(admin.ModelAdmin):
             if user.email.endswith("@email.com"):
                 # Skip sending announcements to test users
                 continue
-            user.send_email(subject, text, text_html)
+            user.send_email(
+                EmailModel.get_subject_for_type(email_type), text, text_html, email_type
+            )
 
         return super().response_add(request, obj, post_url_continue)

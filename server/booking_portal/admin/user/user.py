@@ -16,6 +16,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from ... import forms
+from ...models.email import EmailModel
 
 
 class CustomUserAdmin(UserAdmin):
@@ -138,11 +139,12 @@ class CustomUserAdmin(UserAdmin):
                         "user_type": user_type.__name__,
                     },
                 )
-
+                email_type = EmailModel.WELCOME
                 user.send_email(
-                    subject="Welcome to OnlineCAL!",
+                    subject=EmailModel.get_subject_for_type(email_type),
                     message=text,
                     html_message=text_html,
+                    email_type=email_type,
                 )
 
                 created_users.append(user.name)

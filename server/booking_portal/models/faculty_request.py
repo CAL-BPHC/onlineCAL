@@ -230,7 +230,7 @@ class FacultyRequest(models.Model):
 def send_email_after_save(sender, instance, **kwargs):
     slot = Slot.objects.get(id=instance.slot.id)
     if instance.status == FacultyRequest.WAITING_FOR_DEPARTMENT:
-        subject = "Waiting for Department Approval"
+        email_type = EmailModel.DEPARTMENT_APPROVAL
         text = render_to_string(
             "email/department_pending.txt",
             {
@@ -251,43 +251,46 @@ def send_email_after_save(sender, instance, **kwargs):
                 "faculty_name": instance.faculty.name,
             },
         )
-        instance.faculty.department.send_email(subject, text, text_html)
-    elif instance.status == FacultyRequest.WAITING_FOR_LAB_ASST:
-        subject = "Waiting for Lab Assistant Approval"
-        text = render_to_string(
-            "email/lab_assistant_pending.txt",
-            {
-                "recipient_name": "Lab Technicians",
-                "student_name": instance.faculty.name,
-                "instrument_name": instance.instrument.name,
-                "faculty_name": instance.faculty.name,
-                "slot": instance.slot.description,
-            },
+        instance.faculty.department.send_email(
+            EmailModel.get_subject_for_type(email_type), text, text_html, email_type
         )
-        text_html = render_to_string(
-            "email/lab_assistant_pending.html",
-            {
-                "recipient_name": "Lab Technicians",
-                "student_name": instance.faculty.name,
-                "instrument_name": instance.instrument.name,
-                "faculty_name": instance.faculty.name,
-                "slot": instance.slot.description,
-            },
-        )
-        # instead of sending mail to a lab assistant send it to the common email
-        # instance.lab_assistant.send_email(subject, text, text_html)
+    # elif instance.status == FacultyRequest.WAITING_FOR_LAB_ASST:
+    #     email_type = EmailModel.LAB_ASSISTANT_APPROVAL
+    #     text = render_to_string(
+    #         "email/lab_assistant_pending.txt",
+    #         {
+    #             "recipient_name": "Lab Technicians",
+    #             "student_name": instance.faculty.name,
+    #             "instrument_name": instance.instrument.name,
+    #             "faculty_name": instance.faculty.name,
+    #             "slot": instance.slot.description,
+    #         },
+    #     )
+    #     text_html = render_to_string(
+    #         "email/lab_assistant_pending.html",
+    #         {
+    #             "recipient_name": "Lab Technicians",
+    #             "student_name": instance.faculty.name,
+    #             "instrument_name": instance.instrument.name,
+    #             "faculty_name": instance.faculty.name,
+    #             "slot": instance.slot.description,
+    #         },
+    #     )
+    #     # instead of sending mail to a lab assistant send it to the common email
+    #     # instance.lab_assistant.send_email(EmailModel.get_subject_for_type(email_type), text, text_html, email_type)
 
-        # Don't send emails as they are too many, and lab assts check the portal for pending requests
-        # EmailModel(
-        #     receiver="cal@hyderabad.bits-pilani.ac.in",
-        #     text=text,
-        #     text_html=text_html,
-        #     subject=subject,
-        #     sent=False,
-        # ).save()
+    #     # Don't send emails as they are too many, and lab assts check the portal for pending requests
+    #     EmailModel(
+    #         receiver="cal@hyderabad.bits-pilani.ac.in",
+    #         text=text,
+    #         text_html=text_html,
+    #         subject=EmailModel.get_subject_for_type(email_type),
+    #         sent=False,
+    #         email_type=email_type,
+    #     ).save()
     elif instance.status == FacultyRequest.APPROVED:
         slot.update_status(Slot.STATUS_3)
-        subject = "Lab Booking Approved"
+        email_type = EmailModel.BOOKING_APPROVED
         text = render_to_string(
             "email/student_accepted.txt",
             {
@@ -302,16 +305,18 @@ def send_email_after_save(sender, instance, **kwargs):
                 "slot": instance.slot.description,
             },
         )
-        instance.faculty.send_email(subject, text, text_html)
+        instance.faculty.send_email(
+            EmailModel.get_subject_for_type(email_type), text, text_html, email_type
+        )
     elif (
         instance.status == FacultyRequest.REJECTED
         or instance.status == FacultyRequest.CANCELLED
     ):
         if instance.status == FacultyRequest.REJECTED:
             slot.update_status(Slot.STATUS_1)
-            subject = "Lab Booking Rejected"
+            email_type = EmailModel.BOOKING_REJECTED
         else:
-            subject = "Lab Booking Cancelled"
+            email_type = EmailModel.BOOKING_CANCELLED
         text = render_to_string(
             "email/student_rejected.txt",
             {
@@ -330,4 +335,6 @@ def send_email_after_save(sender, instance, **kwargs):
                 "lab_assistant_remarks": instance.content_object.lab_assistant_remarks,
             },
         )
-        instance.faculty.send_email(subject, text, text_html)
+        instance.faculty.send_email(
+            EmailModel.get_subject_for_type(email_type), text, text_html, email_type
+        )

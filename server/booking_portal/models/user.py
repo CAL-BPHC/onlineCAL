@@ -56,17 +56,20 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         return self.is_staff
 
-    def _create_email_obj(self, subject, message, html_message):
+    def _create_email_obj(
+        self, subject, message, html_message, email_type=EmailModel.OTHER
+    ):
         EmailModel(
             receiver=self.email,
             text=message,
             text_html=html_message,
             subject=subject,
             sent=False,
+            email_type=email_type,
         ).save()
 
-    def send_email(self, subject, message, html_message):
-        self._create_email_obj(subject, message, html_message)
+    def send_email(self, subject, message, html_message, email_type=EmailModel.OTHER):
+        self._create_email_obj(subject, message, html_message, email_type)
 
     def save(self, *args, **kwargs):
         if not self.pk:
