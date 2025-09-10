@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.db.models import Exists, OuterRef
-from django.utils.timezone import localdate
+from django.utils.timezone import now
 
 from ...models.faculty_request import FacultyRequest
 from ...models.request import StudentRequest
@@ -13,8 +13,7 @@ class Command(BaseCommand):
     help = "Delete all Slot records up to yesterday with status 'Empty'"
 
     def handle(self, *args, **options):
-        today = localdate()
-        cutoff_date = today - timedelta(days=30)
+        cutoff_date = now().date() - timedelta(days=30)
 
         # Delete slots that are:
         # - older than one month ago

@@ -9,13 +9,11 @@ class BookingPortalConfig(AppConfig):
 
     @staticmethod
     def create_django_q_scheduled_tasks():
-        from datetime import datetime
-
         from django.db import IntegrityError, OperationalError, ProgrammingError
+        from django.utils.timezone import now
         from django_q.tasks import Schedule, schedule
 
-        _date = datetime.now()
-        date = datetime(_date.year, _date.month, _date.day)
+        date = now().date()
 
         tasks = [
             {

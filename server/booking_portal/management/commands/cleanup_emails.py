@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand
-from django.utils.timezone import localdate
+from django.utils.timezone import now
 
 from ...models.email import EmailModel
 
@@ -10,8 +10,7 @@ class Command(BaseCommand):
     help = "Delete all EmailModel records up to one month ago with email_type 'new_announcement'"
 
     def handle(self, *args, **options):
-        today = localdate()
-        cutoff_date = today - timedelta(days=30)
+        cutoff_date = now().date() - timedelta(days=30)
 
         # Delete emails that are:
         # - marked as sent
@@ -20,7 +19,7 @@ class Command(BaseCommand):
         qs = EmailModel.objects.filter(
             sent=True,
             email_type=EmailModel.NEW_ANNOUNCEMENT,
-            date_time__date__lte=cutoff_date,
+            date_time__lte=cutoff_date,
         )
 
         if qs.exists():
