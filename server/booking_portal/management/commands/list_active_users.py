@@ -52,12 +52,12 @@ class Command(BaseCommand):
 
         faculty_ids = set(faculty_map.keys()) | set(sup_map.keys())
 
-        faculties = Faculty.objects.filter(id__in=faculty_ids).select_related(
-            "department"
-        )
-        students = Student.objects.filter(id__in=student_map).select_related(
-            "supervisor__department"
-        )
+        faculties = Faculty.objects.filter(
+            id__in=faculty_ids, is_active=True
+        ).select_related("department")
+        students = Student.objects.filter(
+            id__in=student_map, is_active=True
+        ).select_related("supervisor__department")
 
         dept_map = collections.defaultdict(lambda: {"faculty": [], "students": []})
 
