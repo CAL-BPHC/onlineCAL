@@ -1,5 +1,6 @@
 {% extends 'email/base.txt' %}
 
-{% block message %}Congratulations! Your booking has been approved for Time Slot: {{ slot }}.
+{% block message %}Congratulations! Your booking has been approved for Machine: {{ instrument_name }}
+and Time Slot: {{ slot }}.
 
 Please sign-in to see your booking details.{% endblock %}
