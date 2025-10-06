@@ -296,6 +296,7 @@ def send_email_after_save(sender, instance, **kwargs):
             {
                 "recipient_name": instance.faculty.name,
                 "slot": instance.slot.description,
+                "instrument_name": instance.instrument.name,
             },
         )
         text_html = render_to_string(
@@ -303,6 +304,7 @@ def send_email_after_save(sender, instance, **kwargs):
             {
                 "recipient_name": instance.faculty.name,
                 "slot": instance.slot.description,
+                "instrument_name": instance.instrument.name,
             },
         )
         instance.faculty.send_email(

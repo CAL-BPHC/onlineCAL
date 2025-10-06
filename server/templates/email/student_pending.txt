@@ -1,7 +1,7 @@
 {% extends 'email/base.txt' %}
 
 {% block message %}This is to inform you that we have received a booking request for Machine: {{ instrument_name}}
-for Time Slot: {{ slot }}. The application has been sent to your supervisor for
+and Time Slot: {{ slot }}. The application has been sent to your supervisor for
 approval. You will receive an email after final approval/rejection.
 
 Please use the dashboard to view the status of your application.{% endblock %}

@@ -1,3 +1,4 @@
 {% extends 'email/base.html' %}
 {% block message %}Congratulations! Your booking has been approved for
+  <strong> Machine: {{ instrument_name }} </strong> and
   <strong> Time Slot: {{ slot }}</strong>! Please sign-in to see your booking details.{% endblock %}
