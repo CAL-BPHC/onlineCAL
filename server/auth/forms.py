@@ -46,6 +46,35 @@ class CustomPasswordResetForm(PasswordResetForm):
             ),
         )
 
+    def send_mail(
+        self,
+        subject_template_name,
+        email_template_name,
+        context,
+        from_email,
+        to_email,
+        html_email_template_name=None,
+    ):
+        """Inject recipient_name into the email context.
+
+        Django's built-in PasswordResetForm passes a context containing
+        'user'. The base email template expects 'recipient_name', so we
+        add it here just before delegating to the parent implementation.
+        """
+        user = context.get("user")
+        if user and getattr(user, "name", None):
+            context["recipient_name"] = user.name
+        else:
+            context.setdefault("recipient_name", "User")
+        super().send_mail(
+            subject_template_name,
+            email_template_name,
+            context,
+            from_email,
+            to_email,
+            html_email_template_name,
+        )
+
 
 class CustomSetPasswordForm(SetPasswordForm):
     def __init__(self, *args, **kwargs):
