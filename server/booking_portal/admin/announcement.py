@@ -10,7 +10,7 @@ class AnnouncementAdmin(admin.ModelAdmin):
         # We notify all users by email about the new announcement
         email_type = EmailModel.NEW_ANNOUNCEMENT
         context = {
-            "recipient_name": "user",
+            "recipient_name": "User",
             "announcement_title": obj.title,
             "announcement_url": "https://onlinecal.bits-hyderabad.ac.in"
             + reverse("announcements"),
