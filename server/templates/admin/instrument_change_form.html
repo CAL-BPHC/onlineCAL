@@ -5,7 +5,7 @@
 
 {% block submit_buttons_bottom %}
     <div style="margin-bottom: 15px;">
-        {% if utilisation_report %}
+        {% if utilisation_report and object_id %}
             <a class="button" href="{% url utilisation_report_url object_id %}">Utilisation Report</a>
         {% endif %}
     </div>
