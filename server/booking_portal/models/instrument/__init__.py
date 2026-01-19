@@ -27,6 +27,7 @@ from .requests import (
     VSM,
     XPS,
     CDSpectrophotometer,
+    ConfocalRamanSpectrometer,
     ContactAngle,
     DigitalPolarimeter,
     Fluorolog3,

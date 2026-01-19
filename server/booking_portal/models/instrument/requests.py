@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.forms import ValidationError
 
 
 class UserDetail(models.Model):
@@ -1067,3 +1068,38 @@ class ICPMS(UserDetail, UserRemark):
     class Meta:
         verbose_name = "ICP-MS"
         verbose_name_plural = "ICP-MS"
+
+
+class ConfocalRamanSpectrometer(UserDetail, UserRemark):
+    sample_code = models.CharField(max_length=75)
+    sample_nature = models.CharField(
+        max_length=10,
+        choices=[
+            ("Powder", "Powder"),
+            ("Film", "Film"),
+        ],
+    )
+    scan_range_start = models.IntegerField()
+    scan_range_end = models.IntegerField()
+    wavelength = models.IntegerField()
+
+    # validate that scan_range_end is greater than scan_range_start
+    def clean(self):
+        if self.scan_range_end <= self.scan_range_start:
+            raise ValidationError(
+                {
+                    "scan_range_end": "Scan range end must be greater than scan range start."
+                }
+            )
+
+    def __str__(self):
+        return "{} : {} {} {}".format(
+            "Confocal Raman Spectrometer",
+            str(self.date.day),
+            calendar.month_name[self.date.month],
+            str(self.date.year),
+        )
+
+    class Meta:
+        verbose_name = "Confocal Raman Spectrometer"
+        verbose_name_plural = "Confocal Raman Spectrometer"

@@ -60,6 +60,7 @@ form_template_dict = {
     41: (MuffleFurnace3Form, TubularMuffleFurnace),
     42: (AFMForm, AFM),
     43: (ICPMSForm, ICPMS),
+    44: (ConfocalRamanSpectrometerForm, ConfocalRamanSpectrometer),
 }
 
 view_application_dict = {
