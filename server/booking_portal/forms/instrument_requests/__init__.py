@@ -4,6 +4,7 @@ from .bdfacs import BDFACSForm
 from .bet import BETForm
 from .cdspectrophotometer import CDSpectrophotometerForm
 from .chns import CHNSForm
+from .confocal_raman_spectrometer import ConfocalRamanSpectrometerForm
 from .contact_angle import ContactAngleForm
 from .digital_polarimeter import DigitalPolarimeterForm
 from .dls import DLSForm
