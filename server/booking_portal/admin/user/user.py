@@ -2,7 +2,7 @@ import csv
 from functools import update_wrapper
 from io import BytesIO, StringIO, TextIOWrapper
 
-from django.contrib import messages
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -19,6 +19,38 @@ from ... import forms
 from ...models.email import EmailModel
 
 
+class IsActiveFilter(admin.SimpleListFilter):
+    title = "active status"
+    parameter_name = "is_active"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("all", "All"),
+            ("1", "Yes"),
+            ("0", "No"),
+        )
+
+    def choices(self, changelist):
+        for lookup, title in self.lookup_choices:
+            yield {
+                "selected": self.value() == str(lookup)
+                or (self.value() is None and str(lookup) == "1"),
+                "query_string": changelist.get_query_string(
+                    {self.parameter_name: lookup} if str(lookup) != "all" else {},
+                    [self.parameter_name] if str(lookup) == "all" else [],
+                ),
+                "display": title,
+            }
+
+    def queryset(self, request, queryset):
+        if self.value() == "0":
+            return queryset.filter(is_active=False)
+        elif self.value() == "1" or self.value() is None:
+            return queryset.filter(is_active=True)
+        elif self.value() == "all":
+            return queryset
+
+
 class CustomUserAdmin(UserAdmin):
     """CustomUser Admin Portal.
     Student/Faculty/Lab Assistant inherit this admin
@@ -31,7 +63,7 @@ class CustomUserAdmin(UserAdmin):
     add_form = forms.CustomUserCreationForm
 
     list_display = ("name", "email", "role")
-    list_filter = ("role",)
+    list_filter = ("role", IsActiveFilter)
     fieldsets = (
         (
             None,
