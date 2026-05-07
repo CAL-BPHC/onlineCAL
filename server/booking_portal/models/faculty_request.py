@@ -1,4 +1,3 @@
-import random
 from typing import cast
 
 import booking_portal.models.instrument
@@ -85,9 +84,6 @@ class FacultyRequestManager(models.Manager):
                 instrument=instr,
                 slot=slot,
                 status=status,
-                lab_assistant=random.choice(
-                    LabAssistant.objects.filter(is_active=True)
-                ),
                 content_object=form_saved,
                 needs_department_approval=form_instance.cleaned_data[
                     "needs_department_approval"

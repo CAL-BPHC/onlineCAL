@@ -1,5 +1,3 @@
-import random
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
@@ -96,9 +94,6 @@ def faculty_request_accept(request, id):
                         request_object.status = (
                             models.StudentRequest.WAITING_FOR_LAB_ASST
                         )
-                    request_object.lab_assistant = random.choice(
-                        models.LabAssistant.objects.filter(is_active=True)
-                    )
                     request_object.save()
                     return redirect(request.META.get("HTTP_REFERER", "faculty_portal"))
                 else:
