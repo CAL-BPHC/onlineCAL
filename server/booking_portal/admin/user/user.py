@@ -36,8 +36,7 @@ class IsActiveFilter(admin.SimpleListFilter):
                 "selected": self.value() == str(lookup)
                 or (self.value() is None and str(lookup) == "1"),
                 "query_string": changelist.get_query_string(
-                    {self.parameter_name: lookup} if str(lookup) != "all" else {},
-                    [self.parameter_name] if str(lookup) == "all" else [],
+                    {self.parameter_name: lookup},
                 ),
                 "display": title,
             }
