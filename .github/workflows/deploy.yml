@@ -10,25 +10,17 @@ jobs:
     runs-on: self-hosted
 
     steps:
-
-      - name: Add Poetry to PATH
-        run: echo "PATH=/home/ubuntu/.local/bin:$PATH" >> $GITHUB_ENV
-
-      - name: Check if Poetry is in PATH
-        run: |
-          echo $PATH
-          poetry --version
-
       - name: Deploy to Server
-        env:
-          POETRY_VIRTUALENVS_IN_PROJECT: true
         run: |
-            cd /home/ubuntu/onlineCAL/server
+          # Ensure local binaries are in PATH if uv is installed per-user
+          export PATH="/home/ubuntu/.local/bin:$PATH"
 
-            git pull origin master
+          cd /home/ubuntu/onlineCAL/server
 
-            poetry sync --no-root
-            poetry run python manage.py migrate --noinput
-            poetry run python manage.py collectstatic --noinput
+          git pull origin master
 
-            sudo supervisorctl restart onlineCAL
+          uv sync
+          uv run python manage.py migrate --noinput
+          uv run python manage.py collectstatic --noinput
+
+          sudo supervisorctl restart onlineCAL
