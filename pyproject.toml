@@ -1,5 +1,5 @@
 [project]
-name = "online-CAL"
+name = "onlineCAL"
 version = "0.1.0"
 description = "An online portal to manage CAL BPHC's instrument booking process"
 readme = "README.md"
@@ -10,12 +10,17 @@ dependencies = [
     "django-admin-rangefilter~=0.6.3",
     "python-dotenv~=0.15.0",
     "django-crispy-forms~=1.11.0",
-    "factory-boy>=3.2.0,<4",
     "django-q>=1.3.9,<2",
     "mysqlclient>=2.1.0,<3",
     "setuptools>=69.0.3,<70",
-    "pre-commit>=4.0.1,<5",
     "gunicorn>=23.0.0,<24",
+]
+
+[dependency-groups]
+dev = [
+    "factory-boy>=3.3.3",
+    "pre-commit>=4.6.0",
+    "pytest>=9.0.3",
 ]
 
 [tool.ruff.lint.per-file-ignores]
