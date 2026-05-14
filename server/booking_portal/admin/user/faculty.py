@@ -45,7 +45,7 @@ class FacultyAdmin(CustomUserAdmin):
             obj = Department.objects.get(email=record["department"])
         except Department.DoesNotExist:
             raise ObjectDoesNotExist(
-                f"Department doesn't exist: \"{record['department']}\""
+                f'Department doesn\'t exist: "{record["department"]}"'
             )
 
         record["department"] = obj

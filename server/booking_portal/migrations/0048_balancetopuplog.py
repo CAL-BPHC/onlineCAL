@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         ("booking_portal", "0047_alter_userdetail_sup_dept_alter_userdetail_sup_name"),

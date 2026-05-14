@@ -36,7 +36,7 @@ class InstrumentAdmin(admin.ModelAdmin):
         instruments = request.GET.get("instruments", "")
         try:
             instruments = Instrument.objects.filter(pk__in=instruments.split(","))
-        except ValidationError as e:
+        except ValidationError:
             messages.error(request, "Invalid instruments")
             return redirect(reverse("admin:%s_%s_changelist" % info))
 

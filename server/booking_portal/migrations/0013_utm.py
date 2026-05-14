@@ -20,7 +20,6 @@ def delete_instruments(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("booking_portal", "0012_auto_20210207_1038"),
     ]

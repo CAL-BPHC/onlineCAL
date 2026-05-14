@@ -35,7 +35,9 @@ def get_user_type(user):
             else (
                 "student"
                 if is_student(user)
-                else "department" if is_department(user) else None
+                else "department"
+                if is_department(user)
+                else None
             )
         )
     )

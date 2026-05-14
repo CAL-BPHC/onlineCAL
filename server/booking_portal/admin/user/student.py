@@ -33,7 +33,7 @@ class StudentAdmin(CustomUserAdmin):
         obj = Faculty.objects.filter(email=record["supervisor"]).first()
         if not obj:
             raise ObjectDoesNotExist(
-                f"Supervisor doesn't exist: \"{record['supervisor']}\""
+                f'Supervisor doesn\'t exist: "{record["supervisor"]}"'
             )
 
         record["supervisor"] = obj

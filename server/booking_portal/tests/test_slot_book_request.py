@@ -7,7 +7,6 @@ from booking_portal.factories import (
     StudentFactory,
 )
 from booking_portal.models import Slot, StudentRequest
-from django.core.management import call_command
 from django.test import Client, TestCase
 
 # A valid date time will not fall on Sunday

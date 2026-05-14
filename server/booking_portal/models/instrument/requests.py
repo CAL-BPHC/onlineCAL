@@ -629,7 +629,7 @@ class UTM(UserDetail, UserRemark):
     test_speed = models.DecimalField(
         max_digits=9,
         decimal_places=4,
-        help_text=("<small>" "Precision upto 4 decimal places" "</small>"),
+        help_text=("<small>Precision upto 4 decimal places</small>"),
     )
     temperature = models.IntegerField(
         help_text=(
