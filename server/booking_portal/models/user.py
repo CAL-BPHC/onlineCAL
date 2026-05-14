@@ -22,14 +22,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
 
     class Role(models.TextChoices):
-        STAFF = "STAFF", "Staff"
+        PORTAL_ADMIN = "PORTAL_ADMIN", "Portal Admin"
         STUDENT = "STUDENT", "Student"
         FACULTY = "FACULTY", "Faculty"
         LAB_ASSISTANT = "LAB_ASSISTANT", "Lab Assistant"
         DEPARTMENT = "DEPARTMENT", "Department"
 
     role = models.CharField(max_length=50, choices=Role.choices)
-    default_role = Role.STAFF
+    default_role = Role.PORTAL_ADMIN
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["name"]
@@ -39,17 +39,31 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def has_perm(self, perm, obj=None):
         if self.is_superuser:
             return True
-        if self.is_staff and (
-            "student" in perm
-            or "faculty" in perm
-            or "labassistant" in perm
-            or "slot" in perm
-            or "instrument" in perm
-            or "announcement" in perm
-        ):
-            # Models accessible by lab assistants
-            # TODO: Find a better way to add these permissions
-            return True
+        # TODO: Find a better way to add these permissions
+        if self.is_staff:
+            COMMON_PERMISSIONS = [
+                "student",
+                "labassistant",
+                "slot",
+                "announcement",
+                "pricing",
+            ]
+            PORTAL_ADMIN_ONLY_PERMISSIONS = [
+                "faculty",  # facultyrequest gets included with "faculty"
+                "department",
+                "instrument",
+            ]
+            LAB_ASSISTANT_ONLY_PERMISSIONS = ["facultyrequest"]
+            if any(perm_name in perm for perm_name in COMMON_PERMISSIONS):
+                return True
+            if self.role == self.Role.PORTAL_ADMIN and any(
+                perm_name in perm for perm_name in PORTAL_ADMIN_ONLY_PERMISSIONS
+            ):
+                return True
+            if self.role == self.Role.LAB_ASSISTANT and any(
+                perm_name in perm for perm_name in LAB_ASSISTANT_ONLY_PERMISSIONS
+            ):
+                return True
 
         return False
 

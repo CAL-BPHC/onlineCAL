@@ -5,14 +5,13 @@ from booking_portal.models.faculty_request import FacultyRequest
 from booking_portal.models.request import StudentRequest
 from django.contrib import admin, messages
 from django.contrib.auth.decorators import user_passes_test
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 
-from .. import permissions
 from ..forms import InstrumentChangeForm, InstrumentCreateForm, UtilisationReportForm
-from ..models import Instrument
+from ..models import CustomUser, Instrument
 
 
 class InstrumentAdmin(admin.ModelAdmin):
@@ -30,7 +29,9 @@ class InstrumentAdmin(admin.ModelAdmin):
         return False
 
     @staticmethod
-    @user_passes_test(lambda u: permissions.is_lab_assistant(u) or u.is_superuser)
+    @user_passes_test(
+        lambda u: u.is_authenticated and (u.role == "PORTAL_ADMIN" or u.is_superuser)
+    )
     def instrument_usage_report_form(request):
         info = Instrument._meta.app_label, Instrument._meta.model_name
         instruments = request.GET.get("instruments", "")
@@ -87,6 +88,11 @@ class InstrumentAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def export_utilisation_report(self, request, instrument_id):
+        if not (
+            request.user.role == CustomUser.Role.PORTAL_ADMIN
+            or request.user.is_superuser
+        ):
+            raise PermissionDenied
         instrument = self.get_object(request, instrument_id)
         if request.method == "POST":
             form = UtilisationReportForm(request.POST)
