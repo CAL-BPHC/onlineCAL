@@ -8,7 +8,7 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 
 - `git`
 - `python` >= 3.10
-- `poetry` >= 2.1.1
+- `uv`
 - `docker-compose` or `MySQL`
 
 ### Installation
@@ -23,7 +23,7 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 
    ```bash
    cd onlineCAL
-   poetry sync --no-root
+   uv sync
    ```
 
 3. Setup the database
@@ -49,19 +49,19 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 5. Run the migrations
 
    ```bash
-   python manage.py migrate
+   uv run python manage.py migrate
    ```
 
 6. Create a superuser for accessing the admin panel
 
    ```bash
-   python manage.py createsuperuser
+   uv run python manage.py createsuperuser
    ```
 
 7. Run the server
 
    ```bash
-   python manage.py runserver
+   uv run python manage.py runserver
    ```
 
 ## Deployment
@@ -86,19 +86,19 @@ If, for any reason, changes need to be deployed manually, the following steps ca
 4. (Optional) Update dependencies if there have been any changes to them
 
    ```bash
-   poetry sync --no-root
+   uv sync
    ```
 
 5. (Optional) Run migrations if there are any new ones
 
    ```bash
-   python manage.py migrate
+   uv run python manage.py migrate
    ```
 
 6. (Optional) Collect static files if there have been any changes
 
    ```bash
-   python manage.py collectstatic
+   uv run python manage.py collectstatic
    ```
 
 7. Restart supervisor
