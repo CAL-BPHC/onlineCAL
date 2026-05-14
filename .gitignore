@@ -1,11 +1,15 @@
 __pycache__/
 
 .vscode
-.idea
 
+.venv
+.env
 db.conf
-*.env
 
 server/SECRET.key
+server/static/
+
+.ruff_cache/
 
 backups/
+logs/
