@@ -143,7 +143,7 @@ class CustomUserAdmin(UserAdmin):
             if user_type.objects.filter(email=record["email"]).exists():
                 if not skip_existing:
                     raise ObjectDoesNotExist(
-                        f"User with username \"{record['email']}\" already exists."
+                        f'User with username "{record["email"]}" already exists.'
                     )
                 else:
                     continue

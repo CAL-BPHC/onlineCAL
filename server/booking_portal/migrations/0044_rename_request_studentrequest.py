@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         ("booking_portal", "0043_request_needs_department_approval_and_more"),

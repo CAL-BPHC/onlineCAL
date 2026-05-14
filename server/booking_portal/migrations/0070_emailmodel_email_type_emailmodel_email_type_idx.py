@@ -28,7 +28,6 @@ def populate_email_types(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("booking_portal", "0069_slot_slot_status_date_idx"),
     ]

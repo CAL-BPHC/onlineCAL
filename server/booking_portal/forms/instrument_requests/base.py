@@ -1,4 +1,3 @@
-import booking_portal.config as config
 from booking_portal.models import (
     AdditionalPricingRules,
     CustomUser,
@@ -80,8 +79,10 @@ class UserDetailsForm(forms.ModelForm):
         return instance
 
     def get_instrument_id(self):
+        from booking_portal.config import form_template_dict
+
         instrument_id = None
-        for key, value in config.form_template_dict.items():
+        for key, value in form_template_dict.items():
             if value[1] == self.Meta.model:
                 instrument_id = key
                 break

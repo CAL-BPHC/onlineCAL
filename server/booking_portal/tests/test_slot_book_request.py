@@ -7,7 +7,6 @@ from booking_portal.factories import (
     StudentFactory,
 )
 from booking_portal.models import Slot, StudentRequest
-from django.core.management import call_command
 from django.test import Client, TestCase
 
 # A valid date time will not fall on Sunday
@@ -42,6 +41,10 @@ class SlotBookRequestTestCase(TestCase):
             instrument=self.instrument,
             slot=self.slot,
             status=StudentRequest.WAITING_FOR_FACULTY,
+            mode_description="testmode",
+            mode_cost=0,
+            mode_rule_type="test",
+            mode_time_in_minutes=0,
             # There is no DB type constraint for `content_object`. Therefore,
             # we hack this field to be a Slot type. However, this should be
             # an instance of a model in models.instrument.requests

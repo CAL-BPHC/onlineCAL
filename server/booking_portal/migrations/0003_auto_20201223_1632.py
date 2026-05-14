@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("booking_portal", "0002_auto_20201223_1559"),
     ]

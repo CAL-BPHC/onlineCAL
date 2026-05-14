@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("booking_portal", "0057_facultyrequest_additional_charges_and_more"),
     ]

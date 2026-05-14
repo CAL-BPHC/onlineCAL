@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("booking_portal", "0060_remove_modepricingrules_choices_and_more"),
     ]

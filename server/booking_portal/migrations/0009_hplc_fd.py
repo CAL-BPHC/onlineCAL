@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("booking_portal", "0008_userdetail_phone_number"),
     ]
