@@ -66,46 +66,7 @@ An online portal developed in Django to manage CAL BPHC's instrument booking pro
 
 ## Deployment
 
-The deployment process is automated through GitHub Actions, with a [workflow](.github/workflows/deploy.yml) that triggers on every push to the `master` branch.
-
-If, for any reason, changes need to be deployed manually, the following steps can be followed, as they mirror the actions performed by the workflow:
-
-1. SSH into the server using the private key file provided
-2. Navigate to the project directory
-
-   ```bash
-   cd /home/ubuntu/onlineCAL/server
-   ```
-
-3. Pull the latest changes from the repository
-
-   ```bash
-   git pull origin master
-   ```
-
-4. (Optional) Update dependencies if there have been any changes to them
-
-   ```bash
-   uv sync
-   ```
-
-5. (Optional) Run migrations if there are any new ones
-
-   ```bash
-   uv run python manage.py migrate
-   ```
-
-6. (Optional) Collect static files if there have been any changes
-
-   ```bash
-   uv run python manage.py collectstatic
-   ```
-
-7. Restart supervisor
-
-   ```bash
-   sudo supervisorctl restart onlineCAL
-   ```
+The deployment process is completely automated through GitHub Actions. The [deploy workflow](.github/workflows/deploy.yml) triggers automatically on every push to the `master` branch, and can also be triggered manually from the "Actions" tab on GitHub.
 
 ## Hosting
 
