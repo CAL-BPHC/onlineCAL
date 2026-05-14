@@ -151,6 +151,9 @@ class ModePricingRules(models.Model):
     def __str__(self):
         return f"{self.instrument.name} - {self.description}"
 
+    class Meta:
+        verbose_name_plural = "Mode pricing rules"
+
 
 class AdditionalPricingRules(models.Model):
     FLAT = "FLAT"
@@ -184,3 +187,6 @@ class AdditionalPricingRules(models.Model):
 
     def __str__(self):
         return f"{self.instrument.name} - {self.description}"
+
+    class Meta:
+        verbose_name_plural = "Additional pricing rules"
