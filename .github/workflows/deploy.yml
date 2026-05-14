@@ -19,7 +19,7 @@ jobs:
 
           git pull origin master
 
-          uv sync
+          uv sync --no-dev
           uv run python manage.py migrate --noinput
           uv run python manage.py collectstatic --noinput
 
