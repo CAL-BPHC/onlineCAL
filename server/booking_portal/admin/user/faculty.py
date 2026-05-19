@@ -4,7 +4,7 @@ from io import StringIO
 from booking_portal.forms.admin import TopUpForm, UtilisationReportForm
 from booking_portal.models.user import BalanceTopUpLog, Department
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.validators import validate_email
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -87,6 +87,11 @@ class FacultyAdmin(CustomUserAdmin):
         ]
 
     def top_up_balance(self, request, faculty_id):
+        if not (
+            request.user.role == CustomUser.Role.PORTAL_ADMIN
+            or request.user.is_superuser
+        ):
+            raise PermissionDenied
         faculty = self.get_object(request, faculty_id)
         if request.method == "POST":
             form = TopUpForm(request.POST)
@@ -166,6 +171,11 @@ class FacultyAdmin(CustomUserAdmin):
         return csv_file
 
     def export_utilisation_report(self, request, faculty_id):
+        if not (
+            request.user.role == CustomUser.Role.PORTAL_ADMIN
+            or request.user.is_superuser
+        ):
+            raise PermissionDenied
         faculty = self.get_object(request, faculty_id)
         if request.method == "POST":
             form = UtilisationReportForm(request.POST)

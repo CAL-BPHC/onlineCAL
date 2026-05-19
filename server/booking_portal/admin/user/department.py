@@ -4,6 +4,7 @@ from io import StringIO
 from booking_portal.forms.admin import TopUpForm, UtilisationReportForm
 from booking_portal.models.user import BalanceTopUpLog
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import path
@@ -28,10 +29,16 @@ class DepartmentAdmin(CustomUserAdmin):
     )
 
     def has_add_permission(self, request) -> bool:
-        return request.user.is_staff
+        return (
+            request.user.role == CustomUser.Role.PORTAL_ADMIN
+            or request.user.is_superuser
+        )
 
     def has_change_permission(self, request, obj=None) -> bool:
-        return request.user.is_staff
+        return (
+            request.user.role == CustomUser.Role.PORTAL_ADMIN
+            or request.user.is_superuser
+        )
 
     def get_user_type(self, request):
         return Department
@@ -66,6 +73,11 @@ class DepartmentAdmin(CustomUserAdmin):
         ]
 
     def top_up_balance(self, request, department_id):
+        if not (
+            request.user.role == CustomUser.Role.PORTAL_ADMIN
+            or request.user.is_superuser
+        ):
+            raise PermissionDenied
         department = self.get_object(request, department_id)
         if request.method == "POST":
             form = TopUpForm(request.POST)
@@ -149,6 +161,11 @@ class DepartmentAdmin(CustomUserAdmin):
         return csv_file
 
     def export_utilisation_report(self, request, department_id):
+        if not (
+            request.user.role == CustomUser.Role.PORTAL_ADMIN
+            or request.user.is_superuser
+        ):
+            raise PermissionDenied
         department = self.get_object(request, department_id)
         if request.method == "POST":
             form = UtilisationReportForm(request.POST)
