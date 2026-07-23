@@ -1,7 +1,7 @@
 [project]
 name = "onlineCAL"
 version = "0.1.0"
-description = "An online portal to manage CAL BPHC's instrument booking process"
+description = "An online portal to manage CIF BPHC's instrument booking process"
 readme = "README.md"
 requires-python = ">=3.10,<3.11"
 dependencies = [

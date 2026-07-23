@@ -1,7 +1,7 @@
 {% extends 'email/base.txt' %}
 
-{% block message %}Welcome to OnlineCAL! This portal will allow you to book slots for all of your
-CAL instruments. No more paperwork required! You can access all of your
+{% block message %}Welcome to OnlineCIF! This portal will allow you to book slots for all of your
+CIF instruments. No more paperwork required! You can access all of your
 previous/upcoming bookings with a single click! You can book a slot any time
 and track your application status 24x7!
 
