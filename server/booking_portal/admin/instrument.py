@@ -1,11 +1,16 @@
 import csv
 from io import StringIO
+from itertools import chain
 
 from booking_portal.models.faculty_request import FacultyRequest
 from booking_portal.models.request import StudentRequest
 from django.contrib import admin, messages
 from django.contrib.auth.decorators import user_passes_test
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import (
+    ObjectDoesNotExist,
+    PermissionDenied,
+    ValidationError,
+)
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
@@ -13,13 +18,15 @@ from django.urls import path, reverse
 from ..forms import InstrumentChangeForm, InstrumentCreateForm, UtilisationReportForm
 from ..models import CustomUser, Instrument
 
+DETAILED_REPORT_TITLE = "Download Detailed Usage Report"
+
 
 class InstrumentAdmin(admin.ModelAdmin):
     form = InstrumentChangeForm
     add_form = InstrumentCreateForm
     list_filter = admin.ModelAdmin.list_filter + ("status",)
     list_display = admin.ModelAdmin.list_display + ("status",)
-    actions = ("instrument_usage_report_action",)
+    actions = ("instrument_usage_report_action", "detailed_usage_report_action")
     change_form_template = "admin/instrument_change_form.html"
 
     # only superuser has permission to add instruments
@@ -44,7 +51,9 @@ class InstrumentAdmin(admin.ModelAdmin):
         if request.method == "POST":
             form = UtilisationReportForm(request.POST)
             if not form.is_valid():
-                return InstrumentAdmin.render_bulk_slots_form(request, form)
+                return InstrumentAdmin.render_instrument_usage_report_form(
+                    request, form
+                )
 
             start_date = form.cleaned_data["start_date"]
             end_date = form.cleaned_data["end_date"]
@@ -62,6 +71,126 @@ class InstrumentAdmin(admin.ModelAdmin):
             form = UtilisationReportForm()
             return InstrumentAdmin.render_instrument_usage_report_form(request, form)
 
+    def detailed_usage_report_form(self, request):
+        """One CSV row per booking, for every selected instrument at once."""
+        if not (
+            request.user.role == CustomUser.Role.PORTAL_ADMIN
+            or request.user.is_superuser
+        ):
+            raise PermissionDenied
+        info = Instrument._meta.app_label, Instrument._meta.model_name
+        instruments = request.GET.get("instruments", "")
+        try:
+            instruments = Instrument.objects.filter(pk__in=instruments.split(","))
+        except ValidationError:
+            messages.error(request, "Invalid instruments")
+            return redirect(reverse("admin:%s_%s_changelist" % info))
+
+        if request.method == "POST":
+            form = UtilisationReportForm(request.POST)
+            if not form.is_valid():
+                return InstrumentAdmin.render_instrument_usage_report_form(
+                    request, form, DETAILED_REPORT_TITLE
+                )
+
+            start_date = form.cleaned_data["start_date"]
+            end_date = form.cleaned_data["end_date"]
+
+            csv_file = StringIO()
+            InstrumentAdmin.create_detailed_usage_report(
+                instruments, start_date, end_date, csv_file
+            )
+            response = HttpResponse(csv_file.getvalue(), content_type="text/csv")
+            response["Content-Disposition"] = (
+                'attachment; filename="Detailed Usage Report '
+                f'{start_date} to {end_date}.csv"'
+            )
+
+            csv_file.close()
+            return response
+        else:
+            form = UtilisationReportForm()
+            return InstrumentAdmin.render_instrument_usage_report_form(
+                request, form, DETAILED_REPORT_TITLE
+            )
+
+    @staticmethod
+    def create_detailed_usage_report(instruments, start_date, end_date, csv_file):
+        """Write every student and faculty booking as its own row.
+
+        Columns are kept atomic (separate date, time and duration fields, no
+        combined slot description) so the output can be pivoted directly.
+        """
+        headers = (
+            "Request ID",
+            "Request Type",
+            "Instrument",
+            "Department",
+            "Faculty",
+            "Student",
+            "Date",
+            "Start Time",
+            "End Time",
+            "Duration (hours)",
+            "Status",
+            "Total Cost",
+        )
+        writer = csv.DictWriter(csv_file, headers)
+        writer.writeheader()
+
+        related = ("slot", "instrument", "faculty", "faculty__department")
+        student_requests = StudentRequest.objects.filter(
+            instrument__in=instruments,
+            slot__date__gte=start_date,
+            slot__date__lte=end_date,
+        ).select_related(*related, "student")
+
+        faculty_requests = FacultyRequest.objects.filter(
+            instrument__in=instruments,
+            slot__date__gte=start_date,
+            slot__date__lte=end_date,
+        ).select_related(*related)
+
+        requests = sorted(
+            chain(
+                ((req, "Student") for req in student_requests),
+                ((req, "Faculty") for req in faculty_requests),
+            ),
+            key=lambda pair: (
+                pair[0].instrument.name,
+                pair[0].slot.date,
+                pair[0].slot.start_time,
+            ),
+        )
+
+        for req, request_type in requests:
+            department = req.faculty.department
+            try:
+                total_cost = req.total_cost
+            except (ObjectDoesNotExist, AttributeError, KeyError, TypeError):
+                # A request whose form data is missing or malformed shouldn't
+                # take the whole report down with it.
+                total_cost = ""
+
+            writer.writerow(
+                {
+                    "Request ID": f"{request_type[0]}{req.id}",
+                    "Request Type": request_type,
+                    "Instrument": req.instrument.name,
+                    "Department": department.name.title() if department else "-",
+                    "Faculty": req.faculty,
+                    "Student": req.student if request_type == "Student" else "-",
+                    "Date": req.slot.date.isoformat(),
+                    "Start Time": req.slot.start_time,
+                    "End Time": req.slot.end_time,
+                    "Duration (hours)": round(
+                        req.slot.duration.total_seconds() / 3600, 2
+                    ),
+                    "Status": req.get_status_display(),
+                    "Total Cost": total_cost,
+                }
+            )
+
     def changeform_view(self, request, object_id, form_url="", extra_context=None):
         extra_context = extra_context or {}
         extra_context["utilisation_report"] = True
@@ -78,6 +207,11 @@ class InstrumentAdmin(admin.ModelAdmin):
                 "usage-report/",
                 InstrumentAdmin.instrument_usage_report_form,
                 name="%s_%s_usage-report" % info,
+            ),
+            path(
+                "detailed-usage-report/",
+                self.admin_site.admin_view(self.detailed_usage_report_form),
+                name="%s_%s_detailed-usage-report" % info,
             ),
             path(
                 "report/instrument/<int:instrument_id>",
@@ -174,11 +308,18 @@ class InstrumentAdmin(admin.ModelAdmin):
 
     @admin.action(description="Download Instrument Usage Report")
     def instrument_usage_report_action(self, request, queryset):
+        return self._redirect_to_report(queryset, "usage-report")
+
+    @admin.action(description="Download Detailed Usage Report (one row per booking)")
+    def detailed_usage_report_action(self, request, queryset):
+        return self._redirect_to_report(queryset, "detailed-usage-report")
+
+    def _redirect_to_report(self, queryset, url_name):
         selected = queryset.values_list("pk", flat=True)
         opts = self.model._meta
         url = "%s?instruments=%s" % (
             reverse(
-                "admin:%s_%s_usage-report" % (opts.app_label, opts.model_name),
+                "admin:%s_%s_%s" % (opts.app_label, opts.model_name, url_name),
             ),
             ",".join([str(pk) for pk in selected]),
         )
@@ -189,10 +330,13 @@ class InstrumentAdmin(admin.ModelAdmin):
     )
 
     @staticmethod
-    def render_instrument_usage_report_form(request, form):
+    def render_instrument_usage_report_form(
+        request, form, title="Download Instrument Usage Report"
+    ):
         payload = {
             "form": form,
             "opts": Instrument._meta,
             "has_view_permission": True,
+            "title": title,
         }
         return render(request, "admin/instrument_usage_report_form.html", payload)

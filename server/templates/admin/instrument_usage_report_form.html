@@ -5,7 +5,7 @@
 {% load custom_crispy_forms_field %}
 {% load i18n admin_urls admin_modify %}
 
-{% block title %}Download Instrument Usage Report | OnlineCAL{% endblock %}
+{% block title %}{{ title }} | OnlineCAL{% endblock %}
 
 {% block extrahead %}
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -26,13 +26,13 @@
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
 &rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
-&rsaquo; Download Instrument Usage Report
+&rsaquo; {{ title }}
 </div>
 {% endblock %}
 
 {% block content %}
   <div class="panel">
-    <H3>Download Instrument Usage Report</H3>
+    <H3>{{ title }}</H3>
       {% crispy form %}
   </div>
 {% endblock %}
