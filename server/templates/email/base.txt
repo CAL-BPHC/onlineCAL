@@ -1,13 +1,13 @@
 Dear {{ recipient_name}},
 
-Greetings from Central Analytical Laboratory!
+Greetings from Central Instrumentation Facility!
 
 {% block message %} {% endblock %}
 
 Portal Link: https://onlinecal.bits-hyderabad.ac.in
 
 Regards,
-Central Analytical Laboratory
+Central Instrumentation Facility
 BITS Pilani Hyderabad Campus
 
 Note: This is a system generated mail. Please do not reply to this message.

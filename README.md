@@ -1,6 +1,6 @@
 # onlineCAL
 
-An online portal developed in Django to manage CAL BPHC's instrument booking process.
+An online portal developed in Django to manage CIF BPHC's instrument booking process.
 
 ## Development Setup
 

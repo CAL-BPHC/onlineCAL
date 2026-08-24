@@ -11,7 +11,7 @@ class FreezeDryerForm(UserDetailsForm, UserRemarkForm):
       <b>Note:</b> User is requested to adopt standard technique for preparation of samples before giving them.
       <p>1) Water content as to be as minimum as possible.</p>
       <p>2) The sample should be well frozen at -80C.</p>
-      <p>3) The students should not turn ON the vacuum in the absence of the CAL technical staff.</p>
+      <p>3) The students should not turn ON the vacuum in the absence of the CIF technical staff.</p>
     """
 
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):

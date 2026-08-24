@@ -21,8 +21,8 @@ class EmailModel(models.Model):
         (BOOKING_APPROVED, "Lab Booking Approved"),
         (BOOKING_REJECTED, "Lab Booking Rejected"),
         (BOOKING_CANCELLED, "Lab Booking Cancelled"),
-        (NEW_ANNOUNCEMENT, "New Announcement Created on CAL Portal"),
-        (WELCOME, "Welcome to OnlineCAL!"),
+        (NEW_ANNOUNCEMENT, "New Announcement Created on CIF Portal"),
+        (WELCOME, "Welcome to OnlineCIF!"),
         (OTHER, "Other"),
     ]
 

@@ -9,9 +9,9 @@ class MuffleFurnace3Form(UserDetailsForm, UserRemarkForm):
     subtitle = "Muffle Furnace 3"
     help_text = """
     <b>Note:</b>
-    <p>1. User should inform to the CAL technical staff before start the furnace</p>
+    <p>1. User should inform to the CIF technical staff before start the furnace</p>
     <p>2. Make sure Exhaust should be ON before start your experiment and student should be switch OFF exhaust after complete your experiment.</p>
-    <p>3. Student should inform to CAL technical staff if any toxic material using in furnace.</p>
+    <p>3. Student should inform to CIF technical staff if any toxic material using in furnace.</p>
     """
 
     class Meta(UserDetailsForm.Meta, UserRemarkForm.Meta):
