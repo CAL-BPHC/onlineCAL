@@ -338,6 +338,32 @@ class LiveRequestActionTestCase(RequestBuilderMixin, TestCase):
         request.refresh_from_db()
         self.assertEqual(request.status, StudentRequest.REJECTED)
 
+    def test_ajax_accept_survives_the_tls_terminating_proxy(self):
+        """The live path as it arrives in production.
+
+        fetch() always sends an Origin header, so Django has to know the request
+        reached nginx over https or it rejects the POST as a bad origin.
+        """
+        request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
+        host = "portal.example.com"
+        client = Client(enforce_csrf_checks=True, HTTP_HOST=host)
+        client.force_login(self.faculty)
+        client.get("/auth/login/")
+
+        response = client.post(
+            f"/requests_faculty/accept/{request.id}",
+            {
+                "departmentRoute": "True",
+                "csrfmiddlewaretoken": client.cookies["csrftoken"].value,
+            },
+            HTTP_HOST=host,
+            HTTP_X_FORWARDED_PROTO="https",
+            HTTP_ORIGIN=f"https://{host}",
+            **self.XHR,
+        )
+
+        self.assertEqual(response.status_code, 200)
+
     def test_plain_post_still_redirects(self):
         request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
 
