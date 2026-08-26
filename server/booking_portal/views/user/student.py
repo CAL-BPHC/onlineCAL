@@ -18,7 +18,7 @@ from ...models import (
     Student,
     StudentRequest,
 )
-from .portal import BasePortalFilter
+from .portal import BasePortalFilter, get_pagintion_nav_range
 
 
 @login_required
@@ -37,6 +37,7 @@ def student_portal(request):
         "booking_portal/portal_forms/base_portal.html",
         {
             "page_obj": page_obj,
+            "nav_range": get_pagintion_nav_range(page_obj),
             "filter_form": f.form,
             "user_type": "student",
             "user_is_student": True,

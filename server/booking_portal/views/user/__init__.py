@@ -5,6 +5,7 @@ from .faculty import (
     faculty_request_accept,
     faculty_request_portal,
     faculty_request_reject,
+    faculty_usage_summary,
 )
 from .lab_assistant import (
     lab_assistant_accept,

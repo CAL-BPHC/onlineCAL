@@ -50,6 +50,12 @@ DEBUG = True
 # Change the value to the production IP address.
 ALLOWED_HOSTS = ["*"]
 
+# nginx terminates TLS and forwards the original scheme. Without this Django
+# believes every request arrived over HTTP, so it rebuilds the request origin as
+# http://... and rejects any POST that carries an Origin header - which fetch()
+# always sends, unlike a plain form submit.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 
 # Application definition
 

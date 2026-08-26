@@ -1,0 +1,85 @@
+{% comment %}
+Usage summary for the logged in faculty, shown under the Filter card in the
+sidebar. Behaviour lives in booking_portal/static/booking_portal/usage_panel.js,
+which reads the endpoint and the portal filter's current selection from the
+data attributes below.
+{% endcomment %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'booking_portal/usage_panel.css' %}">
+
+<div class="card bg-light mb-3" id="usagePanel"
+     data-usage-url="{% url 'faculty_usage_summary' %}"
+     data-filter-status="{{ filter_scope.status }}"
+     data-filter-instrument="{{ filter_scope.instrument }}"
+     data-filter-from="{{ filter_scope.from_date }}"
+     data-filter-to="{{ filter_scope.to_date }}">
+  <div class="card-body">
+    <h3 class="card-title text-center h5 mb-3">My Usage</h3>
+
+    <div class="usage-seg mb-2">
+      <button type="button" class="d-none" data-preset="filter" id="usageFilterChip">Filter</button>
+      <button type="button" data-preset="this_fy">This FY</button>
+      <button type="button" data-preset="last_fy">Last FY</button>
+      <button type="button" data-preset="last_3_months">3M</button>
+      <button type="button" data-preset="all_time">All</button>
+      <button type="button" data-preset="custom">Custom</button>
+    </div>
+
+    <div class="usage-custom mb-2 d-none" id="usageCustom">
+      <div class="form-row">
+        <div class="col-6">
+          <label for="usageFrom">From</label>
+          <input type="date" class="form-control form-control-sm" id="usageFrom">
+        </div>
+        <div class="col-6">
+          <label for="usageTo">To</label>
+          <input type="date" class="form-control form-control-sm" id="usageTo">
+        </div>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-primary btn-block mt-2" id="usageApply">Apply range</button>
+    </div>
+
+    <p class="usage-scope text-center mb-3" id="usageScope">&nbsp;</p>
+
+    <div class="row no-gutters text-center">
+      <div class="col-6">
+        <div class="usage-figure" id="usageHours">&ndash;</div>
+        <div class="usage-caption" id="usageHoursCaption">hours used</div>
+      </div>
+      <div class="col-6">
+        <div class="usage-figure" id="usageCost">&ndash;</div>
+        <div class="usage-caption">cost (&#8377;)</div>
+      </div>
+    </div>
+    <p class="usage-note text-center" id="usageBookings">&nbsp;</p>
+
+    <div class="usage-block">
+      <p class="usage-heading">Approval queue</p>
+      <div class="row no-gutters text-center">
+        <div class="col-6">
+          <div class="usage-figure" id="queueAwaitingHours">&ndash;</div>
+          <div class="usage-sub" id="queueAwaitingCost">&ndash;</div>
+          <div class="usage-caption"><span id="queueAwaiting">&ndash;</span> awaiting you</div>
+        </div>
+        <div class="col-6">
+          <div class="usage-figure" id="queueClearedHours">&ndash;</div>
+          <div class="usage-sub" id="queueClearedCost">&ndash;</div>
+          <div class="usage-caption"><span id="queueCleared">&ndash;</span> cleared by you</div>
+        </div>
+      </div>
+      <p class="usage-note mb-0 text-center" id="queueDownstream"></p>
+    </div>
+
+    <div class="usage-block">
+      <p class="usage-heading">Breakdown <span>&middot; <span id="usageBasis">approved</span></span></p>
+      <div class="usage-seg mb-2">
+        <button type="button" class="active" data-group="by_instrument">By instrument</button>
+        <button type="button" data-group="by_student">By student</button>
+      </div>
+      <div id="usageRows"></div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'booking_portal/usage_panel.js' %}" defer></script>

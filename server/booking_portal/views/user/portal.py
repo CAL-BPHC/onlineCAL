@@ -6,6 +6,24 @@ from django_filters import DateFilter, FilterSet, OrderingFilter
 from ... import forms, models
 
 
+def wants_json(request):
+    """True when the browser asked for JSON instead of a redirect."""
+    return request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+
+def active_filter_scope(portal_filter):
+    """What the portal filter is currently showing.
+
+    Handing this to the template keeps the parameter names owned by the
+    filterset, instead of the panel's JavaScript re-deriving them from the URL.
+    """
+    data = portal_filter.form.data
+    return {
+        name: data.get(name, "")
+        for name in ("status", "instrument", "from_date", "to_date")
+    }
+
+
 def get_pagintion_nav_range(page_obj):
     begin = page_obj.number - 5
     end = page_obj.number + 4
@@ -14,7 +32,7 @@ def get_pagintion_nav_range(page_obj):
     begin += offset
     end += offset
     end = page_obj.paginator.num_pages if end > page_obj.paginator.num_pages else end
-    return range(begin, end)
+    return range(begin, end + 1)
 
 
 class BasePortalFilter(FilterSet):
@@ -24,23 +42,36 @@ class BasePortalFilter(FilterSet):
 
     from_date = DateFilter(
         field_name="slot__date",
-        lookup_expr=("gt"),
+        lookup_expr=("gte"),
         label="From",
-        widget=forms.DateInput(attrs={"class": "datepicker"}),
+        widget=forms.DateInput,
     )
     to_date = DateFilter(
         field_name="slot__date",
-        lookup_expr=("lt"),
+        lookup_expr=("lte"),
         label="To",
-        widget=forms.DateInput(attrs={"class": "datepicker"}),
+        widget=forms.DateInput,
     )
 
-    order = OrderingFilter(fields=(("slot", "slot__date"),))
+    # (model field, url parameter). Keeping the parameter identical to the field
+    # name preserves existing ?order=slot__date links; the previous pairing was
+    # reversed and silently ordered by the slot foreign key instead of the date.
+    order = OrderingFilter(
+        fields=(("slot__date", "slot__date"),),
+        field_labels={"slot__date": "Slot date"},
+    )
 
     def __init__(self, *args, **kwargs):
         self.student_queryset = kwargs.pop("student_queryset", None)
         self.faculty_queryset = kwargs.pop("faculty_queryset", None)
         super().__init__(*args, **kwargs)
+
+        # Meta.model is StudentRequest, but this filterset also runs against
+        # FacultyRequest querysets, which have no "waiting for faculty approval"
+        # status. Offering it there gives an option that can never match.
+        model = getattr(self.queryset, "model", None)
+        if model is not None and model is not models.StudentRequest:
+            self.filters["status"].extra["choices"] = model.STATUS_CHOICES
 
     @staticmethod
     def apply_filter(queryset, field, value):
