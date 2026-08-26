@@ -151,9 +151,10 @@ class PortalPageTestCase(RequestBuilderMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.content.decode()
-        self.assertIn("<td>Approved</td>", body)
-        self.assertNotIn("<td>Rejected</td>", body)
-        self.assertNotIn("<td>Waiting for Faculty Approval</td>", body)
+        cell = '<td class="js-request-status">{}</td>'.format
+        self.assertIn(cell("Approved"), body)
+        self.assertNotIn(cell("Rejected"), body)
+        self.assertNotIn(cell("Waiting for Faculty Approval"), body)
 
     def test_pagination_links_render(self):
         for offset in range(30):

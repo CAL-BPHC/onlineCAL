@@ -17,6 +17,10 @@
     return;
   }
 
+  // The status the list is filtered to, if any. A request that still matches it
+  // belongs on the page after the change and is updated where it sits.
+  var statusFilter = table.dataset.filterStatus || "";
+
   // The form is inside the modal, but its own fields are not always inside the
   // form: a <form> in table context parses with its children detached, so this
   // looks the dismiss control up from the modal rather than from the form.
@@ -32,6 +36,21 @@
     var dismiss = modal.querySelector('[data-dismiss="modal"]');
     if (dismiss) {
       dismiss.click();
+    }
+  }
+
+  function updateRow(row, data) {
+    var status = row.querySelector(".js-request-status");
+    if (status) {
+      status.textContent = data.status_display;
+    }
+    // it has moved on, so it is nobody's to act on from here any more
+    var cells = row.querySelectorAll(".js-request-actions");
+    if (cells.length === 2) {
+      cells[0].innerHTML =
+        '<button type="button" class="btn btn-success" disabled>Accept</button>';
+      cells[1].innerHTML =
+        '<button type="button" class="btn btn-danger" disabled>Reject</button>';
     }
   }
 
@@ -84,10 +103,13 @@
       })
       .then(function (data) {
         closeModal(form);
-        if (row) {
+        if (row && statusFilter && statusFilter !== data.status) {
+          // it no longer belongs in this list, so say where it went
           row.parentNode.removeChild(row);
+          notify("Request #" + data.id + " " + data.action + ".", "success");
+        } else if (row) {
+          updateRow(row, data);
         }
-        notify("Request #" + data.id + " " + data.action + ".", "success");
         document.dispatchEvent(new CustomEvent("request-action", { detail: data }));
       })
       .catch(function (error) {

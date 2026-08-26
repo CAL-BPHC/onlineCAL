@@ -37,7 +37,8 @@
             <h2 class="card-title">Pending Requests</h2>
             <div class="alert d-none" role="alert" id="requestActionBanner"></div>
             <div class="table-responsive">
-              <table class="table table-hover" id="requestsTable">
+              <table class="table table-hover" id="requestsTable"
+                     data-filter-status="{{ filter_scope.status }}">
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
@@ -70,28 +71,16 @@
                     <td>{{ request.faculty }}</td>
                     <td>{{ request.instrument }}</td>
                     <td>{{ request.slot.description }}</td>
-                    {% if request.status == 'R1' %}
-                      <td>Waiting for Faculty Approval</td>
-                    {% elif request.status == 'R2' %}
-                      <td>Waiting for Lab Assistant Approval</td>
-                    {% elif request.status == 'R3' %}
-                      <td>Approved</td>
-                    {% elif request.status == 'R4' %}
-                      <td>Rejected</td>
-                    {% elif request.status == 'R5' %}
-                      <td>Cancelled</td>
-                    {% elif request.status == 'R6' %}
-                      <td>Waiting for Department Approval</td>
-                    {% endif %}
+                    <td class="js-request-status">{% if request.status == 'R1' %}Waiting for Faculty Approval{% elif request.status == 'R2' %}Waiting for Lab Assistant Approval{% elif request.status == 'R3' %}Approved{% elif request.status == 'R4' %}Rejected{% elif request.status == 'R5' %}Cancelled{% elif request.status == 'R6' %}Waiting for Department Approval{% endif %}</td>
                     <td><a href="{% url 'view-application' id=request.id %}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" target="_blank"> View Application </a></td>
                     <td>{{ request.total_cost }}</td>
                     {% if not user_is_student %}
                       {% if request.status == modifiable_request_status %}
                       {% if user_type == 'faculty' %}
-                        <td>
+                        <td class="js-request-actions">
                           <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal{{request.id}}">Accept</button>
                         </td>
-                        <td>
+                        <td class="js-request-actions">
                           <form action="{% url 'faculty_request_reject' request.id %}" method="post"
                                 class="js-request-action" data-request-id="{{ request.id }}">
                             {% csrf_token %}
