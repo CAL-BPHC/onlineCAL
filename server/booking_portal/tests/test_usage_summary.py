@@ -386,6 +386,10 @@ class LiveRequestActionTestCase(RequestBuilderMixin, TestCase):
         self.assertEqual(after["totals"], before["totals"])
 
     def test_usage_panel_is_rendered_for_faculty(self):
+        # the panel is temporarily limited to the faculty trialling it
+        self.faculty.email = "himanshu.aggarwal@hyderabad.bits-pilani.ac.in"
+        self.faculty.save()
+
         response = self.client.get("/faculty/")
 
         self.assertContains(response, 'id="usagePanel"')

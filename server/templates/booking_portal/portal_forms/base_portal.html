@@ -22,7 +22,8 @@
             </div>
           </div>
         </div>
-        {% if user_type == 'faculty' %}
+        {# temporary: the usage panel is being trialled with one faculty #}
+        {% if user_type == 'faculty' and user.email|lower == 'himanshu.aggarwal@hyderabad.bits-pilani.ac.in' %}
           {% include 'booking_portal/portal_forms/_usage_panel.html' %}
         {% endif %}
       </div>
