@@ -6,6 +6,24 @@ from django_filters import DateFilter, FilterSet, OrderingFilter
 from ... import forms, models
 
 
+def wants_json(request):
+    """True when the browser asked for JSON instead of a redirect."""
+    return request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+
+def active_filter_scope(portal_filter):
+    """What the portal filter is currently showing.
+
+    Handing this to the template keeps the parameter names owned by the
+    filterset, instead of the panel's JavaScript re-deriving them from the URL.
+    """
+    data = portal_filter.form.data
+    return {
+        name: data.get(name, "")
+        for name in ("status", "instrument", "from_date", "to_date")
+    }
+
+
 def get_pagintion_nav_range(page_obj):
     begin = page_obj.number - 5
     end = page_obj.number + 4

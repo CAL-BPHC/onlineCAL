@@ -1,0 +1,71 @@
+#usagePanel .usage-heading {
+  font-size: .68rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: #8b95a1;
+  font-weight: 600;
+  margin: 0 0 .5rem;
+}
+#usagePanel .usage-heading span { text-transform: none; letter-spacing: 0; font-weight: 400; }
+#usagePanel .usage-block { border-top: 1px solid rgba(0, 0, 0, .08); padding-top: .8rem; margin-top: .9rem; }
+
+/* a segmented control, rather than Bootstrap's heavy grey active button */
+#usagePanel .usage-seg { display: flex; background: #e4e7eb; border-radius: 7px; padding: 2px; }
+#usagePanel .usage-seg button {
+  flex: 1 1 0;
+  border: 0;
+  background: transparent;
+  border-radius: 5px;
+  font-size: .72rem;
+  line-height: 1.35;
+  padding: .28rem .15rem;
+  color: #566270;
+  white-space: nowrap;
+  transition: background-color .15s ease;
+}
+#usagePanel .usage-seg button:hover { color: #212529; }
+#usagePanel .usage-seg button.active {
+  background: #fff;
+  color: #1b2733;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .16);
+}
+
+#usagePanel .usage-scope { font-size: .78rem; color: #566270; font-weight: 600; }
+#usagePanel .usage-scope small { display: block; font-weight: 400; color: #8b95a1; font-size: .7rem; }
+
+#usagePanel .usage-figure { font-size: 1.55rem; line-height: 1.1; font-weight: 600; color: #1b2733; }
+#usagePanel .usage-figure.is-quiet { color: #b6bec7; font-weight: 500; }
+#usagePanel .usage-sub { font-size: 1.05rem; font-weight: 600; color: #2f6fdd; line-height: 1.35; }
+#usagePanel .usage-sub.is-quiet { color: #b6bec7; font-weight: 500; }
+#usagePanel .usage-caption { font-size: .72rem; color: #6c757d; }
+/* counts are context for the hours and cost above them, not the headline */
+#usagePanel .usage-caption span { font-weight: 600; color: #566270; }
+#usagePanel .usage-caption span.is-quiet { font-weight: 400; color: #b6bec7; }
+#usagePanel .usage-note { font-size: .72rem; color: #8b95a1; margin: .55rem 0 0; }
+#usagePanel .usage-custom label { font-size: .7rem; color: #6c757d; margin-bottom: .1rem; }
+
+#usagePanel .usage-row { cursor: pointer; padding: .4rem 0; border-top: 1px solid rgba(0, 0, 0, .05); }
+#usagePanel .usage-row:first-child { border-top: 0; }
+#usagePanel .usage-bar {
+  height: 3px;
+  background: rgba(0, 0, 0, .06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: .22rem 0 .16rem;
+}
+#usagePanel .usage-bar > span { display: block; height: 100%; background: #4c8bf5; border-radius: 2px; }
+#usagePanel .usage-children {
+  padding-left: .55rem;
+  border-left: 2px solid rgba(0, 0, 0, .07);
+  margin: .3rem 0 .2rem;
+}
+#usagePanel .usage-children > div { display: flex; justify-content: space-between; font-size: .75rem; color: #6c757d; }
+#usagePanel .usage-caret { display: inline-block; width: .75rem; color: #adb5bd; }
+#usagePanel .usage-rowcost { font-weight: 600; color: #2f6fdd; }
+
+@keyframes usageFlash {
+  from { background-color: rgba(47, 111, 221, .3); }
+  to { background-color: transparent; }
+}
+#usagePanel .usage-flash { animation: usageFlash 1.5s ease-out; border-radius: 4px; }

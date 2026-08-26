@@ -6,16 +6,13 @@ from booking_portal.models.faculty_request import FacultyRequest
 from booking_portal.models.request import StudentRequest
 from django.contrib import admin, messages
 from django.contrib.auth.decorators import user_passes_test
-from django.core.exceptions import (
-    ObjectDoesNotExist,
-    PermissionDenied,
-    ValidationError,
-)
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 
 from ..forms import InstrumentChangeForm, InstrumentCreateForm, UtilisationReportForm
+from ..reporting import request_hours, safe_total_cost
 from ..models import CustomUser, Instrument
 
 DETAILED_REPORT_TITLE = "Download Detailed Usage Report"
@@ -165,13 +162,6 @@ class InstrumentAdmin(admin.ModelAdmin):
 
         for req, request_type in requests:
             department = req.faculty.department
-            try:
-                total_cost = req.total_cost
-            except (ObjectDoesNotExist, AttributeError, KeyError, TypeError):
-                # A request whose form data is missing or malformed shouldn't
-                # take the whole report down with it.
-                total_cost = ""
-
             writer.writerow(
                 {
                     "Request ID": f"{request_type[0]}{req.id}",
@@ -183,11 +173,9 @@ class InstrumentAdmin(admin.ModelAdmin):
                     "Date": req.slot.date.isoformat(),
                     "Start Time": req.slot.start_time,
                     "End Time": req.slot.end_time,
-                    "Duration (hours)": round(
-                        req.slot.duration.total_seconds() / 3600, 2
-                    ),
+                    "Duration (hours)": round(request_hours(req), 2),
                     "Status": req.get_status_display(),
-                    "Total Cost": total_cost,
+                    "Total Cost": safe_total_cost(req, default=""),
                 }
             )
 

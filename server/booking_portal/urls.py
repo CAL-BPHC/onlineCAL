@@ -12,6 +12,11 @@ urlpatterns = [
     path(
         "faculty/requests", views.faculty_request_portal, name="faculty_request_portal"
     ),
+    path(
+        "faculty/usage-summary",
+        views.faculty_usage_summary,
+        name="faculty_usage_summary",
+    ),
     path("lab-assistant/", views.lab_assistant_portal, name="lab_assistant"),
     path(
         "lab-assistant/faculty",

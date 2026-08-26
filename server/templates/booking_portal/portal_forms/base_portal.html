@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 {% load query_utils %}
@@ -21,6 +22,9 @@
             </div>
           </div>
         </div>
+        {% if user_type == 'faculty' %}
+          {% include 'booking_portal/portal_forms/_usage_panel.html' %}
+        {% endif %}
       </div>
     </div>
 
@@ -30,8 +34,9 @@
         <div class="card bg-light mb-3">
           <div class="card-body">
             <h2 class="card-title">Pending Requests</h2>
+            <div class="alert d-none" role="alert" id="requestActionBanner"></div>
             <div class="table-responsive">
-              <table class="table table-hover">
+              <table class="table table-hover" id="requestsTable">
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
@@ -54,7 +59,7 @@
                 <tbody>
 
                 {% for request in page_obj %}
-                  <tr>
+                  <tr id="request-row-{{ request.pk }}">
                     <th scope="row">{{ request.pk }}</th>
                     {% if not faculty_request %}
                     {% if not user_type == 'department' %}
@@ -85,44 +90,13 @@
                         <td>
                           <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal{{request.id}}">Accept</button>
                         </td>
-                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}">
-                          <button type="button" class="btn btn-danger">Reject</button>
-                        </a></td>
-                        <div class="modal fade" id="confirmationModal{{request.id}}" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
-                          <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="confirmationModalLable">Please confirm the following</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                  <span aria-hidden="true">&times;</span>
-                                </button>
-                              </div>
-                              <div class="modal-body">
-                                Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
-
-                                <p><b>Note: If your request is routed through your department then your balance is not affected.</b></p>
-                                <form action="{% url 'faculty_request_accept' request.id %}" method="post">
-                                  {% csrf_token %}
-                                  {% if not department %}
-                                    Your account is not associated with any department. You cannot route this request to the department. Please contact the admin and report this issue.
-                                  {% endif %}
-                                  <div class="form-check">
-                                    <input type="hidden" name="departmentRoute" value="True">
-                                    <input class="form-check-input" type="checkbox" id="departmentRoute" name="departmentRoute" disabled checked>
-                                    <label for="departmentRoute" class="form-check-label">
-                                      I want to route this request to the department for further approval.
-                                    </label>
-                                  </div>
-                                  <p><b>Note: For now, all requests must be routed through the department, as faculty-level balance is not yet active.</b></p>
-                                  <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                      <button type="submit" class="btn btn-success">Confirm</button>
-                                  </div>
-                                </form>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <td>
+                          <form action="{% url 'faculty_request_reject' request.id %}" method="post"
+                                class="js-request-action" data-request-id="{{ request.id }}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Reject</button>
+                          </form>
+                        </td>
                       {% elif user_type == 'department' %}
                         <td>
                           <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal{{request.id}}{{request.is_faculty_request}}">Accept</button>
@@ -219,4 +193,49 @@
       </div>
     </div>
   </div>
+
+  {% if user_type == 'faculty' %}
+    {% for request in page_obj %}
+      {% if request.status == modifiable_request_status %}
+                        <div class="modal fade" id="confirmationModal{{request.id}}" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="confirmationModalLable">Please confirm the following</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
+
+                                <p><b>Note: If your request is routed through your department then your balance is not affected.</b></p>
+                                <form action="{% url 'faculty_request_accept' request.id %}" method="post"
+                                      class="js-request-action" data-request-id="{{ request.id }}">
+                                  {% csrf_token %}
+                                  {% if not department %}
+                                    Your account is not associated with any department. You cannot route this request to the department. Please contact the admin and report this issue.
+                                  {% endif %}
+                                  <div class="form-check">
+                                    <input type="hidden" name="departmentRoute" value="True">
+                                    <input class="form-check-input" type="checkbox" id="departmentRoute" name="departmentRoute" disabled checked>
+                                    <label for="departmentRoute" class="form-check-label">
+                                      I want to route this request to the department for further approval.
+                                    </label>
+                                  </div>
+                                  <p><b>Note: For now, all requests must be routed through the department, as faculty-level balance is not yet active.</b></p>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                      <button type="submit" class="btn btn-success">Confirm</button>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <script src="{% static 'booking_portal/request_actions.js' %}" defer></script>
 {% endblock %}
