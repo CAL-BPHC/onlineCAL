@@ -9,9 +9,13 @@
 
 {% block content %}
   <div class="row container-fluid">
-    <!-- Filter -->
+    <!-- Usage panel and filter -->
     <div class="col-lg-3 order-lg-1">
       <div class="container-fluid pt-4">
+        {# temporary: the usage panel is being trialled with one faculty #}
+        {% if user_type == 'faculty' and user.email|lower == 'himanshu.aggarwal@hyderabad.bits-pilani.ac.in' %}
+          {% include 'booking_portal/portal_forms/_usage_panel.html' %}
+        {% endif %}
         <div class="card bg-light mb-3">
           <div class="card-body">
             <h3 class="card-title text-center"> Filter </h3>
@@ -22,10 +26,6 @@
             </div>
           </div>
         </div>
-        {# temporary: the usage panel is being trialled with one faculty #}
-        {% if user_type == 'faculty' and user.email|lower == 'himanshu.aggarwal@hyderabad.bits-pilani.ac.in' %}
-          {% include 'booking_portal/portal_forms/_usage_panel.html' %}
-        {% endif %}
       </div>
     </div>
 
