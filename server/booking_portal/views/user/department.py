@@ -3,9 +3,10 @@ from django.db import transaction
 from django.db.models import BooleanField, Value
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
 
 from ... import models, permissions
-from .portal import BasePortalFilter, get_pagintion_nav_range
+from .portal import BasePortalFilter, get_pagintion_nav_range, portal_return_url
 
 
 @login_required
@@ -52,6 +53,7 @@ def department_portal(request):
 
 @login_required
 @user_passes_test(permissions.is_department)
+@require_POST
 def department_accept(request, id):
     is_faculty = (request.GET.get("is_faculty", False)) == "true"
     try:
@@ -70,7 +72,7 @@ def department_accept(request, id):
             if department == request_object.faculty.department:
                 request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
                 request_object.save()
-                return redirect(request.META.get("HTTP_REFERER", "department_portal"))
+                return redirect(portal_return_url(request, "department_portal"))
             else:
                 return HttpResponse("Bad Request")
     except Exception as e:
@@ -80,6 +82,7 @@ def department_accept(request, id):
 
 @login_required
 @user_passes_test(permissions.is_department)
+@require_POST
 def department_reject(request, id):
     is_faculty = (request.GET.get("is_faculty", False)) == "true"
     try:
@@ -96,7 +99,7 @@ def department_reject(request, id):
             if department == models.Department.objects.get(id=request.user.id):
                 request_object.status = models.StudentRequest.REJECTED
                 request_object.save()
-                return redirect(request.META.get("HTTP_REFERER", "department_portal"))
+                return redirect(portal_return_url(request, "department_portal"))
             else:
                 return HttpResponse("Bad Request")
     except Exception:

@@ -48,6 +48,12 @@ class UserDetailsForm(forms.ModelForm):
         self.fields["sup_dept"].widget.attrs["readonly"] = True
         self.initial["user_type"] = ContentType.objects.get_for_model(Student).id
 
+        # Django defaults a textarea to ten rows, which is a screenful each for
+        # fields that hold 250 characters.
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.Textarea):
+                field.widget.attrs["rows"] = 3
+
         if is_faculty:
             self.fields["user_name"].queryset = Faculty.objects.all()
             self.fields["needs_department_approval"] = forms.BooleanField(
@@ -60,7 +66,11 @@ class UserDetailsForm(forms.ModelForm):
         instrument_id = self.get_instrument_id()
         modes = ModePricingRules.get_mode_choices(instrument_id)
         if len(modes) > 0:
-            self.fields["mode"] = forms.ChoiceField(choices=[], required=False)
+            self.fields["mode"] = forms.ChoiceField(
+                choices=[],
+                required=False,
+                widget=forms.Select(attrs={"class": "form-control"}),
+            )
             self.fields["mode"].choices = ModePricingRules.get_mode_choices(
                 instrument_id
             )

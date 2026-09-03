@@ -46,6 +46,22 @@ def student_portal(request):
     )
 
 
+# Prefilled from the slot and the applicant's own record: shown as a summary
+# rather than as controls, but still posted, so they stay in the page hidden.
+PREFILLED_FIELDS = ("user_name", "date", "time", "duration", "sup_name", "sup_dept")
+
+
+def booking_summary(applicant, slot, supervisor=None):
+    """The part of a booking that is already settled before anything is typed."""
+    rows = [("Applicant", f"{applicant.name} ({applicant.email})")]
+    if supervisor is not None:
+        rows.append(("Supervisor", f"{supervisor.name} ({supervisor.email})"))
+        rows.append(("Supervisor Department", str(supervisor.department)))
+    if slot is not None:
+        rows.append(("Slot", slot.description))
+    return rows
+
+
 def book_machine_student(request, form_class, form_model_class):
     slot_id = request.GET.get("slots", None)
     if not slot_id:
@@ -54,6 +70,9 @@ def book_machine_student(request, form_class, form_model_class):
 
     student = Student.objects.select_related("supervisor").get(id=request.user.id)
     supervisor = student.supervisor
+    slot, instr = cast(
+        tuple[Slot, Instrument], Slot.objects.get_instr_from_slot_id(slot_id)
+    )
 
     default_context = {
         "edit": True,
@@ -64,12 +83,11 @@ def book_machine_student(request, form_class, form_model_class):
         "user_type": "student",
         "status": StudentRequest.WAITING_FOR_FACULTY,
         "notes_first": form_model_class._meta.verbose_name == "ICP-MS",
+        "prefilled_fields": PREFILLED_FIELDS,
+        "booking_summary": booking_summary(student, slot, supervisor),
     }
 
     if request.method == "GET":
-        slot, instr = cast(
-            tuple[Slot, Instrument], Slot.objects.get_instr_from_slot_id(slot_id)
-        )
         if not instr or not slot:
             messages.error(request, "Invalid slot or instrument.")
             return HttpResponseRedirect(reverse("instrument-list"))
@@ -229,6 +247,9 @@ def book_machine(request, instr_id):
         return HttpResponseRedirect(reverse("instrument-list"))
 
     faculty = Faculty.objects.get(id=request.user.id)
+    slot, instr = cast(
+        tuple[Slot, Instrument], Slot.objects.get_instr_from_slot_id(slot_id)
+    )
 
     default_context = {
         "edit": True,
@@ -239,12 +260,11 @@ def book_machine(request, instr_id):
         "user_type": "student",
         "status": StudentRequest.WAITING_FOR_FACULTY,  # does not matter when edit is true
         "notes_first": form_model_class._meta.verbose_name == "ICP-MS",
+        "prefilled_fields": PREFILLED_FIELDS,
+        "booking_summary": booking_summary(faculty, slot),
     }
 
     if request.method == "GET":
-        slot, instr = cast(
-            tuple[Slot, Instrument], Slot.objects.get_instr_from_slot_id(slot_id)
-        )
         if not instr or not slot:
             messages.error(request, "Invalid slot or instrument.")
             return HttpResponseRedirect(reverse("instrument-list"))

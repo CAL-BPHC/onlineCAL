@@ -1,70 +1,212 @@
 {% extends 'instrument_form_base.html' %}
+{% load subtract %}
 
 {% block title %} {{ instrument_title }} {% endblock %}
 {% block subtitle %} {{ instrument_subtitle }} {% endblock %}
 
-{% block content %}
-{% if not edit %}
-<div class="card-text" style="text-align: center;">
-    <h6>
-        <strong>
-            Status of your Application:
-        </strong>
-        {% if status == 'R1' %}  Waiting for Faculty Approval
-        {% elif status == 'R2' %} Waiting for Lab Assistant Approval
-        {% elif status == 'R3' %} Approved
-        {% elif status == 'R4' %} Rejected
-        {% elif status == 'R5' %} Cancelled
-        {% elif status == 'R6' %} Waiting for Department Approval
-        {% endif %}
-    </h6>
-</div>
-{% endif %}
+{% block head %}
+<style>
+  .app-status { font-size: 1.05rem; }
+  .app-summary { background: #f4f6f8; border: 1px solid rgba(0,0,0,.08); border-radius: 6px; padding: .75rem 1rem; }
+  .app-summary dt { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #8b95a1; font-weight: 600; margin-bottom: .1rem; }
+  .app-summary dd { margin-bottom: .6rem; font-weight: 600; color: #1b2733; }
+  .app-heading { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: #8b95a1; font-weight: 600; margin: 1.5rem 0 .5rem; }
+  .app-row { display: flex; gap: 1rem; padding: .4rem 0; border-top: 1px solid rgba(0,0,0,.06); }
+  .app-row:first-child { border-top: 0; }
+  .app-row dt { flex: 0 0 45%; margin: 0; font-weight: 400; color: #566270; }
+  .app-row dd { flex: 1; margin: 0; font-weight: 600; color: #1b2733; white-space: pre-wrap; }
+  .app-row dd.is-empty { font-weight: 400; color: #adb5bd; }
+  /* filling the form in: one readable column rather than the full page width */
+  .app-fill { max-width: 720px; margin: 0 auto; }
+  .app-fill .app-summary dd { margin-bottom: .5rem; }
+  .app-fill .app-summary > div + div { margin-top: .25rem; }
+  .app-fill label { font-weight: 600; color: #566270; margin-bottom: .25rem; }
+  .app-fill .form-check-label { font-weight: 400; color: #1b2733; }
+  .app-fill textarea { resize: vertical; }
+  .app-fill select[name^="date_"] { display: inline-block; width: auto; margin-right: .5rem; }
+  .app-fill-notes { text-align: justify; margin-top: 1.5rem; }
+  @media print { .app-noprint { display: none !important; } }
+  {% if not edit %}
+  /* the undertaking and the instrument's fill-in instructions belong on the
+     printed requisition, not in a reviewer's way on screen */
+  .app-declaration, .app-notes { display: none; }
+  @media print { .app-declaration, .app-notes { display: block; } }
+  {% endif %}
+</style>
+{% endblock %}
 
+{% block content %}
 {% if edit %}
-<form action="" method="POST">
-{% elif user_type != 'student' %}
-<form action="{% url 'add_remarks' id=id %}{% if faculty_request %}?is_faculty=true{% endif %}" method="POST">
-{% endif%}
+  {# filling the form in: the real inputs #}
+  <form action="" method="POST" class="app-fill">
     <script>
-        $('form').submit(function(e) {
-                $(':disabled').each(function(e) {
-                    $(this).removeAttr('disabled');
-                })
-            });
+      $('form').submit(function(e) {
+        $(':disabled').each(function(e) { $(this).removeAttr('disabled'); })
+      });
     </script>
     {% csrf_token %}
-    {% if notes_first %}
-        <p style="text-align: justify;">
-            {{ form_notes | safe }}
-        </p>
-        {{ form.as_p }}
-    {% else %}
-        {{ form.as_p }}
-        <p style="text-align: justify;">
-            {{ form_notes | safe }}
-        </p>
-    {% endif %}
-    <div style="text-align: center;">
-    {% if edit %}
-        <input type="hidden" name="calculation_done" value="{{ calculation_done }}">
-        <button type="submit" class="btn btn-primary" name="action" value='calculate'>Calculate cost</button>
-        {% if calculation_done %}
-            <p>Total cost: {{ total_cost }}</p>
-            <button type="submit" class="btn btn-primary" name="action" value='submit'>Submit</button>
-        {% else %}
-            <button type="submit" class="btn btn-primary" name="action" value='submit' disabled>Submit</button>
-        {% endif %}
-    {% else %}
-        <p>Total cost: {{ total_cost }}</p>
-        <input type="submt" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
+    {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
     {% endif %}
 
-    {% if user_type != 'student' %}
-        <input type="submit" class="btn btn-primary" value="Add Your Remarks">
-    </div>
+    {% if booking_summary %}
+      <dl class="app-summary row mb-4">
+        {% for label, value in booking_summary %}
+          <div class="col-12"><dt>{{ label }}</dt><dd>{{ value }}</dd></div>
+        {% endfor %}
+      </dl>
     {% endif %}
-</form>
+
+    {% if notes_first %}
+      <div class="app-fill-notes">{{ form_notes | safe }}</div>
+    {% endif %}
+
+    {% for field in form.visible_fields %}
+      {# the approvers write their remarks later, from the submitted application #}
+      {% if field.name != 'faculty_remarks' and field.name != 'department_remarks' and field.name != 'lab_assistant_remarks' %}
+        {% if field.name in prefilled_fields and not field.errors %}
+          {# read off the summary above, but still posted #}
+          <div class="d-none">{{ field }}</div>
+        {% elif field.field.widget.input_type == 'checkbox' %}
+          <div class="form-group form-check">
+            {{ field }}
+            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+        {% else %}
+          <div class="form-group">
+            {% if field.label %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{% endif %}
+            {{ field }}
+            {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+
+    {% if not notes_first %}
+      <div class="app-fill-notes">{{ form_notes | safe }}</div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+      <input type="hidden" name="calculation_done" value="{{ calculation_done }}">
+      <button type="submit" class="btn btn-primary" name="action" value='calculate'>Calculate cost</button>
+      {% if calculation_done %}
+        <p class="mt-3 mb-2"><strong>Total cost:</strong> &#8377; {{ total_cost }}</p>
+        <button type="submit" class="btn btn-success" name="action" value='submit'>Submit</button>
+      {% else %}
+        <button type="submit" class="btn btn-primary" name="action" value='submit' disabled>Submit</button>
+      {% endif %}
+    </div>
+  </form>
+
+{% else %}
+  {# reading a submitted application #}
+  <p class="text-center app-status mb-3">
+    <strong>Status:</strong>
+    {% if status == 'R1' %}Waiting for Faculty Approval
+    {% elif status == 'R2' %}Waiting for Lab Assistant Approval
+    {% elif status == 'R3' %}Approved
+    {% elif status == 'R4' %}Rejected
+    {% elif status == 'R5' %}Cancelled
+    {% elif status == 'R6' %}Waiting for Department Approval
+    {% endif %}
+  </p>
+
+  <dl class="app-summary row mb-0">
+    <div class="col-md-3 col-6"><dt>Instrument</dt><dd>{{ request_obj.instrument }}</dd></div>
+    <div class="col-md-5 col-6"><dt>Slot</dt><dd>{{ request_obj.slot.description }}</dd></div>
+    <div class="col-md-2 col-6"><dt>Request</dt><dd>#{{ request_obj.id }}</dd></div>
+    <div class="col-md-2 col-6"><dt>Total cost</dt><dd>&#8377; {{ total_cost }}</dd></div>
+  </dl>
+
+  <p class="app-heading">Application details</p>
+  <dl class="mb-0">
+    {% for row in details %}
+      <div class="app-row">
+        <dt>{{ row.label }}</dt>
+        <dd {% if not row.value %}class="is-empty"{% endif %}>{% if row.value %}{{ row.value }}{% else %}-{% endif %}</dd>
+      </div>
+    {% endfor %}
+  </dl>
+
+  {% if remarks %}
+    <p class="app-heading">Remarks</p>
+    <dl class="mb-0">
+      {% for row in remarks %}
+        <div class="app-row">
+          <dt>{{ row.label }}</dt>
+          <dd>{{ row.value }}</dd>
+        </div>
+      {% endfor %}
+    </dl>
+  {% endif %}
+
+  <div class="app-notes mt-3" style="text-align: justify;">{{ form_notes | safe }}</div>
+
+  {% if remark_bound_field %}
+    <form action="{% url 'add_remarks' id=id %}{% if faculty_request %}?is_faculty=true{% endif %}" method="POST" class="app-noprint mt-3">
+      {% csrf_token %}
+      <label for="{{ remark_bound_field.id_for_label }}"><strong>Your remarks</strong></label>
+      {{ remark_bound_field }}
+      <button type="submit" class="btn btn-outline-primary btn-sm mt-2">Save remarks</button>
+    </form>
+  {% endif %}
+
+  <div class="text-center mt-4 app-noprint">
+    {% if decision %}
+      <a class="btn btn-link" href="{{ decision.back_url }}">Back to requests</a>
+      <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmApprove">Accept request</button>
+      <form action="{{ decision.reject_url }}" method="post" class="d-inline">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ decision.back_url }}">
+        <button type="submit" class="btn btn-danger">Reject request</button>
+      </form>
+    {% endif %}
+    <input type="button" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
+  </div>
+
+  {% if decision %}
+    <div class="modal fade" id="confirmApprove" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Please confirm the following</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            {% if balance != None %}
+              Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you
+              <b>{{ total_cost }}</b> and your final balance will be <b>{{ balance|subtract:total_cost }}</b>.
+            {% else %}
+              Approving request <b>#{{ request_obj.id }}</b> costs <b>{{ total_cost }}</b>, taken from
+              <b>{{ payer }}</b>'s balance.
+            {% endif %}
+            {% if user_type == 'faculty' %}
+              <p class="mt-2"><b>Note: If the request is routed through your department then your balance is not affected.</b></p>
+              {% if not department %}
+                <p class="text-danger">Your account is not associated with any department. Please contact the admin.</p>
+              {% endif %}
+            {% endif %}
+            <form action="{{ decision.accept_url }}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ decision.back_url }}">
+              {% if user_type == 'faculty' %}
+                <input type="hidden" name="departmentRoute" value="True">
+                <p class="mb-0"><b>Note: For now, all requests are routed through the department, as faculty-level balance is not yet active.</b></p>
+              {% endif %}
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Confirm</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
 {% endblock %}
 
 {% block facility %} {{ instrument_verbose_name }} {% endblock %}

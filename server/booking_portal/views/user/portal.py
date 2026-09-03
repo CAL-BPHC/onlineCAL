@@ -1,14 +1,39 @@
+from urllib.parse import urlparse
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django_filters import DateFilter, FilterSet, OrderingFilter
 
 from ... import forms, models
 
 
-def wants_json(request):
-    """True when the browser asked for JSON instead of a redirect."""
-    return request.headers.get("X-Requested-With") == "XMLHttpRequest"
+def safe_portal_url(candidate, request, portal):
+    """`candidate` if it is that portal's own page on this site, else the portal.
+
+    Keeps the filter and page a reviewer was on when they opened an
+    application, without letting a crafted value bounce them off site or onto
+    a portal their role cannot open.
+    """
+    fallback = reverse(portal)
+    if candidate and url_has_allowed_host_and_scheme(
+        candidate,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        path = urlparse(candidate).path
+        if path.rstrip("/") == fallback.rstrip("/"):
+            return candidate
+    return fallback
+
+
+def portal_return_url(request, portal):
+    """Where a decision returns to: the list it was made from, or the portal."""
+    return safe_portal_url(
+        request.POST.get("next") or request.META.get("HTTP_REFERER"), request, portal
+    )
 
 
 def active_filter_scope(portal_filter):

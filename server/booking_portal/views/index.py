@@ -1,8 +1,13 @@
+import datetime
 from typing import cast
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import ValidationError
+from django.db.models import Model
+from django.forms import ModelChoiceField
 from django.http import Http404
 from django.shortcuts import render
+from django.urls import reverse
 
 from ..config import view_application_dict
 from ..models import (
@@ -16,6 +21,192 @@ from ..models import (
     UserDetail,
 )
 from ..permissions import get_user_type, is_department, is_faculty, is_lab_assistant
+from .user.portal import safe_portal_url
+
+
+# The remark fields are read as a group at the end of an application rather
+# than inline with the sample details.
+REMARK_FIELDS = (
+    ("student_remarks", "Applicant"),
+    ("faculty_remarks", "Supervisor"),
+    ("department_remarks", "Department HoD"),
+    ("lab_assistant_remarks", "Lab assistant"),
+)
+
+
+# The slot line in the summary header already states these.
+SLOT_FIELDS = ("date", "time", "duration")
+SUPERVISOR_FIELDS = ("sup_name", "sup_dept")
+
+
+def _display_value(bound_field):
+    """What a submitted answer should read as, rather than what it was typed into."""
+    value = bound_field.value()
+    field = bound_field.field
+
+    if isinstance(field, ModelChoiceField):
+        if value in (None, ""):
+            return ""
+        if isinstance(value, Model):
+            return field.label_from_instance(value)
+        try:
+            # the stored value is a primary key; show it the way the form did
+            return field.label_from_instance(field.to_python(value))
+        except (ValidationError, AttributeError):
+            return str(value)
+    if isinstance(value, bool):
+        return "Yes" if value else "No"
+    # spell dates and times out rather than leaving them to locale formatting,
+    # which renders 12:00 as "noon"
+    if isinstance(value, datetime.datetime):
+        return value.strftime("%d %b %Y, %I:%M %p")
+    if isinstance(value, datetime.date):
+        return value.strftime("%d %b %Y")
+    if isinstance(value, datetime.time):
+        return value.strftime("%I:%M %p").lstrip("0")
+
+    choices = list(getattr(field, "choices", None) or [])
+    if choices:
+        labels = {str(key): label for key, label in choices}
+        if str(value) in labels:
+            return labels[str(value)]
+        # a mode is pinned to the single option the booking was made with
+        if len(choices) == 1:
+            return choices[0][1]
+    return "" if value is None else value
+
+
+def _application_rows(form_object, editable_field=None, hidden_fields=()):
+    """Split a submitted application into readable detail and remark rows."""
+    remark_labels = dict(REMARK_FIELDS)
+    details, remarks = [], []
+
+    for bound_field in form_object:
+        if bound_field.name == editable_field or bound_field.name in hidden_fields:
+            continue
+        row = {
+            "label": remark_labels.get(bound_field.name) or bound_field.label,
+            "value": _display_value(bound_field),
+        }
+        if bound_field.name in remark_labels:
+            # a remark nobody wrote is not worth a row
+            if row["value"]:
+                remarks.append(row)
+        else:
+            details.append(row)
+    return details, remarks
+
+
+# Who may act on a request, in which state, and where that lands them. A
+# reviewer decides from the application itself so that it has at least been in
+# front of them; the department and the lab assistant keep their list buttons
+# as well, since they clear far more requests in a sitting.
+DECISIONS = {
+    "faculty": {
+        "status": StudentRequest.WAITING_FOR_FACULTY,
+        "accept": "faculty_request_accept",
+        "reject": "faculty_request_reject",
+        "portal": "faculty_portal",
+    },
+    "department": {
+        "status": StudentRequest.WAITING_FOR_DEPARTMENT,
+        "accept": "department_request_accept",
+        "reject": "department_request_reject",
+        "portal": "department_portal",
+    },
+    "assistant": {
+        "status": StudentRequest.WAITING_FOR_LAB_ASST,
+        "accept": "lab_assistant_request_accept",
+        "reject": "lab_assistant_request_reject",
+        "portal": "lab_assistant",
+    },
+}
+
+
+def _owns_the_decision(user, user_type, request_obj):
+    """Whether this request is actually this reviewer's to act on."""
+    if user_type == "faculty":
+        return request_obj.faculty_id == user.id
+    if user_type == "department":
+        return request_obj.faculty.department_id == user.id
+    # lab assistants work the whole queue, as their portal already shows
+    return user_type == "assistant"
+
+
+def _decision(request, user_type, request_obj, faculty_request=False):
+    """The accept/reject controls this reviewer gets here, or None."""
+    rule = DECISIONS.get(user_type)
+    if (
+        rule is None
+        or request_obj.status != rule["status"]
+        or not _owns_the_decision(request.user, user_type, request_obj)
+    ):
+        return None
+
+    portal = rule["portal"]
+    query = ""
+    if faculty_request:
+        query = "?is_faculty=true"
+        if user_type == "assistant":
+            portal = "lab_assistant_faculty_portal"
+    return {
+        "accept_url": reverse(rule["accept"], args=[request_obj.id]) + query,
+        "reject_url": reverse(rule["reject"], args=[request_obj.id]) + query,
+        "back_url": safe_portal_url(request.META.get("HTTP_REFERER"), request, portal),
+    }
+
+
+def _decision_context(request, user_type, request_obj, decision):
+    """What the confirmation modal has to state before this reviewer accepts."""
+    empty = {"balance": None, "department": None, "payer": None}
+    if decision is None:
+        return empty
+
+    if user_type == "faculty":
+        faculty = Faculty.objects.filter(id=request.user.id).first()
+        if faculty is None:
+            return empty
+        return {**empty, "balance": faculty.balance, "department": faculty.department}
+    if user_type == "department":
+        department = Department.objects.filter(id=request.user.id).first()
+        return {**empty, "balance": department.balance if department else None}
+    # the lab assistant's approval is what actually spends: the bill lands on
+    # whoever the request was routed through
+    return {
+        **empty,
+        "payer": request_obj.faculty.department
+        if request_obj.needs_department_approval
+        else request_obj.faculty,
+    }
+
+
+def _may_read_application(user, request_obj):
+    """Everyone with a part in this request, and nobody else.
+
+    An application carries a phone number, what the sample is and what it cost,
+    so it is not something any logged in account should be able to page through
+    by guessing ids.
+    """
+    if user.is_staff or user.is_superuser:
+        return True
+    user_type = get_user_type(user)
+    if user_type in DECISIONS:
+        # the reviewers who could act on it, at whatever stage it is in
+        return _owns_the_decision(user, user_type, request_obj)
+    # a student sees the requests they raised
+    return getattr(request_obj, "student_id", None) == user.id
+
+
+def _editable_remark_field(user_type, form_object):
+    """The remark this reviewer may still write, if they have not already."""
+    field = {
+        "faculty": "faculty_remarks",
+        "assistant": "lab_assistant_remarks",
+        "department": "department_remarks",
+    }.get(user_type)
+    if field is None or form_object[field].value() is not None:
+        return None
+    return field
 
 
 def index(request):
@@ -44,6 +235,8 @@ def show_application_student(request, id):
     try:
         request_obj: StudentRequest = StudentRequest.objects.get(id=id)
     except Exception:
+        raise Http404()
+    if not _may_read_application(request.user, request_obj):
         raise Http404()
     content_object = cast(UserDetail, request_obj.content_object)
     form = view_application_dict[content_object._meta.model]
@@ -132,13 +325,26 @@ def show_application_student(request, id):
         if field_val.startswith("conditional_quantity"):
             form_object.fields[field_val].widget.attrs["style"] = ""
 
+    user_type = get_user_type(request.user)
+    remark_field = _editable_remark_field(user_type, form_object)
+    hidden = set(SLOT_FIELDS)
+    if _owns_the_decision(request.user, user_type, request_obj):
+        # a reviewer reading their own queue does not need telling who they are
+        if user_type == "faculty":
+            hidden.update(SUPERVISOR_FIELDS)
+        elif user_type == "department":
+            hidden.add("sup_dept")
+    details, remarks = _application_rows(form_object, remark_field, hidden)
+
+    decision = _decision(request, user_type, request_obj)
+
     return render(
         request,
         "booking_portal/instrument_form.html",
         {
             "form": form_object,
             "edit": False,
-            "user_type": get_user_type(request.user),
+            "user_type": user_type,
             "id": id,
             "instrument_title": form.title,
             "instrument_subtitle": form.subtitle,
@@ -147,6 +353,12 @@ def show_application_student(request, id):
             "status": request_obj.status,
             "total_cost": request_obj.total_cost,
             "notes_first": content_object._meta.verbose_name == "ICP-MS",
+            "details": details,
+            "remarks": remarks,
+            "remark_bound_field": form_object[remark_field] if remark_field else None,
+            "request_obj": request_obj,
+            "decision": decision,
+            **_decision_context(request, user_type, request_obj, decision),
         },
     )
 
@@ -156,6 +368,8 @@ def show_application_faculty(request, id):
     try:
         request_obj: FacultyRequest = FacultyRequest.objects.get(id=id)
     except Exception:
+        raise Http404()
+    if not _may_read_application(request.user, request_obj):
         raise Http404()
     content_object = cast(UserDetail, request_obj.content_object)
     form = view_application_dict[content_object._meta.model]
@@ -240,13 +454,19 @@ def show_application_faculty(request, id):
 
         if field_val.startswith("conditional_quantity"):
             form_object.fields[field_val].widget.attrs["style"] = ""
+    user_type = "student" if is_faculty else get_user_type(request.user)
+    remark_field = _editable_remark_field(user_type, form_object)
+    details, remarks = _application_rows(form_object, remark_field, SLOT_FIELDS)
+
+    decision = _decision(request, user_type, request_obj, faculty_request=True)
+
     return render(
         request,
         "booking_portal/instrument_form.html",
         {
             "form": form_object,
             "edit": False,
-            "user_type": "student" if is_faculty else get_user_type(request.user),
+            "user_type": user_type,
             "id": id,
             "instrument_title": form.title,
             "instrument_subtitle": form.subtitle,
@@ -256,6 +476,12 @@ def show_application_faculty(request, id):
             "total_cost": request_obj.total_cost,
             "faculty_request": True,
             "notes_first": content_object._meta.verbose_name == "ICP-MS",
+            "details": details,
+            "remarks": remarks,
+            "remark_bound_field": form_object[remark_field] if remark_field else None,
+            "request_obj": request_obj,
+            "decision": decision,
+            **_decision_context(request, user_type, request_obj, decision),
         },
     )
 
@@ -288,6 +514,9 @@ def add_remarks(request, id):
         else:
             request_obj = StudentRequest.objects.get(id=id)
     except Exception:
+        raise Http404()
+    # a remark belongs to the reviewer whose request this is
+    if not _may_read_application(request.user, request_obj):
         raise Http404()
     content_object = request_obj.content_object
     form_fields = dict(request.POST.items())

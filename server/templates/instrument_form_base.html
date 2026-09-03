@@ -9,6 +9,7 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
         <title>{% block title %} {% endblock %}</title>
+        {% block head %}{% endblock %}
     </head>
     <body>
         <main>
@@ -25,7 +26,7 @@
             </div>
         </div>
 
-        <div class="container-fluid pt-3">
+        <div class="container pt-3 app-declaration">
             <p style="text-align:justify">
                 I certify that my samples do not present any danger to the personnel or the equipment and I have provided
                 the appropriate handling instructions for safety to the operator before analysis. I also certify that I

@@ -4,9 +4,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
 
 from ... import models, permissions
-from .portal import BasePortalFilter, get_pagintion_nav_range
+from .portal import BasePortalFilter, get_pagintion_nav_range, portal_return_url
 
 
 @login_required
@@ -58,6 +59,7 @@ def lab_assistant_faculty_portal(request):
 
 @login_required
 @user_passes_test(permissions.is_lab_assistant)
+@require_POST
 def lab_assistant_accept(request, id):
     is_faculty = (request.GET.get("is_faculty", False)) == "true"
     try:
@@ -84,8 +86,8 @@ def lab_assistant_accept(request, id):
             request_object.status = models.StudentRequest.APPROVED
             request_object.save()
             return redirect(
-                request.META.get(
-                    "HTTP_REFERER",
+                portal_return_url(
+                    request,
                     "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
                 )
             )
@@ -96,6 +98,7 @@ def lab_assistant_accept(request, id):
 @transaction.atomic
 @login_required
 @user_passes_test(permissions.is_lab_assistant)
+@require_POST
 def lab_assistant_reject(request, id):
     is_faculty = (request.GET.get("is_faculty", False)) == "true"
     try:
@@ -113,8 +116,8 @@ def lab_assistant_reject(request, id):
             request_object.status = models.StudentRequest.REJECTED
             request_object.save()
             return redirect(
-                request.META.get(
-                    "HTTP_REFERER",
+                portal_return_url(
+                    request,
                     "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
                 )
             )
