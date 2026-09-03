@@ -11,8 +11,12 @@ from ..factories import InstrumentFactory, LabAssistantFactory
 from ..forms import BulkCreateSlotsForm
 from ..models import Slot
 
-# A valid date time will not fall on Sunday
-_VALID_DATE_TIME = datetime.datetime.now()
+# A fixed working hour rather than the wall clock: these tests add an hour to
+# this time to get an end time, so a run late in the evening would ask for a
+# window ending the next day, which the form refuses. The date stays today,
+# because the form refuses a start date in the past, rolled off Sunday, which
+# slot generation skips.
+_VALID_DATE_TIME = datetime.datetime.combine(datetime.date.today(), datetime.time(9))
 if _VALID_DATE_TIME.date().weekday() == 6:
     _VALID_DATE_TIME += timedelta(days=1)
 
@@ -152,6 +156,8 @@ class BulkCreateSlotsFormTestCase(TestCase):
 
 
 class BulkCreateSlotsTestCase(TestCase):
+    SLOTS_A_DAY = 6  # a one hour window cut into ten minute slots
+
     @classmethod
     def setUpTestData(cls):
         cls.instr = InstrumentFactory()
@@ -162,104 +168,94 @@ class BulkCreateSlotsTestCase(TestCase):
         self.client.force_login(self.user)
         self.now = _VALID_DATE_TIME
 
-    def test_successful_slot_creation(self):
-        url = reverse("admin:booking_portal_slot_bulk-slots_create")
-        # Set a date that is not Sunday
-        response = self.client.post(
-            url,
+    def create_slots(self, day_count):
+        """Ask the admin form for slots the way the lab assistant does."""
+        return self.client.post(
+            reverse("admin:booking_portal_slot_bulk-slots_create"),
             {
                 "instrument": self.instr.pk,
                 "start_date": self.now.date(),
                 "start_time": self.now.time(),
                 "end_time": (self.now + timedelta(minutes=60)).time(),
                 "slot_duration": "10",
-                "for_the_next": 1,
+                "for_the_next": day_count,
             },
         )
 
-        message_list = [
-            (x.message, x.level_tag) for x in get_messages(response.wsgi_request)
-        ]
-        self.assertIn(
-            (
-                "All slots were created successfully.",
-                settings.MESSAGE_TAGS[messages.SUCCESS],
-            ),
-            message_list,
+    def fill_the_first_day(self):
+        Slot.objects.bulk_create_slots(
+            instr=self.instr,
+            start_date=self.now.date(),
+            start_time=self.now.time(),
+            end_time=(self.now + timedelta(minutes=60)).time(),
+            duration=timedelta(minutes=10),
+            day_count=1,
         )
+
+    def assertReported(self, response, message, level):
+        # The view only reports once it has accepted the form: a rejected one
+        # re-renders the page and says nothing, so assert the redirect first or
+        # a validation failure shows up as an empty message list.
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            (message, settings.MESSAGE_TAGS[level]),
+            [(m.message, m.level_tag) for m in get_messages(response.wsgi_request)],
+        )
+
+    def test_successful_slot_creation(self):
+        response = self.create_slots(day_count=1)
+
+        self.assertReported(
+            response, "All slots were created successfully.", messages.SUCCESS
+        )
+        self.assertEqual(Slot.objects.count(), self.SLOTS_A_DAY)
 
     def test_partially_successful_slot_creation(self):
-        Slot.objects.bulk_create_slots(
-            instr=self.instr,
-            start_date=self.now.date(),
-            start_time=self.now.time(),
-            end_time=(self.now + timedelta(minutes=60)).time(),
-            duration=timedelta(minutes=10),
-            day_count=1,
-        )
+        self.fill_the_first_day()
 
-        # Now try creating partially overlapping slots
-        url = reverse("admin:booking_portal_slot_bulk-slots_create")
-        response = self.client.post(
-            url,
-            {
-                "instrument": self.instr.pk,
-                "start_date": self.now.date(),
-                "start_time": self.now.time(),
-                "end_time": (self.now + timedelta(minutes=60)).time(),
-                "slot_duration": "10",
-                "for_the_next": 7,
-            },
-        )
-        expected_total_slots = 36  # 6 slots a day for 6 days (no slots on Sunday)
-        expected_created_slots = 30  # everything clashes on day 1
-        expected_message = (
-            f"{expected_created_slots} out of {expected_total_slots} slots created. Some slots may not "
-            f"have been created due to clashes with existing slots."
-        )
+        response = self.create_slots(day_count=7)
 
-        message_list = [
-            (x.message, x.level_tag) for x in get_messages(response.wsgi_request)
-        ]
-        self.assertIn(
-            (expected_message, settings.MESSAGE_TAGS[messages.WARNING]),
-            message_list,
+        # a week holds one Sunday, which is skipped, and day one already clashes
+        expected_total = 36
+        expected_created = expected_total - self.SLOTS_A_DAY
+        self.assertReported(
+            response,
+            f"{expected_created} out of {expected_total} slots created. Some slots "
+            f"may not have been created due to clashes with existing slots.",
+            messages.WARNING,
         )
+        # the clashing day was left alone rather than doubled up
+        self.assertEqual(Slot.objects.count(), expected_total)
 
     def test_unsuccessful_slot_creation(self):
-        Slot.objects.bulk_create_slots(
-            instr=self.instr,
-            start_date=self.now.date(),
-            start_time=self.now.time(),
-            end_time=(self.now + timedelta(minutes=60)).time(),
-            duration=timedelta(minutes=10),
-            day_count=1,
-        )
+        self.fill_the_first_day()
 
-        # Now try to create overlapping slots
-        url = reverse("admin:booking_portal_slot_bulk-slots_create")
+        response = self.create_slots(day_count=1)
+
+        self.assertReported(
+            response,
+            f"0 out of {self.SLOTS_A_DAY} slots created. Some slots may not have "
+            f"been created due to clashes with existing slots.",
+            messages.WARNING,
+        )
+        self.assertEqual(Slot.objects.count(), self.SLOTS_A_DAY)
+
+    def test_a_window_that_ends_before_it_starts_creates_nothing(self):
         response = self.client.post(
-            url,
+            reverse("admin:booking_portal_slot_bulk-slots_create"),
             {
                 "instrument": self.instr.pk,
                 "start_date": self.now.date(),
-                "start_time": self.now.time(),
-                "end_time": (self.now + timedelta(minutes=60)).time(),
+                "start_time": datetime.time(23, 30),
+                "end_time": datetime.time(0, 30),
                 "slot_duration": "10",
                 "for_the_next": 1,
             },
         )
-        expected_total_slots = 6
-        expected_created_slots = 0
-        expected_message = (
-            f"{expected_created_slots} out of {expected_total_slots} slots created. Some slots may not "
-            f"have been created due to clashes with existing slots."
-        )
 
-        message_list = [
-            (x.message, x.level_tag) for x in get_messages(response.wsgi_request)
-        ]
-        self.assertIn(
-            (expected_message, settings.MESSAGE_TAGS[messages.WARNING]),
-            message_list,
-        )
+        # the form comes back for correction instead of redirecting, and the
+        # lab assistant is told nothing was done
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Start time cannot be after end time.")
+        self.assertEqual(list(get_messages(response.wsgi_request)), [])
+        self.assertEqual(Slot.objects.count(), 0)
