@@ -20,6 +20,7 @@ from ..models import (
     UserDetail,
 )
 from ..permissions import get_user_type, is_department, is_faculty, is_lab_assistant
+from .user.portal import safe_portal_url
 
 
 # The remark fields are read as a group at the end of an application rather
@@ -242,10 +243,10 @@ def show_application_student(request, id):
             "notes_first": content_object._meta.verbose_name == "ICP-MS",
             "details": details,
             "remarks": remarks,
-            "remark_field": remark_field,
             "remark_bound_field": form_object[remark_field] if remark_field else None,
             "request_obj": request_obj,
             "can_decide": can_decide,
+            "back_url": safe_portal_url(request.META.get("HTTP_REFERER"), request),
             "balance": faculty.balance if faculty else None,
             "department": faculty.department if faculty else None,
         },
@@ -365,7 +366,6 @@ def show_application_faculty(request, id):
             "notes_first": content_object._meta.verbose_name == "ICP-MS",
             "details": details,
             "remarks": remarks,
-            "remark_field": remark_field,
             "remark_bound_field": form_object[remark_field] if remark_field else None,
             "request_obj": request_obj,
         },

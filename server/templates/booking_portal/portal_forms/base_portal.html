@@ -77,7 +77,7 @@
                         {# a faculty decides from the application itself, so that
                            they have had the request in front of them #}
                         <td colspan="2">
-                          <a class="btn btn-primary" href="{% url 'view-application' id=request.id %}" target="_blank">Review &amp; decide</a>
+                          <a class="btn btn-primary" href="{% url 'view-application' id=request.id %}">Review &amp; decide</a>
                         </td>
                       {% elif user_type == 'department' %}
                         <td>

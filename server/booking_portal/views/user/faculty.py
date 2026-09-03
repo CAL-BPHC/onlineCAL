@@ -9,7 +9,12 @@ from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_GET, require_POST
 
 from ... import models, permissions, reporting
-from .portal import BasePortalFilter, active_filter_scope, get_pagintion_nav_range
+from .portal import (
+    BasePortalFilter,
+    active_filter_scope,
+    get_pagintion_nav_range,
+    safe_portal_url,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +146,7 @@ def faculty_request_accept(request, id):
                 request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
             request_object.save()
 
-            return redirect(request.META.get("HTTP_REFERER", "faculty_portal"))
+            return redirect(safe_portal_url(request.POST.get("next"), request))
     except models.StudentRequest.DoesNotExist:
         raise Http404("Page Not Found")
     except Exception:
@@ -165,7 +170,7 @@ def faculty_request_reject(request, id):
             request_object.status = models.StudentRequest.REJECTED
             request_object.save()
 
-            return redirect(request.META.get("HTTP_REFERER", "faculty_portal"))
+            return redirect(safe_portal_url(request.POST.get("next"), request))
     except models.StudentRequest.DoesNotExist:
         raise Http404("Page Not Found")
     except Exception:

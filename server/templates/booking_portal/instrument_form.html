@@ -91,7 +91,7 @@
 
   <p style="text-align: justify;" class="mt-3">{{ form_notes | safe }}</p>
 
-  {% if remark_field %}
+  {% if remark_bound_field %}
     <form action="{% url 'add_remarks' id=id %}{% if faculty_request %}?is_faculty=true{% endif %}" method="POST" class="app-noprint mt-3">
       {% csrf_token %}
       <label for="{{ remark_bound_field.id_for_label }}"><strong>Your remarks</strong></label>
@@ -102,9 +102,11 @@
 
   <div class="text-center mt-4 app-noprint">
     {% if can_decide %}
+      <a class="btn btn-link" href="{{ back_url }}">&larr; Back to requests</a>
       <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmApprove">Accept request</button>
       <form action="{% url 'faculty_request_reject' id %}" method="post" class="d-inline">
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ back_url }}">
         <button type="submit" class="btn btn-danger">Reject request</button>
       </form>
     {% endif %}
@@ -128,6 +130,7 @@
             {% endif %}
             <form action="{% url 'faculty_request_accept' id %}" method="post">
               {% csrf_token %}
+              <input type="hidden" name="next" value="{{ back_url }}">
               <input type="hidden" name="departmentRoute" value="True">
               <p class="mb-0"><b>Note: For now, all requests are routed through the department, as faculty-level balance is not yet active.</b></p>
               <div class="modal-footer">

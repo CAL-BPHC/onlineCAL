@@ -8,9 +8,7 @@ from ..models import Student, StudentRequest
 from .test_portal_filters import RequestBuilderMixin
 
 
-class ApplicationViewTestCase(RequestBuilderMixin, TestCase):
-    """The submitted application as a reviewer reads it."""
-
+class ApplicationFixtureMixin(RequestBuilderMixin):
     def make_form(self, number_of_samples=1):
         # the view resolves the applicant and supervisor off the form object
         form = super().make_form(number_of_samples)
@@ -20,6 +18,10 @@ class ApplicationViewTestCase(RequestBuilderMixin, TestCase):
         form.sup_dept = str(self.department)
         form.save()
         return form
+
+
+class ApplicationViewTestCase(ApplicationFixtureMixin, TestCase):
+    """The submitted application as a reviewer reads it."""
 
     def setUp(self):
         self.build_portal_fixtures()
@@ -92,3 +94,54 @@ class ApplicationViewTestCase(RequestBuilderMixin, TestCase):
         self.assertIn("Review &amp; decide", body)
         self.assertNotIn(f'href="/requests_faculty/accept/{self.request.id}"', body)
         self.assertNotIn("Accept</button>", body)
+
+
+class ReturnAfterDecidingTestCase(ApplicationFixtureMixin, TestCase):
+    """Deciding sends the faculty back to the list they were working through."""
+
+    def setUp(self):
+        self.build_portal_fixtures()
+        self.request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
+        StudentRequest.objects.filter(pk=self.request.pk).update(mode_description="")
+        self.client = Client()
+        self.client.force_login(self.faculty)
+
+    def test_the_filtered_list_is_carried_into_the_decision(self):
+        listing = "/faculty/?status=R1&page=1"
+
+        page = self.client.get(
+            f"/application/view/{self.request.id}",
+            HTTP_REFERER=f"http://testserver{listing}",
+        )
+
+        # the attribute is escaped in the markup, as it should be
+        self.assertContains(
+            page,
+            'name="next" value="http://testserver/faculty/?status=R1&amp;page=1"',
+        )
+
+    def test_deciding_returns_to_that_list(self):
+        listing = "http://testserver/faculty/?status=R1"
+
+        response = self.client.post(
+            f"/requests_faculty/accept/{self.request.id}",
+            {"departmentRoute": "True", "next": listing},
+        )
+
+        self.assertEqual(response["Location"], listing)
+
+    def test_an_off_site_return_target_is_refused(self):
+        response = self.client.post(
+            f"/requests_faculty/accept/{self.request.id}",
+            {"departmentRoute": "True", "next": "https://evil.example.com/"},
+        )
+
+        self.assertEqual(response["Location"], "/faculty/")
+
+    def test_the_application_page_is_never_the_return_target(self):
+        page = self.client.get(
+            f"/application/view/{self.request.id}",
+            HTTP_REFERER=f"http://testserver/application/view/{self.request.id}",
+        )
+
+        self.assertContains(page, 'name="next" value="/faculty/"')
