@@ -1,70 +1,146 @@
 {% extends 'instrument_form_base.html' %}
+{% load subtract %}
 
 {% block title %} {{ instrument_title }} {% endblock %}
 {% block subtitle %} {{ instrument_subtitle }} {% endblock %}
 
-{% block content %}
-{% if not edit %}
-<div class="card-text" style="text-align: center;">
-    <h6>
-        <strong>
-            Status of your Application:
-        </strong>
-        {% if status == 'R1' %}  Waiting for Faculty Approval
-        {% elif status == 'R2' %} Waiting for Lab Assistant Approval
-        {% elif status == 'R3' %} Approved
-        {% elif status == 'R4' %} Rejected
-        {% elif status == 'R5' %} Cancelled
-        {% elif status == 'R6' %} Waiting for Department Approval
-        {% endif %}
-    </h6>
-</div>
-{% endif %}
+{% block head %}
+<style>
+  .app-status { font-size: 1.05rem; }
+  .app-summary { background: #f4f6f8; border: 1px solid rgba(0,0,0,.08); border-radius: 6px; padding: .75rem 1rem; }
+  .app-summary dt { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #8b95a1; font-weight: 600; margin-bottom: .1rem; }
+  .app-summary dd { margin-bottom: .6rem; font-weight: 600; color: #1b2733; }
+  .app-heading { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: #8b95a1; font-weight: 600; margin: 1.5rem 0 .5rem; }
+  .app-row { display: flex; gap: 1rem; padding: .4rem 0; border-top: 1px solid rgba(0,0,0,.06); }
+  .app-row:first-child { border-top: 0; }
+  .app-row dt { flex: 0 0 45%; margin: 0; font-weight: 400; color: #566270; }
+  .app-row dd { flex: 1; margin: 0; font-weight: 600; color: #1b2733; white-space: pre-wrap; }
+  .app-row dd.is-empty { font-weight: 400; color: #adb5bd; }
+  @media print { .app-noprint { display: none !important; } }
+</style>
+{% endblock %}
 
+{% block content %}
 {% if edit %}
-<form action="" method="POST">
-{% elif user_type != 'student' %}
-<form action="{% url 'add_remarks' id=id %}{% if faculty_request %}?is_faculty=true{% endif %}" method="POST">
-{% endif%}
+  {# filling the form in: the real inputs #}
+  <form action="" method="POST">
     <script>
-        $('form').submit(function(e) {
-                $(':disabled').each(function(e) {
-                    $(this).removeAttr('disabled');
-                })
-            });
+      $('form').submit(function(e) {
+        $(':disabled').each(function(e) { $(this).removeAttr('disabled'); })
+      });
     </script>
     {% csrf_token %}
     {% if notes_first %}
-        <p style="text-align: justify;">
-            {{ form_notes | safe }}
-        </p>
-        {{ form.as_p }}
+      <p style="text-align: justify;">{{ form_notes | safe }}</p>
+      {{ form.as_p }}
     {% else %}
-        {{ form.as_p }}
-        <p style="text-align: justify;">
-            {{ form_notes | safe }}
-        </p>
+      {{ form.as_p }}
+      <p style="text-align: justify;">{{ form_notes | safe }}</p>
     {% endif %}
     <div style="text-align: center;">
-    {% if edit %}
-        <input type="hidden" name="calculation_done" value="{{ calculation_done }}">
-        <button type="submit" class="btn btn-primary" name="action" value='calculate'>Calculate cost</button>
-        {% if calculation_done %}
-            <p>Total cost: {{ total_cost }}</p>
-            <button type="submit" class="btn btn-primary" name="action" value='submit'>Submit</button>
-        {% else %}
-            <button type="submit" class="btn btn-primary" name="action" value='submit' disabled>Submit</button>
-        {% endif %}
-    {% else %}
+      <input type="hidden" name="calculation_done" value="{{ calculation_done }}">
+      <button type="submit" class="btn btn-primary" name="action" value='calculate'>Calculate cost</button>
+      {% if calculation_done %}
         <p>Total cost: {{ total_cost }}</p>
-        <input type="submt" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
-    {% endif %}
-
-    {% if user_type != 'student' %}
-        <input type="submit" class="btn btn-primary" value="Add Your Remarks">
+        <button type="submit" class="btn btn-primary" name="action" value='submit'>Submit</button>
+      {% else %}
+        <button type="submit" class="btn btn-primary" name="action" value='submit' disabled>Submit</button>
+      {% endif %}
     </div>
+  </form>
+
+{% else %}
+  {# reading a submitted application #}
+  <p class="text-center app-status mb-3">
+    <strong>Status:</strong>
+    {% if status == 'R1' %}Waiting for Faculty Approval
+    {% elif status == 'R2' %}Waiting for Lab Assistant Approval
+    {% elif status == 'R3' %}Approved
+    {% elif status == 'R4' %}Rejected
+    {% elif status == 'R5' %}Cancelled
+    {% elif status == 'R6' %}Waiting for Department Approval
     {% endif %}
-</form>
+  </p>
+
+  <dl class="app-summary row mb-0">
+    <div class="col-md-3 col-6"><dt>Instrument</dt><dd>{{ request_obj.instrument }}</dd></div>
+    <div class="col-md-5 col-6"><dt>Slot</dt><dd>{{ request_obj.slot.description }}</dd></div>
+    <div class="col-md-2 col-6"><dt>Request</dt><dd>#{{ request_obj.id }}</dd></div>
+    <div class="col-md-2 col-6"><dt>Total cost</dt><dd>&#8377;{{ total_cost }}</dd></div>
+  </dl>
+
+  <p class="app-heading">Application details</p>
+  <dl class="mb-0">
+    {% for row in details %}
+      <div class="app-row">
+        <dt>{{ row.label }}</dt>
+        <dd {% if not row.value %}class="is-empty"{% endif %}>{% if row.value %}{{ row.value }}{% else %}&mdash;{% endif %}</dd>
+      </div>
+    {% endfor %}
+  </dl>
+
+  <p class="app-heading">Remarks</p>
+  <dl class="mb-0">
+    {% for row in remarks %}
+      <div class="app-row">
+        <dt>{{ row.label }}</dt>
+        <dd {% if not row.value %}class="is-empty"{% endif %}>{% if row.value %}{{ row.value }}{% else %}No remarks{% endif %}</dd>
+      </div>
+    {% endfor %}
+  </dl>
+
+  <p style="text-align: justify;" class="mt-3">{{ form_notes | safe }}</p>
+
+  {% if remark_field %}
+    <form action="{% url 'add_remarks' id=id %}{% if faculty_request %}?is_faculty=true{% endif %}" method="POST" class="app-noprint mt-3">
+      {% csrf_token %}
+      <label for="{{ remark_bound_field.id_for_label }}"><strong>Your remarks</strong></label>
+      {{ remark_bound_field }}
+      <button type="submit" class="btn btn-outline-primary btn-sm mt-2">Save remarks</button>
+    </form>
+  {% endif %}
+
+  <div class="text-center mt-4 app-noprint">
+    {% if can_decide %}
+      <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmApprove">Accept request</button>
+      <form action="{% url 'faculty_request_reject' id %}" method="post" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Reject request</button>
+      </form>
+    {% endif %}
+    <input type="button" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
+  </div>
+
+  {% if can_decide %}
+    <div class="modal fade" id="confirmApprove" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Please confirm the following</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you
+            <b>{{ total_cost }}</b> and your final balance will be <b>{{ balance|subtract:total_cost }}</b>.
+            <p class="mt-2"><b>Note: If the request is routed through your department then your balance is not affected.</b></p>
+            {% if not department %}
+              <p class="text-danger">Your account is not associated with any department. Please contact the admin.</p>
+            {% endif %}
+            <form action="{% url 'faculty_request_accept' id %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="departmentRoute" value="True">
+              <p class="mb-0"><b>Note: For now, all requests are routed through the department, as faculty-level balance is not yet active.</b></p>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Confirm</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
 {% endblock %}
 
 {% block facility %} {{ instrument_verbose_name }} {% endblock %}

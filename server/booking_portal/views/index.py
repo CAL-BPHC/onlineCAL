@@ -1,6 +1,10 @@
+import datetime
 from typing import cast
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import ValidationError
+from django.db.models import Model
+from django.forms import ModelChoiceField
 from django.http import Http404
 from django.shortcuts import render
 
@@ -16,6 +20,80 @@ from ..models import (
     UserDetail,
 )
 from ..permissions import get_user_type, is_department, is_faculty, is_lab_assistant
+
+
+# The remark fields are read as a group at the end of an application rather
+# than inline with the sample details.
+REMARK_FIELDS = (
+    ("student_remarks", "Applicant"),
+    ("faculty_remarks", "Supervisor"),
+    ("department_remarks", "Department HoD"),
+    ("lab_assistant_remarks", "Lab assistant"),
+)
+
+
+def _display_value(bound_field):
+    """What a submitted answer should read as, rather than what it was typed into."""
+    value = bound_field.value()
+    field = bound_field.field
+
+    if isinstance(field, ModelChoiceField):
+        if value in (None, ""):
+            return ""
+        if isinstance(value, Model):
+            return field.label_from_instance(value)
+        try:
+            # the stored value is a primary key; show it the way the form did
+            return field.label_from_instance(field.to_python(value))
+        except (ValidationError, AttributeError):
+            return str(value)
+    if isinstance(value, bool):
+        return "Yes" if value else "No"
+    # spell dates and times out rather than leaving them to locale formatting,
+    # which renders 12:00 as "noon"
+    if isinstance(value, datetime.datetime):
+        return value.strftime("%d %b %Y, %I:%M %p")
+    if isinstance(value, datetime.date):
+        return value.strftime("%d %b %Y")
+    if isinstance(value, datetime.time):
+        return value.strftime("%I:%M %p").lstrip("0")
+
+    choices = list(getattr(field, "choices", None) or [])
+    if choices:
+        labels = {str(key): label for key, label in choices}
+        if str(value) in labels:
+            return labels[str(value)]
+        # a mode is pinned to the single option the booking was made with
+        if len(choices) == 1:
+            return choices[0][1]
+    return "" if value is None else value
+
+
+def _application_rows(form_object, editable_field=None):
+    """Split a submitted application into readable detail and remark rows."""
+    remark_labels = dict(REMARK_FIELDS)
+    details, remarks = [], []
+
+    for bound_field in form_object:
+        if bound_field.name == editable_field:
+            continue
+        row = {
+            "label": remark_labels.get(bound_field.name) or bound_field.label,
+            "value": _display_value(bound_field),
+        }
+        if bound_field.name in remark_labels:
+            remarks.append(row)
+        else:
+            details.append(row)
+    return details, remarks
+
+
+def _editable_remark_field(user_type):
+    return {
+        "faculty": "faculty_remarks",
+        "assistant": "lab_assistant_remarks",
+        "department": "department_remarks",
+    }.get(user_type)
 
 
 def index(request):
@@ -132,13 +210,28 @@ def show_application_student(request, id):
         if field_val.startswith("conditional_quantity"):
             form_object.fields[field_val].widget.attrs["style"] = ""
 
+    user_type = get_user_type(request.user)
+    remark_field = _editable_remark_field(user_type)
+    if remark_field and form_object[remark_field].value() is not None:
+        remark_field = None
+    details, remarks = _application_rows(form_object, remark_field)
+
+    # A faculty decides on a student's request from here rather than from the
+    # list, so that the application has at least been in front of them.
+    can_decide = (
+        is_faculty(request.user)
+        and request_obj.status == StudentRequest.WAITING_FOR_FACULTY
+        and request_obj.faculty_id == request.user.id
+    )
+    faculty = Faculty.objects.filter(id=request.user.id).first() if can_decide else None
+
     return render(
         request,
         "booking_portal/instrument_form.html",
         {
             "form": form_object,
             "edit": False,
-            "user_type": get_user_type(request.user),
+            "user_type": user_type,
             "id": id,
             "instrument_title": form.title,
             "instrument_subtitle": form.subtitle,
@@ -147,6 +240,14 @@ def show_application_student(request, id):
             "status": request_obj.status,
             "total_cost": request_obj.total_cost,
             "notes_first": content_object._meta.verbose_name == "ICP-MS",
+            "details": details,
+            "remarks": remarks,
+            "remark_field": remark_field,
+            "remark_bound_field": form_object[remark_field] if remark_field else None,
+            "request_obj": request_obj,
+            "can_decide": can_decide,
+            "balance": faculty.balance if faculty else None,
+            "department": faculty.department if faculty else None,
         },
     )
 
@@ -240,13 +341,19 @@ def show_application_faculty(request, id):
 
         if field_val.startswith("conditional_quantity"):
             form_object.fields[field_val].widget.attrs["style"] = ""
+    user_type = "student" if is_faculty else get_user_type(request.user)
+    remark_field = _editable_remark_field(user_type)
+    if remark_field and form_object[remark_field].value() is not None:
+        remark_field = None
+    details, remarks = _application_rows(form_object, remark_field)
+
     return render(
         request,
         "booking_portal/instrument_form.html",
         {
             "form": form_object,
             "edit": False,
-            "user_type": "student" if is_faculty else get_user_type(request.user),
+            "user_type": user_type,
             "id": id,
             "instrument_title": form.title,
             "instrument_subtitle": form.subtitle,
@@ -256,6 +363,11 @@ def show_application_faculty(request, id):
             "total_cost": request_obj.total_cost,
             "faculty_request": True,
             "notes_first": content_object._meta.verbose_name == "ICP-MS",
+            "details": details,
+            "remarks": remarks,
+            "remark_field": remark_field,
+            "remark_bound_field": form_object[remark_field] if remark_field else None,
+            "request_obj": request_obj,
         },
     )
 
