@@ -70,6 +70,16 @@ class ApplicationViewTestCase(ApplicationFixtureMixin, TestCase):
         self.assertIn(">Remarks</p>", body)
         self.assertIn("Sample is air sensitive.", body)
 
+    def test_the_instrument_note_is_held_in_a_container_that_can_hold_it(self):
+        body = self.client.get(self.url()).content.decode()
+
+        # Eight instrument notes are written with <p> in them. A <p> cannot
+        # contain a <p>: the browser closes the container at the first one and
+        # the rest of the note lands on the page as a sibling, where the rule
+        # that hides it while reading no longer applies.
+        self.assertIn('<div class="app-notes', body)
+        self.assertNotIn('class="app-notes', body.replace('<div class="app-notes', ""))
+
     def test_the_supervising_faculty_can_decide_from_the_application(self):
         body = self.client.get(self.url()).content.decode()
 

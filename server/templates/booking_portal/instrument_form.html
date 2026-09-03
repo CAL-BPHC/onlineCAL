@@ -59,7 +59,7 @@
     {% endif %}
 
     {% if notes_first %}
-      <p class="app-fill-notes">{{ form_notes | safe }}</p>
+      <div class="app-fill-notes">{{ form_notes | safe }}</div>
     {% endif %}
 
     {% for field in form.visible_fields %}
@@ -86,7 +86,7 @@
     {% endfor %}
 
     {% if not notes_first %}
-      <p class="app-fill-notes">{{ form_notes | safe }}</p>
+      <div class="app-fill-notes">{{ form_notes | safe }}</div>
     {% endif %}
 
     <div class="text-center mt-4">
@@ -143,7 +143,7 @@
     </dl>
   {% endif %}
 
-  <p style="text-align: justify;" class="app-notes mt-3">{{ form_notes | safe }}</p>
+  <div class="app-notes mt-3" style="text-align: justify;">{{ form_notes | safe }}</div>
 
   {% if remark_bound_field %}
     <form action="{% url 'add_remarks' id=id %}{% if faculty_request %}?is_faculty=true{% endif %}" method="POST" class="app-noprint mt-3">
