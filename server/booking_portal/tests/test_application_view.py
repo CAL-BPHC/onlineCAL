@@ -188,10 +188,13 @@ class ReviewerDecisionTestCase(ApplicationFixtureMixin, TestCase):
         self.build_portal_fixtures()
         self.client = Client()
 
-    def open_as(self, user, request_obj):
+    def response_as(self, user, request_obj):
         StudentRequest.objects.filter(pk=request_obj.pk).update(mode_description="")
         self.client.force_login(user)
-        return self.client.get(f"/application/view/{request_obj.id}").content.decode()
+        return self.client.get(f"/application/view/{request_obj.id}")
+
+    def open_as(self, user, request_obj):
+        return self.response_as(user, request_obj).content.decode()
 
     def test_the_department_decides_on_a_request_waiting_on_it(self):
         request_obj = self.make_request(
@@ -224,16 +227,13 @@ class ReviewerDecisionTestCase(ApplicationFixtureMixin, TestCase):
         self.assertIn("Supervisor Department", body)
         self.assertIn("Supervisor Name", body)
 
-    def test_another_department_decides_nothing(self):
+    def test_another_department_cannot_open_it_at_all(self):
         stranger = Department.objects.create(email="other@example.com", name="physics")
         request_obj = self.make_request(
             StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
         )
 
-        body = self.open_as(stranger, request_obj)
-
-        self.assertNotIn("Accept request", body)
-        self.assertIn("Supervisor Department", body)
+        self.assertEqual(self.response_as(stranger, request_obj).status_code, 404)
 
     def test_the_department_cannot_decide_before_its_turn(self):
         request_obj = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
@@ -423,3 +423,122 @@ class FillInFormTestCase(TestCase):
         self.assertIsNone(request_obj.content_object.faculty_remarks)
         self.assertIsNone(request_obj.content_object.department_remarks)
         self.assertIsNone(request_obj.content_object.lab_assistant_remarks)
+
+
+class ApplicationAccessTestCase(ApplicationFixtureMixin, TestCase):
+    """An application is only for the people with a part in it."""
+
+    def setUp(self):
+        self.build_portal_fixtures()
+        self.request = self.make_request(
+            StudentRequest.WAITING_FOR_FACULTY, needs_department_approval=True
+        )
+        StudentRequest.objects.filter(pk=self.request.pk).update(mode_description="")
+        self.client = Client()
+
+    def status_as(self, user):
+        self.client.force_login(user)
+        return self.client.get(f"/application/view/{self.request.id}").status_code
+
+    def test_the_people_with_a_part_in_it_can_read_it(self):
+        for who, user in (
+            ("the applicant", self.student),
+            ("their supervisor", self.faculty),
+            ("the department it is routed to", self.department),
+            ("a lab assistant", LabAssistantFactory()),
+        ):
+            with self.subTest(who=who):
+                self.assertEqual(self.status_as(user), 200)
+
+    def test_another_student_cannot_read_it(self):
+        self.assertEqual(self.status_as(StudentFactory()), 404)
+
+    def test_a_faculty_who_does_not_supervise_it_cannot_read_it(self):
+        self.assertEqual(self.status_as(FacultyFactory()), 404)
+
+    def test_a_faculty_who_does_not_supervise_it_cannot_remark_on_it(self):
+        stranger = FacultyFactory()
+        self.client.force_login(stranger)
+
+        response = self.client.post(
+            f"/application/edit/remarks/{self.request.id}",
+            {"faculty_remarks": "not mine to write"},
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.request.refresh_from_db()
+        self.assertIsNone(self.request.content_object.faculty_remarks)
+
+    def test_the_supervisor_can_remark_on_it(self):
+        self.client.force_login(self.faculty)
+
+        self.client.post(
+            f"/application/edit/remarks/{self.request.id}",
+            {"faculty_remarks": "sample list checked"},
+        )
+
+        self.request.refresh_from_db()
+        self.assertEqual(
+            self.request.content_object.faculty_remarks, "sample list checked"
+        )
+
+
+class DecisionEndpointsTestCase(ApplicationFixtureMixin, TestCase):
+    """Acting on a request takes a POST, so a link cannot do it."""
+
+    def setUp(self):
+        self.build_portal_fixtures()
+        self.client = Client()
+
+    def test_a_get_cannot_decide(self):
+        cases = (
+            (
+                self.department,
+                StudentRequest.WAITING_FOR_DEPARTMENT,
+                "/requests_department/{}/{}",
+            ),
+            (
+                LabAssistantFactory(),
+                StudentRequest.WAITING_FOR_LAB_ASST,
+                "/requests_assistant/{}/{}",
+            ),
+        )
+        for user, status, url in cases:
+            for action in ("accept", "reject"):
+                with self.subTest(user=user.role, action=action):
+                    request_obj = self.make_request(
+                        status, needs_department_approval=True
+                    )
+                    self.client.force_login(user)
+
+                    response = self.client.get(url.format(action, request_obj.id))
+
+                    self.assertEqual(response.status_code, 405)
+                    request_obj.refresh_from_db()
+                    self.assertEqual(request_obj.status, status)
+
+    def test_the_confirm_form_is_not_stranded_inside_the_table(self):
+        self.make_request(
+            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+        )
+        self.client.force_login(self.department)
+
+        body = self.client.get("/department/").content.decode()
+
+        # a <form> inside a <tr> parses with its children detached, so the
+        # confirm dialog has to live after the table, not in the row
+        self.assertLess(body.index("</table>"), body.index('id="confirmationModal'))
+
+    def test_the_list_posts_its_decisions(self):
+        self.make_request(
+            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+        )
+        self.client.force_login(self.department)
+
+        body = self.client.get("/department/").content.decode()
+
+        self.assertIn('method="post"', body)
+        self.assertIn("csrfmiddlewaretoken", body)
+        # nothing decides by being followed
+        self.assertNotIn('<a href="/requests_department/accept/', body)
+        self.assertNotIn('<a href="/requests_department/reject/', body)

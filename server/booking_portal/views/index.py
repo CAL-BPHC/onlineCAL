@@ -180,6 +180,28 @@ def _decision_context(request, user_type, request_obj, decision):
     }
 
 
+def _may_read_application(user, request_obj):
+    """Everyone with a part in this request, and nobody else.
+
+    An application carries a phone number, what the sample is and what it cost,
+    so it is not something any logged in account should be able to page through
+    by guessing ids.
+    """
+    if user.is_staff or user.is_superuser:
+        return True
+    user_type = get_user_type(user)
+    if user_type == "assistant":
+        # their portal already lists every request, whoever it belongs to
+        return True
+    if user_type == "faculty":
+        # the supervisor on a student's request, the applicant on their own
+        return request_obj.faculty_id == user.id
+    if user_type == "department":
+        return request_obj.faculty.department_id == user.id
+    # a student sees the requests they raised
+    return getattr(request_obj, "student_id", None) == user.id
+
+
 def _editable_remark_field(user_type, form_object):
     """The remark this reviewer may still write, if they have not already."""
     field = {
@@ -218,6 +240,8 @@ def show_application_student(request, id):
     try:
         request_obj: StudentRequest = StudentRequest.objects.get(id=id)
     except Exception:
+        raise Http404()
+    if not _may_read_application(request.user, request_obj):
         raise Http404()
     content_object = cast(UserDetail, request_obj.content_object)
     form = view_application_dict[content_object._meta.model]
@@ -353,6 +377,8 @@ def show_application_faculty(request, id):
     try:
         request_obj: FacultyRequest = FacultyRequest.objects.get(id=id)
     except Exception:
+        raise Http404()
+    if not _may_read_application(request.user, request_obj):
         raise Http404()
     content_object = cast(UserDetail, request_obj.content_object)
     form = view_application_dict[content_object._meta.model]
@@ -497,6 +523,9 @@ def add_remarks(request, id):
         else:
             request_obj = StudentRequest.objects.get(id=id)
     except Exception:
+        raise Http404()
+    # a remark belongs to the reviewer whose request this is
+    if not _may_read_application(request.user, request_obj):
         raise Http404()
     content_object = request_obj.content_object
     form_fields = dict(request.POST.items())

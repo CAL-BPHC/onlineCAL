@@ -3,6 +3,7 @@ from django.db import transaction
 from django.db.models import BooleanField, Value
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
 
 from ... import models, permissions
 from .portal import BasePortalFilter, get_pagintion_nav_range, portal_return_url
@@ -52,6 +53,7 @@ def department_portal(request):
 
 @login_required
 @user_passes_test(permissions.is_department)
+@require_POST
 def department_accept(request, id):
     is_faculty = (request.GET.get("is_faculty", False)) == "true"
     try:
@@ -80,6 +82,7 @@ def department_accept(request, id):
 
 @login_required
 @user_passes_test(permissions.is_department)
+@require_POST
 def department_reject(request, id):
     is_faculty = (request.GET.get("is_faculty", False)) == "true"
     try:

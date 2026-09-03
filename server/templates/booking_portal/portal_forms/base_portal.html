@@ -82,38 +82,26 @@
                         <td>
                           <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal{{request.id}}{{request.is_faculty_request}}">Accept</button>
                         </td>
-                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
-                          <button type="button" class="btn btn-danger">Reject</button>
-                        </a></td>
+                        <td>
+                          <form action="/requests_department/reject/{{ request.id }}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Reject</button>
+                          </form>
+                        </td>
 
-                        <div class="modal fade" id="confirmationModal{{request.id}}{{request.is_faculty_request}}" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
-                          <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="confirmationModalLable">Please confirm the following</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                  <span aria-hidden="true">&times;</span>
-                                </button>
-                              </div>
-                              <div class="modal-body">
-                                Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                  <a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
-                          <button type="button" class="btn btn-success">Confirm</button>
-                        </a>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
                       {% elif user_type == 'assistant' %}
-                        <td><a href="/requests_{{ user_type }}/accept/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
-                          <button type="button" class="btn btn-success">Accept</button>
-                        </a></td>
-                        <td><a href="/requests_{{  user_type }}/reject/{{request.id}}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}">
-                          <button type="button" class="btn btn-danger">Reject</button>
-                        </a></td>
+                        <td>
+                          <form action="/requests_assistant/accept/{{ request.id }}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">Accept</button>
+                          </form>
+                        </td>
+                        <td>
+                          <form action="/requests_assistant/reject/{{ request.id }}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Reject</button>
+                          </form>
+                        </td>
                       {% endif %}
                       {% else %}
                         {% if user_type == 'faculty' %}
@@ -179,4 +167,33 @@
     </div>
   </div>
 
+  {% if user_type == 'department' %}
+    {# a <form> inside a <tr> parses with its children detached, so these live outside the table #}
+    {% for request in page_obj %}
+      {% if request.status == modifiable_request_status %}
+                        <div class="modal fade" id="confirmationModal{{request.id}}{{request.is_faculty_request}}" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="confirmationModalLable">Please confirm the following</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <form action="/requests_department/accept/{{ request.id }}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Confirm</button>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 {% endblock %}
