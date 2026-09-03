@@ -17,6 +17,12 @@
   .app-row dd { flex: 1; margin: 0; font-weight: 600; color: #1b2733; white-space: pre-wrap; }
   .app-row dd.is-empty { font-weight: 400; color: #adb5bd; }
   @media print { .app-noprint { display: none !important; } }
+  {% if not edit %}
+  /* the applicant's undertaking belongs on the printed requisition, not in a
+     reviewer's way on screen */
+  .app-declaration { display: none; }
+  @media print { .app-declaration { display: block; } }
+  {% endif %}
 </style>
 {% endblock %}
 
@@ -66,7 +72,7 @@
     <div class="col-md-3 col-6"><dt>Instrument</dt><dd>{{ request_obj.instrument }}</dd></div>
     <div class="col-md-5 col-6"><dt>Slot</dt><dd>{{ request_obj.slot.description }}</dd></div>
     <div class="col-md-2 col-6"><dt>Request</dt><dd>#{{ request_obj.id }}</dd></div>
-    <div class="col-md-2 col-6"><dt>Total cost</dt><dd>&#8377;{{ total_cost }}</dd></div>
+    <div class="col-md-2 col-6"><dt>Total cost</dt><dd>Rs {{ total_cost }}</dd></div>
   </dl>
 
   <p class="app-heading">Application details</p>
@@ -74,7 +80,7 @@
     {% for row in details %}
       <div class="app-row">
         <dt>{{ row.label }}</dt>
-        <dd {% if not row.value %}class="is-empty"{% endif %}>{% if row.value %}{{ row.value }}{% else %}&mdash;{% endif %}</dd>
+        <dd {% if not row.value %}class="is-empty"{% endif %}>{% if row.value %}{{ row.value }}{% else %}-{% endif %}</dd>
       </div>
     {% endfor %}
   </dl>
@@ -102,7 +108,7 @@
 
   <div class="text-center mt-4 app-noprint">
     {% if can_decide %}
-      <a class="btn btn-link" href="{{ back_url }}">&larr; Back to requests</a>
+      <a class="btn btn-link" href="{{ back_url }}">Back to requests</a>
       <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmApprove">Accept request</button>
       <form action="{% url 'faculty_request_reject' id %}" method="post" class="d-inline">
         {% csrf_token %}

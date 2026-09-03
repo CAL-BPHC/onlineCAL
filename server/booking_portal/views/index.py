@@ -33,6 +33,11 @@ REMARK_FIELDS = (
 )
 
 
+# The slot line in the summary header already states these.
+SLOT_FIELDS = ("date", "time", "duration")
+SUPERVISOR_FIELDS = ("sup_name", "sup_dept")
+
+
 def _display_value(bound_field):
     """What a submitted answer should read as, rather than what it was typed into."""
     value = bound_field.value()
@@ -70,13 +75,13 @@ def _display_value(bound_field):
     return "" if value is None else value
 
 
-def _application_rows(form_object, editable_field=None):
+def _application_rows(form_object, editable_field=None, hidden_fields=()):
     """Split a submitted application into readable detail and remark rows."""
     remark_labels = dict(REMARK_FIELDS)
     details, remarks = [], []
 
     for bound_field in form_object:
-        if bound_field.name == editable_field:
+        if bound_field.name == editable_field or bound_field.name in hidden_fields:
             continue
         row = {
             "label": remark_labels.get(bound_field.name) or bound_field.label,
@@ -215,14 +220,18 @@ def show_application_student(request, id):
     remark_field = _editable_remark_field(user_type)
     if remark_field and form_object[remark_field].value() is not None:
         remark_field = None
-    details, remarks = _application_rows(form_object, remark_field)
+    is_supervisor = (
+        is_faculty(request.user) and request_obj.faculty_id == request.user.id
+    )
+    hidden = set(SLOT_FIELDS)
+    if is_supervisor:
+        hidden.update(SUPERVISOR_FIELDS)
+    details, remarks = _application_rows(form_object, remark_field, hidden)
 
     # A faculty decides on a student's request from here rather than from the
     # list, so that the application has at least been in front of them.
     can_decide = (
-        is_faculty(request.user)
-        and request_obj.status == StudentRequest.WAITING_FOR_FACULTY
-        and request_obj.faculty_id == request.user.id
+        is_supervisor and request_obj.status == StudentRequest.WAITING_FOR_FACULTY
     )
     faculty = Faculty.objects.filter(id=request.user.id).first() if can_decide else None
 
@@ -346,7 +355,7 @@ def show_application_faculty(request, id):
     remark_field = _editable_remark_field(user_type)
     if remark_field and form_object[remark_field].value() is not None:
         remark_field = None
-    details, remarks = _application_rows(form_object, remark_field)
+    details, remarks = _application_rows(form_object, remark_field, SLOT_FIELDS)
 
     return render(
         request,

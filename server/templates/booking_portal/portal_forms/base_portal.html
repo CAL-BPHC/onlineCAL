@@ -74,8 +74,7 @@
                     {% if not user_is_student %}
                       {% if request.status == modifiable_request_status %}
                       {% if user_type == 'faculty' %}
-                        {# a faculty decides from the application itself, so that
-                           they have had the request in front of them #}
+                        {# faculty decide from the application itself #}
                         <td colspan="2">
                           <a class="btn btn-primary" href="{% url 'view-application' id=request.id %}">Review &amp; decide</a>
                         </td>
@@ -117,12 +116,16 @@
                         </a></td>
                       {% endif %}
                       {% else %}
-                        <td>
-                          <button type="button" class="btn btn-success" disabled>Accept</button>
-                        </td>
-                        <td>
-                          <button type="button" class="btn btn-danger" disabled>Reject</button>
-                        </td>
+                        {% if user_type == 'faculty' %}
+                          <td colspan="2" class="text-muted">-</td>
+                        {% else %}
+                          <td>
+                            <button type="button" class="btn btn-success" disabled>Accept</button>
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-danger" disabled>Reject</button>
+                          </td>
+                        {% endif %}
                       {% endif %}
                     {% endif %}
                   </tr>

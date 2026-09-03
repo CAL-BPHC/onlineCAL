@@ -92,6 +92,12 @@ class ApplicationViewTestCase(ApplicationFixtureMixin, TestCase):
         body = self.client.get("/faculty/").content.decode()
 
         self.assertIn("Review &amp; decide", body)
+        # a {# #} comment cannot span lines; one that does renders as page text
+        self.assertNotIn("{#", body)
+        # nothing to press on a row this faculty cannot act on
+        self.assertNotIn(
+            '<button type="button" class="btn btn-success" disabled>', body
+        )
         self.assertNotIn(f'href="/requests_faculty/accept/{self.request.id}"', body)
         self.assertNotIn("Accept</button>", body)
 
