@@ -16,6 +16,13 @@
   .app-row dt { flex: 0 0 45%; margin: 0; font-weight: 400; color: #566270; }
   .app-row dd { flex: 1; margin: 0; font-weight: 600; color: #1b2733; white-space: pre-wrap; }
   .app-row dd.is-empty { font-weight: 400; color: #adb5bd; }
+  /* filling the form in: one readable column rather than the full page width */
+  .app-fill { max-width: 720px; margin: 0 auto; }
+  .app-fill label { font-weight: 600; color: #566270; margin-bottom: .25rem; }
+  .app-fill .form-check-label { font-weight: 400; color: #1b2733; }
+  .app-fill textarea { resize: vertical; }
+  .app-fill select[name^="date_"] { display: inline-block; width: auto; margin-right: .5rem; }
+  .app-fill-notes { text-align: justify; margin-top: 1.5rem; }
   @media print { .app-noprint { display: none !important; } }
   {% if not edit %}
   /* the undertaking and the instrument's fill-in instructions belong on the
@@ -29,26 +36,52 @@
 {% block content %}
 {% if edit %}
   {# filling the form in: the real inputs #}
-  <form action="" method="POST">
+  <form action="" method="POST" class="app-fill">
     <script>
       $('form').submit(function(e) {
         $(':disabled').each(function(e) { $(this).removeAttr('disabled'); })
       });
     </script>
     {% csrf_token %}
-    {% if notes_first %}
-      <p style="text-align: justify;">{{ form_notes | safe }}</p>
-      {{ form.as_p }}
-    {% else %}
-      {{ form.as_p }}
-      <p style="text-align: justify;">{{ form_notes | safe }}</p>
+    {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
     {% endif %}
-    <div style="text-align: center;">
+
+    {% if notes_first %}
+      <p class="app-fill-notes">{{ form_notes | safe }}</p>
+    {% endif %}
+
+    {% for field in form.visible_fields %}
+      {# the approvers write their remarks later, from the submitted application #}
+      {% if field.name != 'faculty_remarks' and field.name != 'department_remarks' and field.name != 'lab_assistant_remarks' %}
+        {% if field.field.widget.input_type == 'checkbox' %}
+          <div class="form-group form-check">
+            {{ field }}
+            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+        {% else %}
+          <div class="form-group">
+            {% if field.label %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{% endif %}
+            {{ field }}
+            {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+
+    {% if not notes_first %}
+      <p class="app-fill-notes">{{ form_notes | safe }}</p>
+    {% endif %}
+
+    <div class="text-center mt-4">
       <input type="hidden" name="calculation_done" value="{{ calculation_done }}">
       <button type="submit" class="btn btn-primary" name="action" value='calculate'>Calculate cost</button>
       {% if calculation_done %}
-        <p>Total cost: {{ total_cost }}</p>
-        <button type="submit" class="btn btn-primary" name="action" value='submit'>Submit</button>
+        <p class="mt-3 mb-2"><strong>Total cost:</strong> &#8377; {{ total_cost }}</p>
+        <button type="submit" class="btn btn-success" name="action" value='submit'>Submit</button>
       {% else %}
         <button type="submit" class="btn btn-primary" name="action" value='submit' disabled>Submit</button>
       {% endif %}

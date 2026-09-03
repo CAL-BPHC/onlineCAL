@@ -66,7 +66,11 @@ class UserDetailsForm(forms.ModelForm):
         instrument_id = self.get_instrument_id()
         modes = ModePricingRules.get_mode_choices(instrument_id)
         if len(modes) > 0:
-            self.fields["mode"] = forms.ChoiceField(choices=[], required=False)
+            self.fields["mode"] = forms.ChoiceField(
+                choices=[],
+                required=False,
+                widget=forms.Select(attrs={"class": "form-control"}),
+            )
             self.fields["mode"].choices = ModePricingRules.get_mode_choices(
                 instrument_id
             )

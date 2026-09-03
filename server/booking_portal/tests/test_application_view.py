@@ -3,8 +3,13 @@ import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.test import Client, TestCase
 
-from ..factories import FacultyFactory, LabAssistantFactory
-from ..models import Department, Student, StudentRequest
+from ..factories import (
+    FacultyFactory,
+    InstrumentFactory,
+    LabAssistantFactory,
+    StudentFactory,
+)
+from ..models import Department, Slot, Student, StudentRequest
 from .test_portal_filters import RequestBuilderMixin
 
 
@@ -277,3 +282,112 @@ class ReviewerDecisionTestCase(ApplicationFixtureMixin, TestCase):
         )
 
         self.assertEqual(response["Location"], "/department/")
+
+
+class FillInFormTestCase(TestCase):
+    """The blank requisition a student actually fills in and submits."""
+
+    def setUp(self):
+        from ..config import form_template_dict
+
+        self.instrument_id = 3  # FTIR, the instrument the other fixtures use
+        self.form_class, self.model_class = form_template_dict[self.instrument_id]
+        self.student = StudentFactory()
+        self.faculty = self.student.supervisor
+        self.department = Department.objects.create(
+            email="fill@example.com", name="chemistry"
+        )
+        self.faculty.department = self.department
+        self.faculty.save()
+        self.instrument = InstrumentFactory(name="FTIR", pk=self.instrument_id)
+        self.slot = Slot.objects.create(
+            instrument=self.instrument,
+            date=datetime.date.today() + datetime.timedelta(days=3),
+            start_time=datetime.time(9),
+            end_time=datetime.time(11),
+            status=Slot.STATUS_1,
+        )
+        self.client = Client()
+        self.client.force_login(self.student)
+
+    def url(self):
+        return f"/book-machine/{self.instrument_id}?slots={self.slot.id}"
+
+    def filled_in(self, **extra):
+        """Everything the form needs, the way the browser would post it."""
+        data = {
+            "user_name": self.student.id,
+            "phone_number": "9876543210",
+            "date_day": self.slot.date.day,
+            "date_month": self.slot.date.month,
+            "date_year": self.slot.date.year,
+            "time": "09:00",
+            "duration": "2 hr",
+            "sup_name": self.faculty.id,
+            "sup_dept": str(self.department),
+            "number_of_samples": 2,
+            "sample_from_outside": "No",
+            "origin_of_sample": "lab",
+            "req_discussed": "Yes",
+            "sample_code": "SC-1",
+            "composition": "NaCl",
+            "state": "Solid",
+            "solvent": "water",
+            "student_remarks": "handle with care",
+        }
+        data.update(extra)
+        return data
+
+    def test_the_blank_form_asks_only_what_the_student_can_answer(self):
+        body = self.client.get(self.url()).content.decode()
+
+        self.assertIn("Calculate cost", body)
+        # the approvers write theirs later, from the submitted application
+        self.assertNotIn("Supervisor&#x27;s Remarks", body)
+        self.assertNotIn("Department HoD&#x27;s Remarks", body)
+        self.assertNotIn("Lab Assistant&#x27;s Remarks", body)
+        self.assertIn("Any other relevant information", body)
+
+    def test_every_control_the_student_fills_is_still_there(self):
+        body = self.client.get(self.url()).content.decode()
+
+        for name in (
+            "phone_number",
+            "number_of_samples",
+            "sample_code",
+            "student_remarks",
+        ):
+            self.assertIn(f'name="{name}"', body)
+        self.assertNotIn("{{", body)
+
+    def test_calculating_the_cost_keeps_what_was_typed(self):
+        response = self.client.post(
+            self.url(), self.filled_in(action="calculate", calculation_done="False")
+        )
+        body = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Total cost", body)
+        self.assertIn("9876543210", body)
+        # nothing is saved by working out the price
+        self.assertEqual(StudentRequest.objects.count(), 0)
+
+    def test_submitting_books_the_slot(self):
+        self.client.post(
+            self.url(), self.filled_in(action="calculate", calculation_done="False")
+        )
+        response = self.client.post(
+            self.url(), self.filled_in(action="submit", calculation_done="True")
+        )
+
+        self.assertEqual(response.status_code, 302)
+        request_obj = StudentRequest.objects.get()
+        self.assertEqual(request_obj.student, self.student)
+        self.assertEqual(request_obj.faculty, self.faculty)
+        self.assertEqual(request_obj.status, StudentRequest.WAITING_FOR_FACULTY)
+        self.assertEqual(request_obj.content_object.phone_number, "9876543210")
+        self.assertEqual(request_obj.content_object.student_remarks, "handle with care")
+        # not rendering the approver boxes leaves their remarks unwritten
+        self.assertIsNone(request_obj.content_object.faculty_remarks)
+        self.assertIsNone(request_obj.content_object.department_remarks)
+        self.assertIsNone(request_obj.content_object.lab_assistant_remarks)
