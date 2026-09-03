@@ -359,6 +359,19 @@ class FillInFormTestCase(TestCase):
         ):
             self.assertIn(f'name="{name}"', body)
         self.assertNotIn("{{", body)
+        # a {# #} comment cannot span lines; one that does renders as page text
+        self.assertNotIn("{#", body)
+
+    def test_what_the_slot_settled_is_shown_rather_than_asked(self):
+        body = self.client.get(self.url()).content.decode()
+
+        # read as a summary
+        self.assertIn("Applicant", body)
+        self.assertIn("Supervisor Department", body)
+        self.assertIn(self.slot.description, body)
+        # but still posted, so the booking carries them
+        for name in ("user_name", "sup_name", "sup_dept", "time", "duration"):
+            self.assertIn(f'name="{name}"', body)
 
     def test_calculating_the_cost_keeps_what_was_typed(self):
         response = self.client.post(

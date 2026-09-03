@@ -18,6 +18,8 @@
   .app-row dd.is-empty { font-weight: 400; color: #adb5bd; }
   /* filling the form in: one readable column rather than the full page width */
   .app-fill { max-width: 720px; margin: 0 auto; }
+  .app-fill .app-summary dd { margin-bottom: .5rem; }
+  .app-fill .app-summary > div + div { margin-top: .25rem; }
   .app-fill label { font-weight: 600; color: #566270; margin-bottom: .25rem; }
   .app-fill .form-check-label { font-weight: 400; color: #1b2733; }
   .app-fill textarea { resize: vertical; }
@@ -48,6 +50,14 @@
       <div class="alert alert-danger">{{ form.non_field_errors }}</div>
     {% endif %}
 
+    {% if booking_summary %}
+      <dl class="app-summary row mb-4">
+        {% for label, value in booking_summary %}
+          <div class="col-12"><dt>{{ label }}</dt><dd>{{ value }}</dd></div>
+        {% endfor %}
+      </dl>
+    {% endif %}
+
     {% if notes_first %}
       <p class="app-fill-notes">{{ form_notes | safe }}</p>
     {% endif %}
@@ -55,7 +65,10 @@
     {% for field in form.visible_fields %}
       {# the approvers write their remarks later, from the submitted application #}
       {% if field.name != 'faculty_remarks' and field.name != 'department_remarks' and field.name != 'lab_assistant_remarks' %}
-        {% if field.field.widget.input_type == 'checkbox' %}
+        {% if field.name in prefilled_fields and not field.errors %}
+          {# read off the summary above, but still posted #}
+          <div class="d-none">{{ field }}</div>
+        {% elif field.field.widget.input_type == 'checkbox' %}
           <div class="form-group form-check">
             {{ field }}
             <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
