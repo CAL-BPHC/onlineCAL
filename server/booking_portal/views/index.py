@@ -190,14 +190,9 @@ def _may_read_application(user, request_obj):
     if user.is_staff or user.is_superuser:
         return True
     user_type = get_user_type(user)
-    if user_type == "assistant":
-        # their portal already lists every request, whoever it belongs to
-        return True
-    if user_type == "faculty":
-        # the supervisor on a student's request, the applicant on their own
-        return request_obj.faculty_id == user.id
-    if user_type == "department":
-        return request_obj.faculty.department_id == user.id
+    if user_type in DECISIONS:
+        # the reviewers who could act on it, at whatever stage it is in
+        return _owns_the_decision(user, user_type, request_obj)
     # a student sees the requests they raised
     return getattr(request_obj, "student_id", None) == user.id
 
@@ -332,17 +327,13 @@ def show_application_student(request, id):
 
     user_type = get_user_type(request.user)
     remark_field = _editable_remark_field(user_type, form_object)
-    is_supervisor = user_type == "faculty" and request_obj.faculty_id == request.user.id
-    own_department = (
-        user_type == "department"
-        and request_obj.faculty.department_id == request.user.id
-    )
     hidden = set(SLOT_FIELDS)
-    if is_supervisor:
-        hidden.update(SUPERVISOR_FIELDS)
-    elif own_department:
-        # the department reading its own queue already knows whose it is
-        hidden.add("sup_dept")
+    if _owns_the_decision(request.user, user_type, request_obj):
+        # a reviewer reading their own queue does not need telling who they are
+        if user_type == "faculty":
+            hidden.update(SUPERVISOR_FIELDS)
+        elif user_type == "department":
+            hidden.add("sup_dept")
     details, remarks = _application_rows(form_object, remark_field, hidden)
 
     decision = _decision(request, user_type, request_obj)

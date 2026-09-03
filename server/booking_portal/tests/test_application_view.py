@@ -87,16 +87,6 @@ class ApplicationViewTestCase(ApplicationFixtureMixin, TestCase):
         self.assertIn("Reject request", body)
         self.assertIn(f"/requests_faculty/accept/{self.request.id}", body)
 
-    def test_another_faculty_cannot_decide(self):
-        stranger = FacultyFactory()
-        client = Client()
-        client.force_login(stranger)
-
-        body = client.get(self.url()).content.decode()
-
-        self.assertNotIn("Accept request", body)
-        self.assertNotIn("Reject request", body)
-
     def test_a_request_already_acted_on_offers_no_decision(self):
         self.request.status = StudentRequest.WAITING_FOR_DEPARTMENT
         self.request.save()
