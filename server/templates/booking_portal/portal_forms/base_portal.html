@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 {% load query_utils %}
@@ -35,10 +34,8 @@
         <div class="card bg-light mb-3">
           <div class="card-body">
             <h2 class="card-title">Pending Requests</h2>
-            <div class="alert d-none" role="alert" id="requestActionBanner"></div>
             <div class="table-responsive">
-              <table class="table table-hover" id="requestsTable"
-                     data-filter-status="{{ filter_scope.status }}">
+              <table class="table table-hover">
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
@@ -61,7 +58,7 @@
                 <tbody>
 
                 {% for request in page_obj %}
-                  <tr id="request-row-{{ request.pk }}">
+                  <tr>
                     <th scope="row">{{ request.pk }}</th>
                     {% if not faculty_request %}
                     {% if not user_type == 'department' %}
@@ -71,7 +68,7 @@
                     <td>{{ request.faculty }}</td>
                     <td>{{ request.instrument }}</td>
                     <td>{{ request.slot.description }}</td>
-                    <td class="js-request-status">{% if request.status == 'R1' %}Waiting for Faculty Approval{% elif request.status == 'R2' %}Waiting for Lab Assistant Approval{% elif request.status == 'R3' %}Approved{% elif request.status == 'R4' %}Rejected{% elif request.status == 'R5' %}Cancelled{% elif request.status == 'R6' %}Waiting for Department Approval{% endif %}</td>
+                    <td>{% if request.status == 'R1' %}Waiting for Faculty Approval{% elif request.status == 'R2' %}Waiting for Lab Assistant Approval{% elif request.status == 'R3' %}Approved{% elif request.status == 'R4' %}Rejected{% elif request.status == 'R5' %}Cancelled{% elif request.status == 'R6' %}Waiting for Department Approval{% endif %}</td>
                     <td><a href="{% url 'view-application' id=request.id %}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" target="_blank"> View Application </a></td>
                     <td>{{ request.total_cost }}</td>
                     {% if not user_is_student %}
@@ -179,5 +176,4 @@
     </div>
   </div>
 
-  <script src="{% static 'booking_portal/request_actions.js' %}" defer></script>
 {% endblock %}

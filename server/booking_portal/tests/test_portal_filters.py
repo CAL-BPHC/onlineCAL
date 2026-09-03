@@ -151,7 +151,7 @@ class PortalPageTestCase(RequestBuilderMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.content.decode()
-        cell = '<td class="js-request-status">{}</td>'.format
+        cell = "<td>{}</td>".format
         self.assertIn(cell("Approved"), body)
         self.assertNotIn(cell("Rejected"), body)
         self.assertNotIn(cell("Waiting for Faculty Approval"), body)

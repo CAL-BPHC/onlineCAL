@@ -91,4 +91,4 @@ class ApplicationViewTestCase(RequestBuilderMixin, TestCase):
 
         self.assertIn("Review &amp; decide", body)
         self.assertNotIn(f'href="/requests_faculty/accept/{self.request.id}"', body)
-        self.assertNotIn("js-request-action", body)
+        self.assertNotIn("Accept</button>", body)

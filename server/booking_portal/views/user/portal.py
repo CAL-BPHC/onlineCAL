@@ -6,11 +6,6 @@ from django_filters import DateFilter, FilterSet, OrderingFilter
 from ... import forms, models
 
 
-def wants_json(request):
-    """True when the browser asked for JSON instead of a redirect."""
-    return request.headers.get("X-Requested-With") == "XMLHttpRequest"
-
-
 def active_filter_scope(portal_filter):
     """What the portal filter is currently showing.
 

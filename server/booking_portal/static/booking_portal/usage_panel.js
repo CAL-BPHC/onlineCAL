@@ -302,9 +302,6 @@
     caret.innerHTML = children.classList.toggle("d-none") ? "&#9656;" : "&#9662;";
   });
 
-  // Accepting or rejecting on the left changes what is waiting on this faculty.
-  document.addEventListener("request-action", load);
-
   if (hasFilter) {
     el.usageFilterChip.classList.remove("d-none");
   }

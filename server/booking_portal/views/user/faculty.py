@@ -9,12 +9,7 @@ from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_GET, require_POST
 
 from ... import models, permissions, reporting
-from .portal import (
-    BasePortalFilter,
-    active_filter_scope,
-    get_pagintion_nav_range,
-    wants_json,
-)
+from .portal import BasePortalFilter, active_filter_scope, get_pagintion_nav_range
 
 logger = logging.getLogger(__name__)
 
@@ -138,8 +133,6 @@ def faculty_request_accept(request, id):
                         "You need to be assigned to a department to request "
                         "department approval"
                     )
-                    if wants_json(request):
-                        return JsonResponse({"error": error}, status=400)
                     messages.error(request, error)
                     return redirect("instrument-list")
                 request_object.needs_department_approval = True
@@ -148,7 +141,7 @@ def faculty_request_accept(request, id):
                 request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
             request_object.save()
 
-            return _request_action_response(request, request_object, "accepted")
+            return redirect(request.META.get("HTTP_REFERER", "faculty_portal"))
     except models.StudentRequest.DoesNotExist:
         raise Http404("Page Not Found")
     except Exception:
@@ -172,24 +165,9 @@ def faculty_request_reject(request, id):
             request_object.status = models.StudentRequest.REJECTED
             request_object.save()
 
-            return _request_action_response(request, request_object, "rejected")
+            return redirect(request.META.get("HTTP_REFERER", "faculty_portal"))
     except models.StudentRequest.DoesNotExist:
         raise Http404("Page Not Found")
     except Exception:
         logger.exception("Failed to reject student request %s", id)
         raise Http404("Page Not Found")
-
-
-def _request_action_response(request, request_object, action):
-    """JSON for the live portal, a redirect for plain form submits."""
-    if wants_json(request):
-        return JsonResponse(
-            {
-                "ok": True,
-                "id": request_object.id,
-                "action": action,
-                "status": request_object.status,
-                "status_display": request_object.get_status_display(),
-            }
-        )
-    return redirect(request.META.get("HTTP_REFERER", "faculty_portal"))

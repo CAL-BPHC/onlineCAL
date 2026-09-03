@@ -303,46 +303,38 @@ class UsageSummaryTestCase(RequestBuilderMixin, TestCase):
         self.assertEqual(client.get(USAGE_URL).status_code, 302)
 
 
-class LiveRequestActionTestCase(RequestBuilderMixin, TestCase):
-    XHR = {"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
-
+class RequestActionTestCase(RequestBuilderMixin, TestCase):
     def setUp(self):
         self.build_portal_fixtures()
         self.client = Client()
         self.client.force_login(self.faculty)
 
-    def test_ajax_accept_returns_json(self):
+    def test_accepting_routes_the_request_onward(self):
         request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
 
         response = self.client.post(
-            f"/requests_faculty/accept/{request.id}",
-            {"departmentRoute": "True"},
-            **self.XHR,
+            f"/requests_faculty/accept/{request.id}", {"departmentRoute": "True"}
         )
 
-        self.assertEqual(response.status_code, 200)
-        payload = response.json()
-        self.assertTrue(payload["ok"])
-        self.assertEqual(payload["id"], request.id)
+        self.assertEqual(response.status_code, 302)
         request.refresh_from_db()
         self.assertEqual(request.status, StudentRequest.WAITING_FOR_DEPARTMENT)
 
-    def test_ajax_reject_returns_json(self):
+    def test_rejecting_marks_the_request_rejected(self):
         request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
 
-        response = self.client.post(
-            f"/requests_faculty/reject/{request.id}", **self.XHR
-        )
+        response = self.client.post(f"/requests_faculty/reject/{request.id}")
 
-        self.assertEqual(response.json()["action"], "rejected")
+        self.assertEqual(response.status_code, 302)
         request.refresh_from_db()
         self.assertEqual(request.status, StudentRequest.REJECTED)
 
-    def test_ajax_accept_survives_the_tls_terminating_proxy(self):
-        """The live path as it arrives in production.
+    def test_a_post_survives_the_tls_terminating_proxy(self):
+        """A decision as it arrives in production.
 
-        fetch() always sends an Origin header, so Django has to know the request
-        reached nginx over https or it rejects the POST as a bad origin.
+        nginx terminates TLS, so Django has to read the forwarded scheme or it
+        rebuilds an http:// origin and rejects any POST that carries an Origin
+        header as a bad origin.
         """
         request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
         host = "portal.example.com"
@@ -359,10 +351,11 @@ class LiveRequestActionTestCase(RequestBuilderMixin, TestCase):
             HTTP_HOST=host,
             HTTP_X_FORWARDED_PROTO="https",
             HTTP_ORIGIN=f"https://{host}",
-            **self.XHR,
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        request.refresh_from_db()
+        self.assertEqual(request.status, StudentRequest.WAITING_FOR_DEPARTMENT)
 
     def test_plain_post_still_redirects(self):
         request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
@@ -397,7 +390,6 @@ class LiveRequestActionTestCase(RequestBuilderMixin, TestCase):
         self.client.post(
             f"/requests_faculty/accept/{request.id}",
             {"departmentRoute": "True"},
-            **self.XHR,
         )
 
         after = self.client.get("/faculty/usage-summary", {"preset": "this_fy"}).json()
@@ -423,6 +415,6 @@ class LiveRequestActionTestCase(RequestBuilderMixin, TestCase):
 
     def test_slot_and_request_stay_consistent(self):
         request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
-        self.client.post(f"/requests_faculty/reject/{request.id}", **self.XHR)
+        self.client.post(f"/requests_faculty/reject/{request.id}")
         request.refresh_from_db()
         self.assertEqual(request.slot.status, Slot.STATUS_1)
