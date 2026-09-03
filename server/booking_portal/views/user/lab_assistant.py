@@ -6,7 +6,7 @@ from django.http import Http404
 from django.shortcuts import redirect, render
 
 from ... import models, permissions
-from .portal import BasePortalFilter, get_pagintion_nav_range
+from .portal import BasePortalFilter, get_pagintion_nav_range, safe_portal_url
 
 
 @login_required
@@ -56,6 +56,15 @@ def lab_assistant_faculty_portal(request):
     )
 
 
+def _back_to_the_queue(request, is_faculty):
+    """Where a decision returns to: the list, or the page it was made from."""
+    return safe_portal_url(
+        request.POST.get("next") or request.META.get("HTTP_REFERER"),
+        request,
+        "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
+    )
+
+
 @login_required
 @user_passes_test(permissions.is_lab_assistant)
 def lab_assistant_accept(request, id):
@@ -83,12 +92,7 @@ def lab_assistant_accept(request, id):
             )
             request_object.status = models.StudentRequest.APPROVED
             request_object.save()
-            return redirect(
-                request.META.get(
-                    "HTTP_REFERER",
-                    "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
-                )
-            )
+            return redirect(_back_to_the_queue(request, is_faculty))
     except Exception:
         raise Http404("Page Not Found")
 
@@ -112,11 +116,6 @@ def lab_assistant_reject(request, id):
                 )
             request_object.status = models.StudentRequest.REJECTED
             request_object.save()
-            return redirect(
-                request.META.get(
-                    "HTTP_REFERER",
-                    "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
-                )
-            )
+            return redirect(_back_to_the_queue(request, is_faculty))
     except Exception:
         raise Http404("Page Not Found")

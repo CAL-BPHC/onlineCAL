@@ -5,7 +5,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 
 from ... import models, permissions
-from .portal import BasePortalFilter, get_pagintion_nav_range
+from .portal import BasePortalFilter, get_pagintion_nav_range, safe_portal_url
 
 
 @login_required
@@ -50,6 +50,15 @@ def department_portal(request):
     )
 
 
+def _back_to_the_queue(request):
+    """Where a decision returns to: the list, or the page it was made from."""
+    return safe_portal_url(
+        request.POST.get("next") or request.META.get("HTTP_REFERER"),
+        request,
+        "department_portal",
+    )
+
+
 @login_required
 @user_passes_test(permissions.is_department)
 def department_accept(request, id):
@@ -70,7 +79,7 @@ def department_accept(request, id):
             if department == request_object.faculty.department:
                 request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
                 request_object.save()
-                return redirect(request.META.get("HTTP_REFERER", "department_portal"))
+                return redirect(_back_to_the_queue(request))
             else:
                 return HttpResponse("Bad Request")
     except Exception as e:
@@ -96,7 +105,7 @@ def department_reject(request, id):
             if department == models.Department.objects.get(id=request.user.id):
                 request_object.status = models.StudentRequest.REJECTED
                 request_object.save()
-                return redirect(request.META.get("HTTP_REFERER", "department_portal"))
+                return redirect(_back_to_the_queue(request))
             else:
                 return HttpResponse("Bad Request")
     except Exception:

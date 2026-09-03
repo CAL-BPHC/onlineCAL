@@ -7,6 +7,7 @@ from django.db.models import Model
 from django.forms import ModelChoiceField
 from django.http import Http404
 from django.shortcuts import render
+from django.urls import reverse
 
 from ..config import view_application_dict
 from ..models import (
@@ -94,6 +95,89 @@ def _application_rows(form_object, editable_field=None, hidden_fields=()):
         else:
             details.append(row)
     return details, remarks
+
+
+# Who may act on a request, in which state, and where that lands them. A
+# reviewer decides from the application itself so that it has at least been in
+# front of them; the department and the lab assistant keep their list buttons
+# as well, since they clear far more requests in a sitting.
+DECISIONS = {
+    "faculty": {
+        "status": StudentRequest.WAITING_FOR_FACULTY,
+        "accept": "faculty_request_accept",
+        "reject": "faculty_request_reject",
+        "portal": "faculty_portal",
+    },
+    "department": {
+        "status": StudentRequest.WAITING_FOR_DEPARTMENT,
+        "accept": "department_request_accept",
+        "reject": "department_request_reject",
+        "portal": "department_portal",
+    },
+    "assistant": {
+        "status": StudentRequest.WAITING_FOR_LAB_ASST,
+        "accept": "lab_assistant_request_accept",
+        "reject": "lab_assistant_request_reject",
+        "portal": "lab_assistant",
+    },
+}
+
+
+def _owns_the_decision(user, user_type, request_obj):
+    """Whether this request is actually this reviewer's to act on."""
+    if user_type == "faculty":
+        return request_obj.faculty_id == user.id
+    if user_type == "department":
+        return request_obj.faculty.department_id == user.id
+    # lab assistants work the whole queue, as their portal already shows
+    return user_type == "assistant"
+
+
+def _decision(request, user_type, request_obj, faculty_request=False):
+    """The accept/reject controls this reviewer gets here, or None."""
+    rule = DECISIONS.get(user_type)
+    if (
+        rule is None
+        or request_obj.status != rule["status"]
+        or not _owns_the_decision(request.user, user_type, request_obj)
+    ):
+        return None
+
+    portal = rule["portal"]
+    query = ""
+    if faculty_request:
+        query = "?is_faculty=true"
+        if user_type == "assistant":
+            portal = "lab_assistant_faculty_portal"
+    return {
+        "accept_url": reverse(rule["accept"], args=[request_obj.id]) + query,
+        "reject_url": reverse(rule["reject"], args=[request_obj.id]) + query,
+        "back_url": safe_portal_url(request.META.get("HTTP_REFERER"), request, portal),
+    }
+
+
+def _decision_context(request, user_type, request_obj, decision):
+    """What the confirmation modal has to state before this reviewer accepts."""
+    empty = {"balance": None, "department": None, "payer": None}
+    if decision is None:
+        return empty
+
+    if user_type == "faculty":
+        faculty = Faculty.objects.filter(id=request.user.id).first()
+        if faculty is None:
+            return empty
+        return {**empty, "balance": faculty.balance, "department": faculty.department}
+    if user_type == "department":
+        department = Department.objects.filter(id=request.user.id).first()
+        return {**empty, "balance": department.balance if department else None}
+    # the lab assistant's approval is what actually spends: the bill lands on
+    # whoever the request was routed through
+    return {
+        **empty,
+        "payer": request_obj.faculty.department
+        if request_obj.needs_department_approval
+        else request_obj.faculty,
+    }
 
 
 def _editable_remark_field(user_type):
@@ -222,20 +306,17 @@ def show_application_student(request, id):
     remark_field = _editable_remark_field(user_type)
     if remark_field and form_object[remark_field].value() is not None:
         remark_field = None
-    is_supervisor = (
-        is_faculty(request.user) and request_obj.faculty_id == request.user.id
-    )
     hidden = set(SLOT_FIELDS)
-    if is_supervisor:
+    if is_faculty(request.user) and request_obj.faculty_id == request.user.id:
         hidden.update(SUPERVISOR_FIELDS)
+    elif user_type == "department" and request_obj.faculty.department_id == (
+        request.user.id
+    ):
+        # the department reading its own requests already knows whose it is
+        hidden.add("sup_dept")
     details, remarks = _application_rows(form_object, remark_field, hidden)
 
-    # A faculty decides on a student's request from here rather than from the
-    # list, so that the application has at least been in front of them.
-    can_decide = (
-        is_supervisor and request_obj.status == StudentRequest.WAITING_FOR_FACULTY
-    )
-    faculty = Faculty.objects.filter(id=request.user.id).first() if can_decide else None
+    decision = _decision(request, user_type, request_obj)
 
     return render(
         request,
@@ -256,10 +337,8 @@ def show_application_student(request, id):
             "remarks": remarks,
             "remark_bound_field": form_object[remark_field] if remark_field else None,
             "request_obj": request_obj,
-            "can_decide": can_decide,
-            "back_url": safe_portal_url(request.META.get("HTTP_REFERER"), request),
-            "balance": faculty.balance if faculty else None,
-            "department": faculty.department if faculty else None,
+            "decision": decision,
+            **_decision_context(request, user_type, request_obj, decision),
         },
     )
 
@@ -359,6 +438,8 @@ def show_application_faculty(request, id):
         remark_field = None
     details, remarks = _application_rows(form_object, remark_field, SLOT_FIELDS)
 
+    decision = _decision(request, user_type, request_obj, faculty_request=True)
+
     return render(
         request,
         "booking_portal/instrument_form.html",
@@ -379,6 +460,8 @@ def show_application_faculty(request, id):
             "remarks": remarks,
             "remark_bound_field": form_object[remark_field] if remark_field else None,
             "request_obj": request_obj,
+            "decision": decision,
+            **_decision_context(request, user_type, request_obj, decision),
         },
     )
 

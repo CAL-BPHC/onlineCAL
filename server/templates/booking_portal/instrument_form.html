@@ -109,19 +109,19 @@
   {% endif %}
 
   <div class="text-center mt-4 app-noprint">
-    {% if can_decide %}
-      <a class="btn btn-link" href="{{ back_url }}">Back to requests</a>
+    {% if decision %}
+      <a class="btn btn-link" href="{{ decision.back_url }}">Back to requests</a>
       <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmApprove">Accept request</button>
-      <form action="{% url 'faculty_request_reject' id %}" method="post" class="d-inline">
+      <form action="{{ decision.reject_url }}" method="post" class="d-inline">
         {% csrf_token %}
-        <input type="hidden" name="next" value="{{ back_url }}">
+        <input type="hidden" name="next" value="{{ decision.back_url }}">
         <button type="submit" class="btn btn-danger">Reject request</button>
       </form>
     {% endif %}
     <input type="button" class="btn btn-secondary" onclick="window.print()" value="Download PDF">
   </div>
 
-  {% if can_decide %}
+  {% if decision %}
     <div class="modal fade" id="confirmApprove" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -130,17 +130,26 @@
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           </div>
           <div class="modal-body">
-            Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you
-            <b>{{ total_cost }}</b> and your final balance will be <b>{{ balance|subtract:total_cost }}</b>.
-            <p class="mt-2"><b>Note: If the request is routed through your department then your balance is not affected.</b></p>
-            {% if not department %}
-              <p class="text-danger">Your account is not associated with any department. Please contact the admin.</p>
+            {% if balance != None %}
+              Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you
+              <b>{{ total_cost }}</b> and your final balance will be <b>{{ balance|subtract:total_cost }}</b>.
+            {% else %}
+              Approving request <b>#{{ request_obj.id }}</b> costs <b>{{ total_cost }}</b>, taken from
+              <b>{{ payer }}</b>'s balance.
             {% endif %}
-            <form action="{% url 'faculty_request_accept' id %}" method="post">
+            {% if user_type == 'faculty' %}
+              <p class="mt-2"><b>Note: If the request is routed through your department then your balance is not affected.</b></p>
+              {% if not department %}
+                <p class="text-danger">Your account is not associated with any department. Please contact the admin.</p>
+              {% endif %}
+            {% endif %}
+            <form action="{{ decision.accept_url }}" method="post">
               {% csrf_token %}
-              <input type="hidden" name="next" value="{{ back_url }}">
-              <input type="hidden" name="departmentRoute" value="True">
-              <p class="mb-0"><b>Note: For now, all requests are routed through the department, as faculty-level balance is not yet active.</b></p>
+              <input type="hidden" name="next" value="{{ decision.back_url }}">
+              {% if user_type == 'faculty' %}
+                <input type="hidden" name="departmentRoute" value="True">
+                <p class="mb-0"><b>Note: For now, all requests are routed through the department, as faculty-level balance is not yet active.</b></p>
+              {% endif %}
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-success">Confirm</button>

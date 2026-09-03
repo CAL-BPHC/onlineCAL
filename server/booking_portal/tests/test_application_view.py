@@ -3,8 +3,8 @@ import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.test import Client, TestCase
 
-from ..factories import FacultyFactory
-from ..models import Student, StudentRequest
+from ..factories import FacultyFactory, LabAssistantFactory
+from ..models import Department, Student, StudentRequest
 from .test_portal_filters import RequestBuilderMixin
 
 
@@ -164,3 +164,116 @@ class ReturnAfterDecidingTestCase(ApplicationFixtureMixin, TestCase):
         )
 
         self.assertContains(page, 'name="next" value="/faculty/"')
+
+
+class ReviewerDecisionTestCase(ApplicationFixtureMixin, TestCase):
+    """Every reviewer decides from the application, each in their own state."""
+
+    def setUp(self):
+        self.build_portal_fixtures()
+        self.client = Client()
+
+    def open_as(self, user, request_obj):
+        StudentRequest.objects.filter(pk=request_obj.pk).update(mode_description="")
+        self.client.force_login(user)
+        return self.client.get(f"/application/view/{request_obj.id}").content.decode()
+
+    def test_the_department_decides_on_a_request_waiting_on_it(self):
+        request_obj = self.make_request(
+            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+        )
+
+        body = self.open_as(self.department, request_obj)
+
+        self.assertIn("Accept request", body)
+        self.assertIn(f"/requests_department/accept/{request_obj.id}", body)
+        self.assertIn(f"/requests_department/reject/{request_obj.id}", body)
+
+    def test_the_department_does_not_see_its_own_name_back(self):
+        request_obj = self.make_request(
+            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+        )
+
+        body = self.open_as(self.department, request_obj)
+
+        # its own department is the one row it cannot learn anything from
+        self.assertNotIn("Supervisor Department", body)
+        self.assertIn("Supervisor Name", body)
+
+    def test_another_department_decides_nothing(self):
+        stranger = Department.objects.create(email="other@example.com", name="physics")
+        request_obj = self.make_request(
+            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+        )
+
+        body = self.open_as(stranger, request_obj)
+
+        self.assertNotIn("Accept request", body)
+        self.assertIn("Supervisor Department", body)
+
+    def test_the_department_cannot_decide_before_its_turn(self):
+        request_obj = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
+
+        self.assertNotIn("Accept request", self.open_as(self.department, request_obj))
+
+    def test_accepting_as_the_department_moves_the_request_on(self):
+        request_obj = self.make_request(
+            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+        )
+        self.client.force_login(self.department)
+
+        response = self.client.post(
+            f"/requests_department/accept/{request_obj.id}",
+            {"next": "http://testserver/department/?status=R6"},
+        )
+
+        request_obj.refresh_from_db()
+        self.assertEqual(request_obj.status, StudentRequest.WAITING_FOR_LAB_ASST)
+        self.assertEqual(
+            response["Location"], "http://testserver/department/?status=R6"
+        )
+
+    def test_the_lab_assistant_decides_on_a_request_waiting_on_it(self):
+        request_obj = self.make_request(StudentRequest.WAITING_FOR_LAB_ASST)
+
+        body = self.open_as(LabAssistantFactory(), request_obj)
+
+        self.assertIn("Accept request", body)
+        self.assertIn(f"/requests_assistant/accept/{request_obj.id}", body)
+
+    def test_the_lab_assistant_cannot_decide_before_its_turn(self):
+        request_obj = self.make_request(StudentRequest.WAITING_FOR_DEPARTMENT)
+
+        body = self.open_as(LabAssistantFactory(), request_obj)
+
+        self.assertNotIn("Accept request", body)
+
+    def test_accepting_as_the_lab_assistant_approves_the_request(self):
+        request_obj = self.make_request(
+            StudentRequest.WAITING_FOR_LAB_ASST, needs_department_approval=True
+        )
+        self.client.force_login(LabAssistantFactory())
+
+        response = self.client.post(
+            f"/requests_assistant/accept/{request_obj.id}",
+            {"next": "http://testserver/lab-assistant/?status=R2"},
+        )
+
+        request_obj.refresh_from_db()
+        self.assertEqual(request_obj.status, StudentRequest.APPROVED)
+        self.assertEqual(
+            response["Location"], "http://testserver/lab-assistant/?status=R2"
+        )
+
+    def test_a_return_target_for_another_portal_is_refused(self):
+        request_obj = self.make_request(
+            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+        )
+        self.client.force_login(self.department)
+
+        response = self.client.post(
+            f"/requests_department/accept/{request_obj.id}",
+            {"next": "http://testserver/faculty/"},
+        )
+
+        self.assertEqual(response["Location"], "/department/")

@@ -10,21 +10,23 @@ from django_filters import DateFilter, FilterSet, OrderingFilter
 from ... import forms, models
 
 
-def safe_portal_url(candidate, request):
-    """`candidate` if it is a portal page on this site, else the request list.
+def safe_portal_url(candidate, request, portal="faculty_portal"):
+    """`candidate` if it is that portal's own page on this site, else the portal.
 
-    Keeps the filter and page a faculty was on when they opened an application,
-    without letting a crafted value bounce them off site.
+    Keeps the filter and page a reviewer was on when they opened an
+    application, without letting a crafted value bounce them off site or onto
+    a portal their role cannot open.
     """
+    fallback = reverse(portal)
     if candidate and url_has_allowed_host_and_scheme(
         candidate,
         allowed_hosts={request.get_host()},
         require_https=request.is_secure(),
     ):
         path = urlparse(candidate).path
-        if path.rstrip("/") == "/faculty":
+        if path.rstrip("/") == fallback.rstrip("/"):
             return candidate
-    return reverse("faculty_portal")
+    return fallback
 
 
 def active_filter_scope(portal_filter):
