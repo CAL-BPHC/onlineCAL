@@ -180,12 +180,16 @@ def _decision_context(request, user_type, request_obj, decision):
     }
 
 
-def _editable_remark_field(user_type):
-    return {
+def _editable_remark_field(user_type, form_object):
+    """The remark this reviewer may still write, if they have not already."""
+    field = {
         "faculty": "faculty_remarks",
         "assistant": "lab_assistant_remarks",
         "department": "department_remarks",
     }.get(user_type)
+    if field is None or form_object[field].value() is not None:
+        return None
+    return field
 
 
 def index(request):
@@ -303,16 +307,17 @@ def show_application_student(request, id):
             form_object.fields[field_val].widget.attrs["style"] = ""
 
     user_type = get_user_type(request.user)
-    remark_field = _editable_remark_field(user_type)
-    if remark_field and form_object[remark_field].value() is not None:
-        remark_field = None
+    remark_field = _editable_remark_field(user_type, form_object)
+    is_supervisor = user_type == "faculty" and request_obj.faculty_id == request.user.id
+    own_department = (
+        user_type == "department"
+        and request_obj.faculty.department_id == request.user.id
+    )
     hidden = set(SLOT_FIELDS)
-    if is_faculty(request.user) and request_obj.faculty_id == request.user.id:
+    if is_supervisor:
         hidden.update(SUPERVISOR_FIELDS)
-    elif user_type == "department" and request_obj.faculty.department_id == (
-        request.user.id
-    ):
-        # the department reading its own requests already knows whose it is
+    elif own_department:
+        # the department reading its own queue already knows whose it is
         hidden.add("sup_dept")
     details, remarks = _application_rows(form_object, remark_field, hidden)
 
@@ -433,9 +438,7 @@ def show_application_faculty(request, id):
         if field_val.startswith("conditional_quantity"):
             form_object.fields[field_val].widget.attrs["style"] = ""
     user_type = "student" if is_faculty else get_user_type(request.user)
-    remark_field = _editable_remark_field(user_type)
-    if remark_field and form_object[remark_field].value() is not None:
-        remark_field = None
+    remark_field = _editable_remark_field(user_type, form_object)
     details, remarks = _application_rows(form_object, remark_field, SLOT_FIELDS)
 
     decision = _decision(request, user_type, request_obj, faculty_request=True)

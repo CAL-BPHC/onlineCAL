@@ -13,7 +13,7 @@ from .portal import (
     BasePortalFilter,
     active_filter_scope,
     get_pagintion_nav_range,
-    safe_portal_url,
+    portal_return_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -146,7 +146,7 @@ def faculty_request_accept(request, id):
                 request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
             request_object.save()
 
-            return redirect(safe_portal_url(request.POST.get("next"), request))
+            return redirect(portal_return_url(request, "faculty_portal"))
     except models.StudentRequest.DoesNotExist:
         raise Http404("Page Not Found")
     except Exception:
@@ -170,7 +170,7 @@ def faculty_request_reject(request, id):
             request_object.status = models.StudentRequest.REJECTED
             request_object.save()
 
-            return redirect(safe_portal_url(request.POST.get("next"), request))
+            return redirect(portal_return_url(request, "faculty_portal"))
     except models.StudentRequest.DoesNotExist:
         raise Http404("Page Not Found")
     except Exception:

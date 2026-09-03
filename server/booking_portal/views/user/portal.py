@@ -10,7 +10,7 @@ from django_filters import DateFilter, FilterSet, OrderingFilter
 from ... import forms, models
 
 
-def safe_portal_url(candidate, request, portal="faculty_portal"):
+def safe_portal_url(candidate, request, portal):
     """`candidate` if it is that portal's own page on this site, else the portal.
 
     Keeps the filter and page a reviewer was on when they opened an
@@ -27,6 +27,13 @@ def safe_portal_url(candidate, request, portal="faculty_portal"):
         if path.rstrip("/") == fallback.rstrip("/"):
             return candidate
     return fallback
+
+
+def portal_return_url(request, portal):
+    """Where a decision returns to: the list it was made from, or the portal."""
+    return safe_portal_url(
+        request.POST.get("next") or request.META.get("HTTP_REFERER"), request, portal
+    )
 
 
 def active_filter_scope(portal_filter):

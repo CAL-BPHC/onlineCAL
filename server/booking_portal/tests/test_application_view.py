@@ -205,6 +205,15 @@ class ReviewerDecisionTestCase(ApplicationFixtureMixin, TestCase):
         self.assertNotIn("Supervisor Department", body)
         self.assertIn("Supervisor Name", body)
 
+    def test_the_lab_assistant_still_sees_whose_department_it_is(self):
+        request_obj = self.make_request(StudentRequest.WAITING_FOR_LAB_ASST)
+
+        body = self.open_as(LabAssistantFactory(), request_obj)
+
+        # only the department itself is spared its own name
+        self.assertIn("Supervisor Department", body)
+        self.assertIn("Supervisor Name", body)
+
     def test_another_department_decides_nothing(self):
         stranger = Department.objects.create(email="other@example.com", name="physics")
         request_obj = self.make_request(
