@@ -9,7 +9,7 @@ from ..factories import (
     LabAssistantFactory,
     StudentFactory,
 )
-from ..models import Department, Slot, Student, StudentRequest
+from ..models import Department, Faculty, FacultyRequest, Slot, Student, StudentRequest
 from .test_portal_filters import RequestBuilderMixin
 
 
@@ -532,3 +532,114 @@ class DecisionEndpointsTestCase(ApplicationFixtureMixin, TestCase):
         # nothing decides by being followed
         self.assertNotIn('<a href="/requests_department/accept/', body)
         self.assertNotIn('<a href="/requests_department/reject/', body)
+
+
+class FacultyRequestTestCase(ApplicationFixtureMixin, TestCase):
+    """A faculty's own booking: the applicant is the faculty, there is no
+    supervisor, and every URL carries ?is_faculty=true."""
+
+    def setUp(self):
+        self.build_portal_fixtures()
+        self.client = Client()
+
+    def make_faculty_request(self, status, **kwargs):
+        form = super().make_form()
+        form.user_type = ContentType.objects.get_for_model(Faculty)
+        form.user_id = self.faculty.id
+        form.save()
+        return FacultyRequest.objects.create(
+            faculty=self.faculty,
+            instrument=self.instrument,
+            slot=self.make_slot(datetime.date(2025, 6, 1)),
+            status=status,
+            mode_description="",
+            mode_cost=100,
+            mode_rule_type="FLAT",
+            content_object=form,
+            **kwargs,
+        )
+
+    def response_as(self, user, request_obj):
+        self.client.force_login(user)
+        return self.client.get(f"/application/view/{request_obj.id}?is_faculty=true")
+
+    def test_the_applicant_reads_their_own_booking_and_decides_nothing(self):
+        request_obj = self.make_faculty_request(FacultyRequest.WAITING_FOR_LAB_ASST)
+
+        response = self.response_as(self.faculty, request_obj)
+        body = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Application details", body)
+        self.assertNotIn("Accept request", body)
+        self.assertEqual(body.count("<textarea"), 0)
+
+    def test_nobody_else_without_a_part_in_it_can_read_it(self):
+        request_obj = self.make_faculty_request(FacultyRequest.WAITING_FOR_LAB_ASST)
+
+        for who, user in (
+            ("another faculty", FacultyFactory()),
+            ("a student", StudentFactory()),
+            (
+                "another department",
+                Department.objects.create(email="o@example.com", name="physics"),
+            ),
+        ):
+            with self.subTest(who=who):
+                self.assertEqual(self.response_as(user, request_obj).status_code, 404)
+
+    def test_the_department_decides_when_it_is_routed_to_them(self):
+        request_obj = self.make_faculty_request(
+            FacultyRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+        )
+
+        body = self.response_as(self.department, request_obj).content.decode()
+
+        self.assertIn("Accept request", body)
+        self.assertIn(
+            f"/requests_department/accept/{request_obj.id}?is_faculty=true", body
+        )
+        self.assertIn(
+            f"/requests_department/reject/{request_obj.id}?is_faculty=true", body
+        )
+        self.assertIn(
+            f"/application/edit/remarks/{request_obj.id}?is_faculty=true", body
+        )
+
+    def test_the_lab_assistant_decides_and_returns_to_the_faculty_queue(self):
+        request_obj = self.make_faculty_request(FacultyRequest.WAITING_FOR_LAB_ASST)
+
+        body = self.response_as(LabAssistantFactory(), request_obj).content.decode()
+
+        self.assertIn(
+            f"/requests_assistant/accept/{request_obj.id}?is_faculty=true", body
+        )
+        self.assertIn('href="/lab-assistant/faculty"', body)
+
+    def test_accepting_as_the_lab_assistant_approves_the_booking(self):
+        request_obj = self.make_faculty_request(FacultyRequest.WAITING_FOR_LAB_ASST)
+        self.client.force_login(LabAssistantFactory())
+
+        response = self.client.post(
+            f"/requests_assistant/accept/{request_obj.id}?is_faculty=true"
+        )
+
+        request_obj.refresh_from_db()
+        self.assertEqual(request_obj.status, FacultyRequest.APPROVED)
+        self.assertEqual(response["Location"], "/lab-assistant/faculty")
+
+    def test_the_department_can_remark_on_it(self):
+        request_obj = self.make_faculty_request(
+            FacultyRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+        )
+        self.client.force_login(self.department)
+
+        self.client.post(
+            f"/application/edit/remarks/{request_obj.id}?is_faculty=true",
+            {"department_remarks": "approved for the term"},
+        )
+
+        request_obj.refresh_from_db()
+        self.assertEqual(
+            request_obj.content_object.department_remarks, "approved for the term"
+        )
