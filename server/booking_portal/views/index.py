@@ -88,7 +88,9 @@ def _application_rows(form_object, editable_field=None, hidden_fields=()):
             "value": _display_value(bound_field),
         }
         if bound_field.name in remark_labels:
-            remarks.append(row)
+            # a remark nobody wrote is not worth a row
+            if row["value"]:
+                remarks.append(row)
         else:
             details.append(row)
     return details, remarks

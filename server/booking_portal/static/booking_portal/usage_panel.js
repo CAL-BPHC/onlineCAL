@@ -216,7 +216,7 @@
     if (queue.with_lab.bookings) {
       downstream.push(queue.with_lab.bookings + " with lab assistant");
     }
-    el.queueDownstream.textContent = downstream.join(" · ");
+    el.queueDownstream.textContent = downstream.join(", ");
 
     renderRows();
     flushFlashes();

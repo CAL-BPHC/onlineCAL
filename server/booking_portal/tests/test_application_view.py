@@ -52,6 +52,19 @@ class ApplicationViewTestCase(ApplicationFixtureMixin, TestCase):
         self.assertEqual(body.count("<textarea"), 1)
         self.assertNotIn("disabled", body.split("Application details")[1])
 
+    def test_remarks_show_only_once_someone_has_written_one(self):
+        body = self.client.get(self.url()).content.decode()
+
+        self.assertNotIn(">Remarks</p>", body)
+
+        form = self.request.content_object
+        form.student_remarks = "Sample is air sensitive."
+        form.save()
+        body = self.client.get(self.url()).content.decode()
+
+        self.assertIn(">Remarks</p>", body)
+        self.assertIn("Sample is air sensitive.", body)
+
     def test_the_supervising_faculty_can_decide_from_the_application(self):
         body = self.client.get(self.url()).content.decode()
 
