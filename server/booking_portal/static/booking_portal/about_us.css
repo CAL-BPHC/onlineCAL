@@ -1,136 +1,305 @@
-@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,200italic,300,300italic,400italic,600,600italic,700,700italic,900,900italic);
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap");
 
-body {
-    font-family: 'Source Sans Pro', sans-serif;
-    line-height: 1.5;
-    color: #323232;
-    font-size: 15px;
-    font-weight: 400;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-font-smoothing: antialiased;
+.about {
+  --ink: #1b2430;
+  --muted: #5b6773;
+  --rule: #d9dee3;
+  --paper: #ffffff;
+  --panel: #f3f6f9;
+  --blue: #1f4e79;
+  --blue-soft: #e4eef7;
+  --blue-deep: #163a5a;
+
+  font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  line-height: 1.55;
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
 }
 
-.heading-title {
-    margin-bottom: 100px;
+.about a {
+  color: var(--blue);
 }
 
-.text-center {
-    text-align: center;
+.about a:hover,
+.about a:focus {
+  color: var(--blue-deep);
 }
 
-.heading-title h3 {
-    margin-bottom: 0;
-    letter-spacing: 2px;
-    font-weight: normal;
+.about h1,
+.about h2,
+.about h3 {
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
-.text-uppercase {
-    text-transform: uppercase;
+.about h1 {
+  font-size: 2.25rem;
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
 }
 
-.team-member, .team-member {
-    position: relative;
+.about h2 {
+  font-size: 1.35rem;
+  margin: 0 0 0.25rem;
 }
 
-.team-img {
-    position: relative;
-    width: 360px;
-    height: 360px;
-    object-fit: cover;
+.about h3 {
+  font-size: 1.05rem;
+  margin: 0;
 }
 
-.team-hover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    margin: 0;
-    border: 20px solid rgba(0, 0, 0, 0.1);
-    background-color: rgba(255, 255, 255, 0.90);
-    opacity: 0;
-    -webkit-transition: all 0.3s;
-    transition: all 0.3s;
+.about p {
+  margin: 0;
 }
 
-.team-member:hover .team-hover .desk {
-    top: 35%;
+.about-header {
+  text-align: center;
 }
 
-.team-member:hover .team-hover, .team-member:hover .team-hover .desk, .team-member:hover .team-hover .s-link {
-    opacity: 1;
+.about .lede {
+  max-width: 50rem;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 1.05rem;
 }
 
-.team-hover .desk {
-    position: absolute;
-    top: 0%;
-    width: 100%;
-    opacity: 0;
-    -webkit-transform: translateY(-55%);
-    -ms-transform: translateY(-55%);
-    transform: translateY(-55%);
-    -webkit-transition: all 0.3s 0.2s;
-    transition: all 0.3s 0.2s;
-    padding: 0 20px;
+.about .lede + .lede {
+  margin-top: 0.75rem;
 }
 
-.desk, .desk h4, .team-hover .s-link a {
-    text-align: center;
-    color: #222;
+.about .contacts {
+  font-size: 0.95rem;
 }
 
-.team-member:hover .team-hover .s-link {
-    bottom: 10%;
+.about-section {
+  margin-top: 3rem;
 }
 
-.team-member:hover .team-hover, .team-member:hover .team-hover .desk, .team-member:hover .team-hover .s-link {
-    opacity: 1;
+.about-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 1.5rem;
 }
 
-.team-hover .s-link {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    opacity: 0;
-    text-align: center;
-    -webkit-transform: translateY(45%);
-    -ms-transform: translateY(45%);
-    transform: translateY(45%);
-    -webkit-transition: all 0.3s 0.2s;
-    transition: all 0.3s 0.2s;
-    font-size: 35px;
+.about-section-head p {
+  color: var(--muted);
+  max-width: 34rem;
 }
 
-.desk, .desk h4, .team-hover .s-link a {
-    text-align: center;
-    color: #222;
+/* In-charge band */
+
+.incharge {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--blue);
+  color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem 1.75rem;
 }
 
-.team-member .s-link a {
-    margin: 0 10px;
-    color: #333;
-    font-size: 16px;
+.incharge-photo {
+  flex: none;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  border: 3px solid rgba(255, 255, 255, 0.35);
 }
 
-.team-title {
-    position: static;
-    padding: 20px 0;
-    display: inline-block;
-    letter-spacing: 2px;
-    width: 100%;
-    text-align: center;
+.incharge h2 {
+  color: #fff;
+  margin-bottom: 0.1rem;
 }
 
-.team-title h5 {
-    margin-bottom: 0px;
-    display: block;
-    text-transform: uppercase;
+.incharge .role {
+  color: #d5e3f2;
 }
 
-.team-title span {
-    font-size: 12px;
-    text-transform: uppercase;
-    color: #a5a5a5;
-    letter-spacing: 1px;
+.about .incharge a,
+.about .incharge a:visited {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.about .incharge a:hover,
+.about .incharge a:focus {
+  color: #d5e3f2;
+}
+
+.incharge-contact {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Staff grid */
+
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.staff-card {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.1rem 1.15rem;
+}
+
+.staff-card img {
+  display: block;
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 25%;
+  background: var(--panel);
+  border: 3px solid var(--blue-soft);
+  flex: none;
+}
+
+.staff-card-body {
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.instruments li.admin-badge {
+  background: var(--blue);
+  color: #fff;
+}
+
+.staff-card .role {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.staff-card .email {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.instruments {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.instruments li {
+  background: var(--blue-soft);
+  color: var(--blue);
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Portal roster */
+
+.roster {
+  list-style: none;
+  padding: 0;
+  margin: -1.5rem 0 0;
+}
+
+.roster li {
+  display: grid;
+  grid-template-columns: 8rem 1fr auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.roster .years {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.roster .who {
+  font-weight: 500;
+}
+
+.roster .links a {
+  margin-left: 0.75rem;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.roster .links a:hover,
+.roster .links a:focus {
+  color: var(--blue);
+}
+
+@media (max-width: 991px) {
+  .staff-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .about h1 {
+    font-size: 1.8rem;
+  }
+
+  .staff-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .staff-card {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .staff-card img {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .staff-card-body {
+    padding-top: 0;
+  }
+
+  .incharge {
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .incharge-photo {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .roster li {
+    grid-template-columns: 1fr auto;
+  }
+
+  .roster .years {
+    grid-column: 1 / -1;
+    margin-bottom: -0.4rem;
+  }
 }

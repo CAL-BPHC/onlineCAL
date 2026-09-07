@@ -8,109 +8,187 @@
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-      <div class="heading-title text-center">
-        <h2 class="text-uppercase">Online-CIF Team</h2>
-        <h3>We are enthusiastic engineering students from BITS Pilani, Hyderabad Campus</h3>
-      </div>
-      <div class="d-flex flex-row justify-content-between flex-wrap">
-        <!-- Abhijeet -->
+  <div class="container about">
+    <header class="about-header">
+      <h1>People at the Central Instrumentation Facility</h1>
+      <p class="lede">
+        The technical staff below run the shared research instruments at BITS Pilani, Hyderabad Campus.
+      </p>
+      <p class="lede contacts">
+        Any queries about the facility: <a href="mailto:cif@hyderabad.bits-pilani.ac.in">cif@hyderabad.bits-pilani.ac.in</a><br>
+        Login or any issue with this portal: <a href="mailto:cal-online@hyderabad.bits-pilani.ac.in">cal-online@hyderabad.bits-pilani.ac.in</a>
+      </p>
+    </header>
+
+    <section class="about-section" aria-labelledby="incharge-heading">
+      <div class="incharge">
+        <img class="incharge-photo" src="{% static 'booking_portal/staff/himanshu-aggarwal.jpg' %}" alt="Prof. Himanshu Aggarwal">
         <div>
-          <div class="team-member">
-            <div>
-              <img src="https://i.ibb.co/L8FrLkQ/IMG-2.jpg" alt="Picture of Abhijeet V"
-                   class="img-fluid team-img">
-            </div>
-            <div class="team-hover">
-              <div class="desk">
-                <h4>Abhijeet V</h4>
-                <p>4th year Electronics Engg Student</p>
-              </div>
-              <div class="s-link">
-                <a href="https://github.com/abhijeetviswa"><i class="fa fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/abhijeetviswa/"><i class="fa fa-linkedin"></i></a>
-                <a href="mailto:f20181032@hyderabad.bits-pilani.ac.in"><i class="fa fa-envelope"></i></a>
-              </div>
-            </div>
-          </div>
-          <div class="team-title">
-            <h5>Abhijeet V</h5>
-            <span></span>
-          </div>
+          <h2 id="incharge-heading">Prof. Himanshu Aggarwal</h2>
+          <p class="role">Faculty In-charge, Central Instrumentation Facility</p>
+          <p class="role">Associate Professor, Department of Chemistry</p>
+          <p class="incharge-contact">
+            <a href="mailto:himanshu.aggarwal@hyderabad.bits-pilani.ac.in">himanshu.aggarwal@hyderabad.bits-pilani.ac.in</a>
+          </p>
         </div>
+      </div>
+    </section>
 
-        <!-- Ujjwal -->
-        <div class="">
-          <div class="team-member">
-            <div>
-              <img src="https://i.ibb.co/SBgx0MZ/127105802-3442059285876220-7161422188883044396-o.jpg" alt="Picture of Ujjwal Raizada"
-                   class="img-fluid team-img">
-            </div>
-            <div class="team-hover">
-              <div class="desk">
-                <h4>Ujjwal Raizada</h4>
-                <p>Computer Science Graduate</p>
-              </div>
-              <div class="s-link">
-                <a href="https://github.com/ujjwal-raizada"><i class="fa fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/ujjwal-raizada/"><i class="fa fa-linkedin"></i></a>
-                <a href="mailto:ujjwalraizada@gmail.com"><i class="fa fa-envelope"></i></a>
-              </div>
-            </div>
-          </div>
-          <div class="team-title">
-            <h5>Ujjwal Raizada</h5>
-          </div>
-        </div>
+    <section class="about-section" aria-labelledby="staff-heading">
+      <div class="about-section-head">
+        <h2 id="staff-heading">Technical staff</h2>
+      </div>
 
-        <!-- Pranjal -->
-        <div class="">
-          <div class="team-member">
-            <div>
-              <img src="https://i.ibb.co/ck7L0h0/22491789-907508729407976-5844625646350450515-n.jpg" alt="Picture of Pranjal Gupta"
-                   class="img-fluid team-img">
-            </div>
-            <div class="team-hover">
-              <div class="desk">
-                <h4>Pranjal Gupta</h4>
-                <p>Computer Science Gradute</p>
-              </div>
-              <div class="s-link">
-                <a href="https://github.com/PranjalGupta2199"><i class="fa fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/pranjalgupta2199/"><i class="fa fa-linkedin"></i></a>
-                <a href="mailto:f20170124@hyderabad.bits-pilani.ac.in"><i class="fa fa-envelope"></i></a>
-              </div>
-            </div>
+      <div class="staff-grid">
+        <article class="staff-card">
+          <img src="{% static 'booking_portal/staff/abbagani-uppalaiah.jpg' %}" alt="Abbagani Uppalaiah">
+          <div class="staff-card-body">
+            <h3>Abbagani Uppalaiah</h3>
+            <p class="role">Technical Assistant</p>
+            <a class="email" href="mailto:uppalaiah@hyderabad.bits-pilani.ac.in">uppalaiah<wbr>@hyderabad.bits-pilani.ac.in</a>
+            <ul class="instruments">
+              <li>SCXRD</li>
+              <li>LCMS</li>
+            </ul>
           </div>
-          <div class="team-title">
-            <h5>Pranjal Gupta</h5>
-            <span></span>
-          </div>
-        </div>
+        </article>
 
-        <!-- Daksh -->
-        <div class="">
-          <div class="team-member">
-            <div>
-              <img src="https://i.ibb.co/rkXn1qj/123033815-399723088081705-7464208872408771101-n.jpg" alt="Picture of Daksh Yashlaha"
-                   class="img-fluid team-img">
-            </div>
-            <div class="team-hover">
-              <div class="desk">
-                <h4>Daksh Yashlaha</h4>
-                <p>Computer Science Graduate</p>
-              </div>
-              <div class="s-link">
-                <a href="https://github.com/daksh-yashlaha"><i class="fa fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/daksh-yashlaha/"><i class="fa fa-linkedin"></i></a>
-                <a href="mailto:f20170218@hyderabad.bits-pilani.ac.in"><i class="fa fa-envelope"></i></a>
-              </div>
-            </div>
+        <article class="staff-card">
+          <img src="{% static 'booking_portal/staff/g-mallesh.jpg' %}" alt="G. Mallesh">
+          <div class="staff-card-body">
+            <h3>G. Mallesh</h3>
+            <p class="role">Technical Assistant</p>
+            <a class="email" href="mailto:mallesh@hyderabad.bits-pilani.ac.in">mallesh<wbr>@hyderabad.bits-pilani.ac.in</a>
+            <ul class="instruments">
+              <li>PXRD</li>
+              <li>LSCM</li>
+            </ul>
           </div>
-          <div class="team-title">
-            <h5>Daksh Yashlaha</h5>
-            <span></span>
+        </article>
+
+        <article class="staff-card">
+          <img src="{% static 'booking_portal/staff/k-narsimha.jpg' %}" alt="K. Narsimha">
+          <div class="staff-card-body">
+            <h3>K. Narsimha</h3>
+            <p class="role">Technical Assistant</p>
+            <a class="email" href="mailto:narsimha@hyderabad.bits-pilani.ac.in">narsimha<wbr>@hyderabad.bits-pilani.ac.in</a>
+            <ul class="instruments">
+              <li>NMR</li>
+              <li>ICP-MS</li>
+            </ul>
           </div>
-        </div>
+        </article>
+
+        <article class="staff-card">
+          <img src="{% static 'booking_portal/staff/kali-suresh.jpg' %}" alt="Kali Suresh">
+          <div class="staff-card-body">
+            <h3>Kali Suresh</h3>
+            <p class="role">Technical Assistant</p>
+            <a class="email" href="mailto:kalisuresh@hyderabad.bits-pilani.ac.in">kalisuresh<wbr>@hyderabad.bits-pilani.ac.in</a>
+            <ul class="instruments">
+              <li class="admin-badge">Portal admin</li>
+              <li>SAXS/WAXS</li>
+              <li>FESEM</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="staff-card">
+          <img src="{% static 'booking_portal/staff/thirmaliah-n.jpg' %}" alt="Thirmaliah N">
+          <div class="staff-card-body">
+            <h3>Thirmaliah N</h3>
+            <p class="role">Technician</p>
+            <a class="email" href="mailto:thirumal@hyderabad.bits-pilani.ac.in">thirumal<wbr>@hyderabad.bits-pilani.ac.in</a>
+            <ul class="instruments">
+              <li>FESEM</li>
+              <li>NMR</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="staff-card">
+          <img src="{% static 'booking_portal/staff/balakishan-k.jpg' %}" alt="Balakishan K">
+          <div class="staff-card-body">
+            <h3>Balakishan K</h3>
+            <p class="role">Technician</p>
+            <a class="email" href="mailto:balakishan@hyderabad.bits-pilani.ac.in">balakishan<wbr>@hyderabad.bits-pilani.ac.in</a>
+            <ul class="instruments">
+              <li>XPS</li>
+              <li>Confocal Raman Spectrometer</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="staff-card">
+          <img src="{% static 'booking_portal/staff/bala-krishna-avula.jpg' %}" alt="Bala Krishna Avula">
+          <div class="staff-card-body">
+            <h3>Bala Krishna Avula</h3>
+            <p class="role">Technician</p>
+            <a class="email" href="mailto:balakrishna.a@hyderabad.bits-pilani.ac.in">balakrishna.a<wbr>@hyderabad.bits-pilani.ac.in</a>
+            <ul class="instruments">
+              <li>TGA</li>
+              <li>BET</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="staff-card">
+          <img src="{% static 'booking_portal/staff/gadepaka-prashanth.jpg' %}" alt="Gadepaka Prashanth">
+          <div class="staff-card-body">
+            <h3>Gadepaka Prashanth</h3>
+            <p class="role">Technician</p>
+            <a class="email" href="mailto:prashanth.g@hyderabad.bits-pilani.ac.in">prashanth.g<wbr>@hyderabad.bits-pilani.ac.in</a>
+            <ul class="instruments">
+              <li>BET</li>
+              <li>PXRD</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="about-section" aria-labelledby="portal-heading">
+      <div class="about-section-head">
+        <h2 id="portal-heading">Developers</h2>
+      </div>
+
+      <ul class="roster">
+        <li>
+          <span class="years">2024 – present</span>
+          <span class="who">Chaitanya Keyal</span>
+          <span class="links"><a href="https://github.com/Chaitanya-Keyal" aria-label="Chaitanya Keyal on GitHub"><i class="fab fa-github"></i></a></span>
+        </li>
+        <li>
+          <span class="years">2024</span>
+          <span class="who">Dharanikanth Reddy Yerasi</span>
+          <span class="links"><a href="https://github.com/pnicto" aria-label="Dharanikanth Reddy Yerasi on GitHub"><i class="fab fa-github"></i></a></span>
+        </li>
+        <li>
+          <span class="years">2022</span>
+          <span class="who">Sidharth Anand</span>
+          <span class="links"><a href="https://github.com/sidharth-anand" aria-label="Sidharth Anand on GitHub"><i class="fab fa-github"></i></a></span>
+        </li>
+        <li>
+          <span class="years">2021 – 2022</span>
+          <span class="who">Abhijeet Viswa</span>
+          <span class="links"><a href="https://github.com/abhijeetviswa" aria-label="Abhijeet Viswa on GitHub"><i class="fab fa-github"></i></a></span>
+        </li>
+        <li>
+          <span class="years">2020 – 2021</span>
+          <span class="who">Pranjal Gupta</span>
+          <span class="links"><a href="https://github.com/PranjalGupta2199" aria-label="Pranjal Gupta on GitHub"><i class="fab fa-github"></i></a></span>
+        </li>
+        <li>
+          <span class="years">2020 – 2021</span>
+          <span class="who">Ujjwal Raizada</span>
+          <span class="links"><a href="https://github.com/ujjwal-raizada" aria-label="Ujjwal Raizada on GitHub"><i class="fab fa-github"></i></a></span>
+        </li>
+        <li>
+          <span class="years">2020 – 2021</span>
+          <span class="who">Daksh Yashlaha</span>
+          <span class="links"><a href="https://github.com/daksh-yashlaha" aria-label="Daksh Yashlaha on GitHub"><i class="fab fa-github"></i></a></span>
+        </li>
+      </ul>
+    </section>
   </div>
- {% endblock %}
+{% endblock %}
