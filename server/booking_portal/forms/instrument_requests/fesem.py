@@ -7,6 +7,7 @@ from .base import UserDetailsForm, UserRemarkForm
 class FESEMForm(UserDetailsForm, UserRemarkForm):
     title = "Field Emission Scanning Electron Microscope"
     subtitle = "Field Emission Scanning Electron Microscope"
+    max_samples = 3
     help_text = """
     <b>Note:</b>
     <p>1. Morning slots (9.30AM to 1.00PM): Submit samples at 9.00AM.</p>

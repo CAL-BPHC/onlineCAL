@@ -9,6 +9,7 @@ from booking_portal.models import (
 )
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import MaxValueValidator
 
 
 class MyModelChoiceField(forms.ModelChoiceField):
@@ -17,6 +18,10 @@ class MyModelChoiceField(forms.ModelChoiceField):
 
 
 class UserDetailsForm(forms.ModelForm):
+    # The most samples one request may carry. None leaves it unbounded. A form
+    # for an instrument with a per-slot cap sets this on the subclass.
+    max_samples = None
+
     user_name = MyModelChoiceField(
         queryset=Student.objects.all(),
         label="Email Id",
@@ -47,6 +52,12 @@ class UserDetailsForm(forms.ModelForm):
         self.fields["duration"].widget.attrs["readonly"] = True
         self.fields["sup_dept"].widget.attrs["readonly"] = True
         self.initial["user_type"] = ContentType.objects.get_for_model(Student).id
+
+        if self.max_samples is not None:
+            samples = self.fields["number_of_samples"]
+            samples.validators.append(MaxValueValidator(self.max_samples))
+            samples.widget.attrs["max"] = self.max_samples
+            samples.help_text = f"At most {self.max_samples} samples per request."
 
         # Django defaults a textarea to ten rows, which is a screenful each for
         # fields that hold 250 characters.
