@@ -337,7 +337,7 @@ def send_email_after_save(sender, instance, **kwargs):
 
     #     # Don't send emails as they are too many, and lab assts check the portal for pending requests
     #     EmailModel(
-    #         receiver="cal@hyderabad.bits-pilani.ac.in",
+    #         receiver="cif@hyderabad.bits-pilani.ac.in",
     #         text=text,
     #         text_html=text_html,
     #         subject=EmailModel.get_subject_for_type(email_type),
