@@ -4,7 +4,7 @@ Greetings from Central Instrumentation Facility!
 
 {% block message %} {% endblock %}
 
-Portal Link: https://onlinecal.bits-hyderabad.ac.in
+Portal Link: https://onlinecif.bits-hyderabad.ac.in
 
 Regards,
 Central Instrumentation Facility

@@ -12,7 +12,7 @@ class AnnouncementAdmin(admin.ModelAdmin):
         context = {
             "recipient_name": "User",
             "announcement_title": obj.title,
-            "announcement_url": "https://onlinecal.bits-hyderabad.ac.in"
+            "announcement_url": "https://onlinecif.bits-hyderabad.ac.in"
             + reverse("announcements"),
         }
         text = render_to_string("email/new_announcement.txt", context)
