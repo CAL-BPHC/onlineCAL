@@ -9,7 +9,7 @@ Here are your credentials:
     Email: {{ email }}
     Password: {{ password }}
     User Type: {{ user_type }}
-    Portal Link: https://onlinecal.bits-hyderabad.ac.in/
+    Portal Link: https://onlinecif.bits-hyderabad.ac.in/
 
 Please read the following instructions so that you can familiarize yourselves
 with the portal:

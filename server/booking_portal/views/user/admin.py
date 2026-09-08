@@ -19,7 +19,7 @@ def admin_portal(request):
 @csrf_exempt
 @require_POST
 def create_student(request):
-    api_key = request.headers.get("X-OnlineCAL-API-Key")
+    api_key = request.headers.get("X-OnlineCIF-API-Key")
     if not api_key or api_key != settings.API_KEY:
         return JsonResponse(
             {"error": "Invalid API key"},
@@ -82,7 +82,7 @@ def create_student(request):
 @csrf_exempt
 @require_POST
 def create_faculty(request):
-    api_key = request.headers.get("X-OnlineCAL-API-Key")
+    api_key = request.headers.get("X-OnlineCIF-API-Key")
     if not api_key or api_key != settings.API_KEY:
         return JsonResponse(
             {"error": "Invalid API key"},
@@ -142,7 +142,7 @@ def create_faculty(request):
 @csrf_exempt
 @require_GET
 def get_faculty(request):
-    api_key = request.headers.get("X-OnlineCAL-API-Key")
+    api_key = request.headers.get("X-OnlineCIF-API-Key")
     if not api_key or api_key != settings.API_KEY:
         return JsonResponse(
             {"error": "Invalid API key"},
