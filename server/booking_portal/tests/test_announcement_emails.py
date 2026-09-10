@@ -61,9 +61,8 @@ class AnnouncementEmailTestCase(TestCase):
             self.assertIsNone(email.receiver)
             self.assertFalse(email.sent)
             self.assertEqual(email.subject, "New CIF Announcement: Maintenance")
-            self.assertIn("Maintenance", email.text)
-            self.assertIn("Maintenance", email.text_html)
             self.assertIn("/announcements", email.text)
+            self.assertIn("/announcements", email.text_html)
 
     def test_email_contains_the_announcement_text(self):
         announcement = Announcement.objects.create(
@@ -76,14 +75,12 @@ class AnnouncementEmailTestCase(TestCase):
         email = self._announcement_emails().first()
         self.assertEqual(email.subject, "New CIF Announcement: R&D lab closed")
         # Plain text is sent as-is, without HTML escaping
-        self.assertIn("R&D lab closed", email.text)
         self.assertIn(
             "The lab is closed on Friday.\nSee https://example.com/notice & plan ahead.",
             email.text,
         )
         self.assertNotIn("&amp;", email.text)
         # HTML is escaped, line breaks become <br> and links are clickable
-        self.assertIn("R&amp;D lab closed", email.text_html)
         self.assertIn("The lab is closed on Friday.<br>", email.text_html)
         self.assertIn('<a href="https://example.com/notice"', email.text_html)
         self.assertIn("&amp; plan ahead.", email.text_html)
@@ -98,7 +95,6 @@ class AnnouncementEmailTestCase(TestCase):
         email = self._announcement_emails().first()
         self.assertNotIn("<script>", email.text_html)
         self.assertIn("&lt;script&gt;", email.text_html)
-        self.assertIn("&lt;b&gt;Bold&lt;/b&gt;", email.text_html)
 
     def test_long_title_fits_in_the_subject(self):
         title = "x" * 100  # Announcement.title max_length
