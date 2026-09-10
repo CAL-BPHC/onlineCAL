@@ -22,17 +22,20 @@ class Command(BaseCommand):
                 email.text,
                 email.text_html,
                 settings.EMAIL_HOST_USER,
-                [email.receiver],
+                [email.receiver] if email.receiver else [],
+                email.bcc_list,
             )
             datatuple.append(message)
             email_objects.append(email)
 
         sent_count = send_mass_html_mail(datatuple, fail_silently=True)
-        for email in email_objects[:sent_count]:
+        sent_emails = email_objects[:sent_count]
+        for email in sent_emails:
             email.sent = True
-        EmailModel.objects.bulk_update(email_objects[:sent_count], ["sent"])
+        EmailModel.objects.bulk_update(sent_emails, ["sent"])
 
         if sent_count > 0:
-            return f"Sent {sent_count} emails to {', '.join([email.receiver for email in email_objects[:sent_count]])}"
+            recipient_count = sum(email.recipient_count for email in sent_emails)
+            return f"Sent {sent_count} emails to {recipient_count} recipients"
         else:
             return "No emails sent"
