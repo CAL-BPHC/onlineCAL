@@ -1,8 +1,8 @@
-<p>Dear {{ recipient_name }},</p>
+{% block greeting %}<p>Dear {{ recipient_name }},</p>
 
 <p>Greetings from Central Instrumentation Facility! </p>
 
-<p>{% block message %} {% endblock %}</p>
+{% endblock %}<p>{% block message %} {% endblock %}</p>
 <p>Portal Link: <a href="https://onlinecif.bits-hyderabad.ac.in">https://onlinecif.bits-hyderabad.ac.in</a></p>
 <p>Regards,<br>
 Central Instrumentation Facility<br>

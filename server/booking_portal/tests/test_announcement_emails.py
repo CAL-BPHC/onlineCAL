@@ -63,6 +63,10 @@ class AnnouncementEmailTestCase(TestCase):
             self.assertEqual(email.subject, "New CIF Announcement: Maintenance")
             self.assertIn("/announcements", email.text)
             self.assertIn("/announcements", email.text_html)
+            # The announcement text is the body; no generic greeting above it
+            self.assertNotIn("Dear User", email.text)
+            self.assertNotIn("Dear User", email.text_html)
+            self.assertIn("Regards,", email.text)
 
     def test_email_contains_the_announcement_text(self):
         announcement = Announcement.objects.create(

@@ -1,8 +1,8 @@
-Dear {{ recipient_name}},
+{% block greeting %}Dear {{ recipient_name }},
 
 Greetings from Central Instrumentation Facility!
 
-{% block message %} {% endblock %}
+{% endblock %}{% block message %} {% endblock %}
 
 Portal Link: https://onlinecif.bits-hyderabad.ac.in
 

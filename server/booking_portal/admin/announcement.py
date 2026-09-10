@@ -17,7 +17,6 @@ def queue_announcement_emails(announcement):
     """
     email_type = EmailModel.NEW_ANNOUNCEMENT
     context = {
-        "recipient_name": "User",
         "announcement_title": announcement.title,
         "announcement_text": announcement.text,
         "announcement_url": "https://onlinecif.bits-hyderabad.ac.in"
