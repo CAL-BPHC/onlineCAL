@@ -3,12 +3,12 @@
 Greetings from Central Instrumentation Facility!
 
 {% endblock %}{% block message %} {% endblock %}
-
+{% block signature %}
 Portal Link: https://onlinecif.bits-hyderabad.ac.in
 
 Regards,
 Central Instrumentation Facility
 BITS Pilani Hyderabad Campus
-
+{% endblock %}
 Note: This is a system generated mail. Please do not reply to this message.
 For more information, please contact Dr. Himanshu Aggarwal (himanshu.aggarwal@hyderabad.bits-pilani.ac.in)

@@ -1,6 +1,7 @@
 {% extends 'email/base.txt' %}
 
 {% block greeting %}{% endblock %}
+{% block signature %}{% endblock %}
 
 {% block message %}{% autoescape off %}{{ announcement_text }}
 
