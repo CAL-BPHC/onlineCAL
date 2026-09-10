@@ -34,7 +34,14 @@ class EmailModel(models.Model):
                 return choice_label
         return "Other"
 
-    receiver = models.EmailField(null=True, blank=False)
+    # `receiver` is the single "To" address of a per-user email. Batched emails
+    # (announcements) have no "To" address and list their recipients in `bcc`.
+    receiver = models.EmailField(null=True, blank=True)
+    bcc = models.TextField(
+        blank=True,
+        default="",
+        help_text="Comma-separated BCC recipients of a batched email",
+    )
     date_time = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
     text_html = models.TextField()
@@ -57,8 +64,18 @@ class EmailModel(models.Model):
     def short_id(self):
         return self.subject
 
+    @property
+    def bcc_list(self):
+        return [address.strip() for address in self.bcc.split(",") if address.strip()]
+
+    @property
+    def recipient_count(self):
+        return (1 if self.receiver else 0) + len(self.bcc_list)
+
     def __str__(self):
-        return "{} : {}".format(self.subject, self.receiver)
+        if self.receiver:
+            return "{} : {}".format(self.subject, self.receiver)
+        return "{} : {} recipients".format(self.subject, self.recipient_count)
 
 
 class FailedEmailAttempt(Exception):
