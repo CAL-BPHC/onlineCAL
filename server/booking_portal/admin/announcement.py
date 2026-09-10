@@ -19,6 +19,7 @@ def queue_announcement_emails(announcement):
     context = {
         "recipient_name": "User",
         "announcement_title": announcement.title,
+        "announcement_text": announcement.text,
         "announcement_url": "https://onlinecif.bits-hyderabad.ac.in"
         + reverse("announcements"),
     }
@@ -37,7 +38,7 @@ def queue_announcement_emails(announcement):
         EmailModel(
             receiver=None,
             bcc=",".join(recipients[start : start + MAX_RECIPIENTS_PER_EMAIL]),
-            subject=EmailModel.get_subject_for_type(email_type),
+            subject=f"New CIF Announcement: {announcement.title}",
             text=text,
             text_html=text_html,
             sent=False,

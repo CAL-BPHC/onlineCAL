@@ -60,9 +60,55 @@ class AnnouncementEmailTestCase(TestCase):
         for email in emails:
             self.assertIsNone(email.receiver)
             self.assertFalse(email.sent)
+            self.assertEqual(email.subject, "New CIF Announcement: Maintenance")
             self.assertIn("Maintenance", email.text)
             self.assertIn("Maintenance", email.text_html)
             self.assertIn("/announcements", email.text)
+
+    def test_email_contains_the_announcement_text(self):
+        announcement = Announcement.objects.create(
+            title="R&D lab closed",
+            text="The lab is closed on Friday.\nSee https://example.com/notice & plan ahead.",
+        )
+
+        queue_announcement_emails(announcement)
+
+        email = self._announcement_emails().first()
+        self.assertEqual(email.subject, "New CIF Announcement: R&D lab closed")
+        # Plain text is sent as-is, without HTML escaping
+        self.assertIn("R&D lab closed", email.text)
+        self.assertIn(
+            "The lab is closed on Friday.\nSee https://example.com/notice & plan ahead.",
+            email.text,
+        )
+        self.assertNotIn("&amp;", email.text)
+        # HTML is escaped, line breaks become <br> and links are clickable
+        self.assertIn("R&amp;D lab closed", email.text_html)
+        self.assertIn("The lab is closed on Friday.<br>", email.text_html)
+        self.assertIn('<a href="https://example.com/notice"', email.text_html)
+        self.assertIn("&amp; plan ahead.", email.text_html)
+
+    def test_html_in_announcement_text_is_escaped_in_the_html_email(self):
+        announcement = Announcement.objects.create(
+            title="<b>Bold</b>", text="<script>alert(1)</script>"
+        )
+
+        queue_announcement_emails(announcement)
+
+        email = self._announcement_emails().first()
+        self.assertNotIn("<script>", email.text_html)
+        self.assertIn("&lt;script&gt;", email.text_html)
+        self.assertIn("&lt;b&gt;Bold&lt;/b&gt;", email.text_html)
+
+    def test_long_title_fits_in_the_subject(self):
+        title = "x" * 100  # Announcement.title max_length
+        announcement = Announcement.objects.create(title=title, text="...")
+
+        queue_announcement_emails(announcement)
+
+        email = self._announcement_emails().first()
+        email.full_clean(exclude=["receiver"])
+        self.assertEqual(email.subject, f"New CIF Announcement: {title}")
 
     def test_adding_an_announcement_in_admin_queues_batched_emails(self):
         admin_user = CustomUser.objects.create_superuser(

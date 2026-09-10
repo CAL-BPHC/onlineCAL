@@ -1,5 +1,9 @@
 {% extends 'email/base.txt' %}
 
-{% block message %}A new announcement was posted on the CIF Online Portal.
-The title of the announcement is "{{ announcement_title }}".
-You can read the announcement here: {{ announcement_url }}{% endblock %}
+{% block message %}{% autoescape off %}A new announcement was posted on the CIF Online Portal.
+
+{{ announcement_title }}
+
+{{ announcement_text }}
+
+You can also read the announcement here: {{ announcement_url }}{% endautoescape %}{% endblock %}
