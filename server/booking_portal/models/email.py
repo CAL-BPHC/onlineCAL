@@ -45,7 +45,7 @@ class EmailModel(models.Model):
     date_time = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
     text_html = models.TextField()
-    subject = models.CharField(max_length=100, null=True)
+    subject = models.CharField(max_length=255, null=True)
     sent = models.BooleanField()
     email_type = models.CharField(
         max_length=50,

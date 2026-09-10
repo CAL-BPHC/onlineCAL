@@ -1,14 +1,14 @@
-<p>Dear {{ recipient_name }},</p>
+{% block greeting %}<p>Dear {{ recipient_name }},</p>
 
 <p>Greetings from Central Instrumentation Facility! </p>
 
-<p>{% block message %} {% endblock %}</p>
-<p>Portal Link: <a href="https://onlinecif.bits-hyderabad.ac.in">https://onlinecif.bits-hyderabad.ac.in</a></p>
+{% endblock %}<p>{% block message %} {% endblock %}</p>
+{% block signature %}<p>Portal Link: <a href="https://onlinecif.bits-hyderabad.ac.in">https://onlinecif.bits-hyderabad.ac.in</a></p>
 <p>Regards,<br>
 Central Instrumentation Facility<br>
 BITS Pilani Hyderabad Campus
 </p>
-<p>
+{% endblock %}<p>
 <strong><small><i>Note: This is a system generated mail. Please do not reply to this message.<br>
 For more information, please contact <a href='mailto:himanshu.aggarwal@hyderabad.bits-pilani.ac.in'> Dr
 Himanshu Aggarwal</a> </i> </small></strong>
