@@ -7,6 +7,7 @@ from .base import UserDetailsForm, UserRemarkForm
 class XPSForm(UserDetailsForm, UserRemarkForm):
     title = "XPS-Thermo Scientific K-Alpha"
     subtitle = "XPS-Thermo Scientific K-Alpha"
+    max_samples = 4
     help_text = """
     <b>Please provide any other information in other remarks (eg. toxic samples) </b><br>
         <b>Mention any volatile elements like I, S, Hg</b>

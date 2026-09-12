@@ -7,6 +7,7 @@ from .base import UserDetailsForm, UserRemarkForm
 class BETForm(UserDetailsForm, UserRemarkForm):
     title = "Brunauer-Emmett-Teller"
     subtitle = "Brunauer-Emmett-Teller (BET), Microtrac Bel BEL-SORP mini II"
+    max_samples = 3
     help_text = """
     <b>Please provide any other information in other remarks (eg. toxic samples) </b>
     """
