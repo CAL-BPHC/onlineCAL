@@ -1085,6 +1085,10 @@ class ConfocalRamanSpectrometer(UserDetail, UserRemark):
 
     # validate that scan_range_end is greater than scan_range_start
     def clean(self):
+        # A blank scan range is already a "this field is required" error on the
+        # form; comparing the two Nones here would crash before it is shown.
+        if self.scan_range_start is None or self.scan_range_end is None:
+            return
         if self.scan_range_end <= self.scan_range_start:
             raise ValidationError(
                 {

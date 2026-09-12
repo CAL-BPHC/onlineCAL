@@ -7,6 +7,7 @@ from .base import UserDetailsForm, UserRemarkForm
 class QuantachromeForm(UserDetailsForm, UserRemarkForm):
     title = "Quantachrome(Anton Paar), autosorb iQ"
     subtitle = "Quantachrome (Anton Paar), autosorb iQ"
+    max_samples = 2
     help_text = """
     <b>Please provide any other information in other remarks (eg. toxic samples) </b>
     """

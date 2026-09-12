@@ -7,6 +7,7 @@ from .base import UserDetailsForm, UserRemarkForm
 class ConfocalRamanSpectrometerForm(UserDetailsForm, UserRemarkForm):
     title = "Confocal Raman Spectrometer, OXFORD, WITec Model: Alpha300R"
     subtitle = "Confocal Raman Spectrometer"
+    max_samples = 4
     help_text = """Note: Make sure to choose the right mode while booking the instrument.
     <br><b>Please provide any other important information in other remarks (e.g. toxic samples)</b>
     """
