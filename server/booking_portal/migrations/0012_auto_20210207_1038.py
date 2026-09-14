@@ -2,19 +2,18 @@
 from datetime import datetime, timedelta
 
 from django.db import migrations, models
+from django.utils import timezone
 
 
 def calc_end_time_from_duration(apps, schema_editor):
     slot_model = apps.get_model("booking_portal", "slot")
-    now_date = datetime.now().date()
+    now_date = timezone.localdate()
 
     for slot in slot_model.objects.all():
         duration = slot.duration
         if duration:
-            duration = datetime.strptime(duration, "%H:%M:%S")
-            duration = timedelta(
-                hours=duration.hour, minutes=duration.minute, seconds=duration.second
-            )
+            hours, minutes, seconds = (int(part) for part in duration.split(":"))
+            duration = timedelta(hours=hours, minutes=minutes, seconds=seconds)
             slot.end_time = (
                 datetime.combine(now_date, slot.start_time) + duration
             ).time()
@@ -37,7 +36,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="slot",
             name="end_time",
-            field=models.TimeField(default=datetime.now().time()),
+            field=models.TimeField(default=timezone.localtime().time()),
             preserve_default=False,
         ),
         migrations.RunPython(
