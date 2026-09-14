@@ -23,12 +23,10 @@ dev = [
     "pytest>=9.0.3",
 ]
 
+[tool.ruff.lint]
+ignore = ["RUF012"]  # Django's class-level Meta lists and dicts
+
 [tool.ruff.lint.per-file-ignores]
-# RUF012 flags the class-level lists and dicts Django asks for: Meta.fields,
-# widgets and labels on forms, choice constants on models, and the
-# dependencies/operations lists in migrations.
-"server/booking_portal/{forms,models,migrations}/**" = ["RUF012"]
-"server/booking_portal/views/user/portal.py" = ["RUF012"]
 # The Django project package predates the naming rule.
 "server/onlineCAL/__init__.py" = ["N999"]
 "__init__.py" = ["F401", "F403", "F405"]
