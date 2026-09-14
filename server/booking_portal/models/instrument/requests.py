@@ -34,7 +34,8 @@ class UserDetail(models.Model):
     )
 
     def __str__(self):
-        return f"UserDetail: {_date_label(self.date)} - {self.time}"
+        # _meta reflects the concrete instrument model, e.g. "FESEM : 4 September 2026"
+        return f"{self._meta.verbose_name} : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "User Detail"
@@ -77,9 +78,6 @@ class FESEM(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return f"FESEM : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "FESEM"
         verbose_name_plural = "FESEM"
@@ -102,9 +100,6 @@ class TCSPC(UserDetail, UserRemark):
     )
     chemical_composition = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"TCSPC : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "TCSPC"
         verbose_name_plural = "TCSPC"
@@ -121,9 +116,6 @@ class FTIR(UserDetail, UserRemark):
         ],
     )
     solvent = models.CharField(max_length=75)
-
-    def __str__(self):
-        return f"FTIR : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "FTIR"
@@ -146,9 +138,6 @@ class LCMS(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return f"LCMS : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "LCMS"
         verbose_name_plural = "LCMS"
@@ -164,9 +153,6 @@ class Rheometer(UserDetail, UserRemark):
     )
     analysis_required = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"Rheometer : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "Rheometer"
         verbose_name_plural = "Rheometer"
@@ -175,9 +161,6 @@ class Rheometer(UserDetail, UserRemark):
 class AAS(UserDetail, UserRemark):
     sample_code = models.CharField(max_length=75)
     elements = models.CharField(max_length=75)
-
-    def __str__(self):
-        return f"AAS : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "AAS"
@@ -207,9 +190,6 @@ class TGA(UserDetail, UserRemark):
     heating_rate = models.CharField(max_length=75)
     sample_solubility = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"TGA : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "TGA"
         verbose_name_plural = "TGA"
@@ -221,9 +201,6 @@ class BET(UserDetail, UserRemark):
     precautions = models.CharField(max_length=75)
     adsorption = models.CharField(max_length=75)
     surface_area = models.CharField(max_length=75)
-
-    def __str__(self):
-        return f"BET : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "BET"
@@ -241,9 +218,6 @@ class CDSpectrophotometer(UserDetail, UserRemark):
     concentration = models.CharField(max_length=75)
     cell_path_length = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"CDSpectrophotometer : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "CDSpectrophotometer"
         verbose_name_plural = "CDSpectrophotometer"
@@ -255,9 +229,6 @@ class LSCM(UserDetail, UserRemark):
     excitation_wavelength = models.CharField(max_length=75)
     emission_range = models.CharField(max_length=75)
     analysis_details = models.CharField(max_length=75)
-
-    def __str__(self):
-        return f"LSCM : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "LSCM"
@@ -282,9 +253,6 @@ class DSC(UserDetail, UserRemark):
     )
     heating_rate = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"DSC : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "DSC"
         verbose_name_plural = "DSC"
@@ -307,9 +275,6 @@ class GC(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return f"GC : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "GC"
         verbose_name_plural = "GC"
@@ -328,9 +293,6 @@ class EDXRF(UserDetail, UserRemark):
         ],
     )
     elements_present = models.CharField(max_length=75)
-
-    def __str__(self):
-        return f"EDXRF : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "EDXRF"
@@ -356,18 +318,12 @@ class HLPCBase(models.Model):
 
 
 class HPLC(UserDetail, UserRemark, HLPCBase):
-    def __str__(self):
-        return f"HPLC : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "HPLC"
         verbose_name_plural = "HPLC"
 
 
 class HPLC_FD(UserDetail, UserRemark, HLPCBase):
-    def __str__(self):
-        return f"HPLC-FD : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "HPLC-FD"
         verbose_name_plural = "HPLC-FD"
@@ -388,9 +344,6 @@ class NMR(UserDetail, UserRemark):
     experiment = models.CharField(max_length=75)
     spectral_range = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"NMR : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "NMR"
         verbose_name_plural = "NMR"
@@ -410,9 +363,6 @@ class PXRD(UserDetail, UserRemark):
     range = models.CharField(max_length=75)
     scanning_rate = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"PXRD : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "PXRD"
         verbose_name_plural = "PXRD"
@@ -430,9 +380,6 @@ class SAXS_WAXS(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return f"SAXS/WAXS : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "SAXS/WAXS"
         verbose_name_plural = "SAXS/WAXS"
@@ -449,9 +396,6 @@ class SCXRD(UserDetail, UserRemark):
             ("Mo", "Mo"),
         ],
     )
-
-    def __str__(self):
-        return f"SCXRD : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "SCXRD"
@@ -473,9 +417,6 @@ class XPS(UserDetail, UserRemark):
     analysed_elements = models.CharField(max_length=75)
     scan_details = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"XPS : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "XPS"
         verbose_name_plural = "XPS"
@@ -495,9 +436,6 @@ class UVSpectrophotometer(UserDetail, UserRemark):
     )
     wavelength = models.CharField(max_length=75)
     ordinate_mode = models.CharField(max_length=75)
-
-    def __str__(self):
-        return f"UVSpectrophotometer : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "UVSpectrophotometer"
@@ -556,9 +494,6 @@ class VSM(UserDetail, UserRemark):
     field = models.CharField(max_length=75)
     step_size = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"VSM : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "VSM"
         verbose_name_plural = "VSM"
@@ -576,9 +511,6 @@ class EPR_ESR(UserDetail, UserRemark):
     field = models.CharField(max_length=75)
     temperature_series = models.CharField(max_length=75)
 
-    def __str__(self):
-        return f"EPR/ESR : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "EPR/ESR"
         verbose_name_plural = "EPR/ESR"
@@ -588,9 +520,6 @@ class GPC(UserDetail, UserRemark):
     sample_code = models.CharField(max_length=75)
     solvent_column = models.CharField(max_length=100)
     parameters = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"GPC : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "GPC"
@@ -608,9 +537,6 @@ class CHNS(UserDetail, UserRemark):
     )
     parameters = models.CharField(max_length=100)
 
-    def __str__(self):
-        return f"CHNS : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "CHNS"
         verbose_name_plural = "CHNS"
@@ -621,9 +547,6 @@ class RT_PCR(UserDetail, UserRemark):
     slot_duration = models.CharField(max_length=75)
     fluorophore = models.CharField(max_length=75)
     strips_plate = models.CharField(max_length=75)
-
-    def __str__(self):
-        return f"RT-PCR : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "RT-PCR"
@@ -636,9 +559,6 @@ class Quantachrome(UserDetail, UserRemark):
     precautions = models.CharField(max_length=200)
     adsorption = models.CharField(max_length=75)
     surface_area_pore_size = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"Quantachrome : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "Quantachrome"
@@ -661,9 +581,6 @@ class DLS(UserDetail, UserRemark):
     solvent = models.CharField(max_length=75)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return f"DLS : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "DLS"
         verbose_name_plural = "DLS"
@@ -677,9 +594,6 @@ class BDFACS(UserDetail, UserRemark):
     analysis_cell_sorting = models.CharField(max_length=75)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return f"BD-FACS : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "BD-FACS"
         verbose_name_plural = "BD-FACS"
@@ -692,9 +606,6 @@ class ContactAngle(UserDetail, UserRemark):
     parameters = models.CharField(max_length=75)
     analysis_type = models.CharField(max_length=75)
     additional_info = models.CharField(max_length=300)
-
-    def __str__(self):
-        return f"Contact Angle : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "Contact Angle"
@@ -710,9 +621,6 @@ class DigitalPolarimeter(UserDetail, UserRemark):
     cuvette_path_length = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return f"Digital Polarimeter : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "Digital Polarimeter"
         verbose_name_plural = "Digital Polarimeter"
@@ -726,9 +634,6 @@ class Fluorolog3(UserDetail, UserRemark):
     sample_type = models.CharField(max_length=75)
     utilization_of_source = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
-
-    def __str__(self):
-        return f"Fluorolog3 : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "Fluorolog3"
@@ -744,9 +649,6 @@ class Fluoromax(UserDetail, UserRemark):
     utilization_of_source = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return f"Fluoromax : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "Fluoromax"
         verbose_name_plural = "Fluoromax"
@@ -760,9 +662,6 @@ class SpectraFluorimeter(UserDetail, UserRemark):
     sample_type = models.CharField(max_length=75)
     utilization_of_source = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
-
-    def __str__(self):
-        return f"Spectra Fluorimeter : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "Spectra Fluorimeter"
@@ -785,9 +684,6 @@ class Ultracentrifuge(UserDetail, UserRemark):
     utilization_of_rotor = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return f"Ultracentrifuge : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "Ultracentrifuge"
         verbose_name_plural = "Ultracentrifuge"
@@ -798,9 +694,6 @@ class FreezeDryer(UserDetail, UserRemark):
     solvent = models.CharField(max_length=75)
     freezing_point = models.CharField(max_length=75)
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
-
-    def __str__(self):
-        return f"Freeze Dryer : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "Freeze Dryer"
@@ -818,9 +711,6 @@ class TubularMuffleFurnace(UserDetail, UserRemark):
     )
     temperature = models.IntegerField()
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
-
-    def __str__(self):
-        return f"Tubular/Muffle Furnace : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "Tubular/Muffle Furnace"
@@ -852,9 +742,6 @@ class AFM(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return f"AFM : {_date_label(self.date)}"
-
     class Meta:
         verbose_name = "AFM"
         verbose_name_plural = "AFM"
@@ -866,9 +753,6 @@ class ICPMS(UserDetail, UserRemark):
     target_elements_concentration = models.IntegerField(
         validators=[MaxValueValidator(200), MinValueValidator(1)]
     )
-
-    def __str__(self):
-        return f"ICP-MS : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "ICP-MS"
@@ -900,9 +784,6 @@ class ConfocalRamanSpectrometer(UserDetail, UserRemark):
                     "scan_range_end": "Scan range end must be greater than scan range start."
                 }
             )
-
-    def __str__(self):
-        return f"Confocal Raman Spectrometer : {_date_label(self.date)}"
 
     class Meta:
         verbose_name = "Confocal Raman Spectrometer"
