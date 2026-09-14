@@ -299,21 +299,13 @@ def show_application_student(request, id):
 
     # Check if Faculty and Assistant remarks are filled once, if yes
     # then these are made read-only
+    user_type = get_user_type(request.user)
     for field_val in form_object.fields:
         form_field_value = form_object[field_val].value()
         if (
-            (
-                field_val == "faculty_remarks"
-                and get_user_type(request.user) == "faculty"
-            )
-            or (
-                field_val == "lab_assistant_remarks"
-                and get_user_type(request.user) == "assistant"
-            )
-            or (
-                field_val == "department_remarks"
-                and get_user_type(request.user) == "department"
-            )
+            (field_val == "faculty_remarks" and user_type == "faculty")
+            or (field_val == "lab_assistant_remarks" and user_type == "assistant")
+            or (field_val == "department_remarks" and user_type == "department")
         ) and form_field_value is None:
             form_object.fields[field_val].widget.attrs["readonly"] = False
 
@@ -324,7 +316,6 @@ def show_application_student(request, id):
         if field_val.startswith("conditional_quantity"):
             form_object.fields[field_val].widget.attrs["style"] = ""
 
-    user_type = get_user_type(request.user)
     remark_field = _editable_remark_field(user_type, form_object)
     hidden = set(SLOT_FIELDS)
     if _owns_the_decision(request.user, user_type, request_obj):
@@ -433,17 +424,12 @@ def show_application_faculty(request, id):
 
     # Check if Faculty and Assistant remarks are filled once, if yes
     # then these are made read-only
+    viewer_type = get_user_type(request.user)
     for field_val in form_object.fields:
         form_field_value = form_object[field_val].value()
         if (
-            (
-                field_val == "lab_assistant_remarks"
-                and get_user_type(request.user) == "assistant"
-            )
-            or (
-                field_val == "department_remarks"
-                and get_user_type(request.user) == "department"
-            )
+            (field_val == "lab_assistant_remarks" and viewer_type == "assistant")
+            or (field_val == "department_remarks" and viewer_type == "department")
         ) and form_field_value is None:
             form_object.fields[field_val].widget.attrs["readonly"] = False
 
@@ -453,7 +439,7 @@ def show_application_faculty(request, id):
 
         if field_val.startswith("conditional_quantity"):
             form_object.fields[field_val].widget.attrs["style"] = ""
-    user_type = "student" if is_faculty else get_user_type(request.user)
+    user_type = "student" if is_faculty else viewer_type
     remark_field = _editable_remark_field(user_type, form_object)
     details, remarks = _application_rows(form_object, remark_field, SLOT_FIELDS)
 

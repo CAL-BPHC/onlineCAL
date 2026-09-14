@@ -1,15 +1,10 @@
-import calendar
-
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms import ValidationError
 
-
-def _date_label(date):
-    """A booking date the way the portal prints it: 4 September 2026."""
-    return f"{date.day} {calendar.month_name[date.month]} {date.year}"
+from ..slot import date_label
 
 
 class UserDetail(models.Model):
@@ -34,8 +29,10 @@ class UserDetail(models.Model):
     )
 
     def __str__(self):
-        # _meta reflects the concrete instrument model, e.g. "FESEM : 4 September 2026"
-        return f"{self._meta.verbose_name} : {_date_label(self.date)}"
+        # _meta names the concrete instrument model ("FESEM"), or "User Detail"
+        # for rows read through the base model's own admin, where the time is
+        # what tells same-day rows apart.
+        return f"{self._meta.verbose_name} : {date_label(self.date)} - {self.time}"
 
     class Meta:
         verbose_name = "User Detail"

@@ -14,6 +14,7 @@ import os
 import os.path
 
 from django.contrib import messages
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -35,7 +36,6 @@ try:
         SECRET_KEY = f.read().strip()
 except OSError:
     try:
-        from django.core.exceptions import ImproperlyConfigured
         from django.utils.crypto import get_random_string
 
         chars = "abcdefghijklmnopqrstuvwxyz0123456789!$%&()=+-_"

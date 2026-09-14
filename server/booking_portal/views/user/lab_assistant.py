@@ -2,6 +2,7 @@ import logging
 from typing import cast
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import redirect, render
@@ -94,6 +95,8 @@ def lab_assistant_accept(request, id):
                     "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
                 )
             )
+    except ObjectDoesNotExist:
+        raise Http404("Page Not Found")
     except Exception:
         logger.exception("Lab assistant could not accept request %s", id)
         raise Http404("Page Not Found")
@@ -125,6 +128,8 @@ def lab_assistant_reject(request, id):
                     "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
                 )
             )
+    except ObjectDoesNotExist:
+        raise Http404("Page Not Found")
     except Exception:
         logger.exception("Lab assistant could not reject request %s", id)
         raise Http404("Page Not Found")

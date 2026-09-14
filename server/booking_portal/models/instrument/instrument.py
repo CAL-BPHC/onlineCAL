@@ -28,7 +28,8 @@ class InstrumentManager(models.Manager):
                 slot__date__lte=end_date,
                 status=StudentRequest.APPROVED,
             ).select_related("slot")
-            approved_count = requests.count()
+            requests = list(requests)
+            approved_count = len(requests)
 
             # Calculate the total utilisation for the instrument
             utilisation = datetime.timedelta()

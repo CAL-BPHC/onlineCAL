@@ -99,6 +99,11 @@ class SlotManager(models.Manager):
         return None, None
 
 
+def date_label(date):
+    """A date the way the portal prints it: 4 September 2026."""
+    return f"{date.day} {calendar.month_name[date.month]} {date.year}"
+
+
 class Slot(models.Model):
     STATUS_1 = "S1"
     STATUS_2 = "S2"
@@ -155,7 +160,7 @@ class Slot(models.Model):
     @property
     def description(self):
         return (
-            f"{self.date.day} {calendar.month_name[self.date.month]} {self.date.year}"
+            f"{date_label(self.date)}"
             f" - {self.start_time} to {self.end_time}"
             f" (Duration: {self.duration_verbose})"
         )

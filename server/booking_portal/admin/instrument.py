@@ -32,17 +32,28 @@ class InstrumentAdmin(admin.ModelAdmin):
         return bool(request.user.is_superuser)
 
     @staticmethod
+    def _selected_instruments(request):
+        """The instruments named by ?instruments=1,2,3, or None if it is malformed."""
+        ids = request.GET.get("instruments", "").split(",")
+        try:
+            return Instrument.objects.filter(pk__in=ids)
+        except (ValueError, ValidationError):
+            return None
+
+    @staticmethod
+    def _back_to_changelist(request):
+        messages.error(request, "Invalid instruments")
+        opts = Instrument._meta
+        return redirect(reverse(f"admin:{opts.app_label}_{opts.model_name}_changelist"))
+
+    @staticmethod
     @user_passes_test(
         lambda u: u.is_authenticated and (u.role == "PORTAL_ADMIN" or u.is_superuser)
     )
     def instrument_usage_report_form(request):
-        app_label, model_name = Instrument._meta.app_label, Instrument._meta.model_name
-        instruments = request.GET.get("instruments", "")
-        try:
-            instruments = Instrument.objects.filter(pk__in=instruments.split(","))
-        except (ValueError, ValidationError):
-            messages.error(request, "Invalid instruments")
-            return redirect(reverse(f"admin:{app_label}_{model_name}_changelist"))
+        instruments = InstrumentAdmin._selected_instruments(request)
+        if instruments is None:
+            return InstrumentAdmin._back_to_changelist(request)
 
         if request.method == "POST":
             form = UtilisationReportForm(request.POST)
@@ -74,13 +85,9 @@ class InstrumentAdmin(admin.ModelAdmin):
             or request.user.is_superuser
         ):
             raise PermissionDenied
-        app_label, model_name = Instrument._meta.app_label, Instrument._meta.model_name
-        instruments = request.GET.get("instruments", "")
-        try:
-            instruments = Instrument.objects.filter(pk__in=instruments.split(","))
-        except (ValueError, ValidationError):
-            messages.error(request, "Invalid instruments")
-            return redirect(reverse(f"admin:{app_label}_{model_name}_changelist"))
+        instruments = InstrumentAdmin._selected_instruments(request)
+        if instruments is None:
+            return InstrumentAdmin._back_to_changelist(request)
 
         if request.method == "POST":
             form = UtilisationReportForm(request.POST)

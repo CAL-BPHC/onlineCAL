@@ -1,5 +1,3 @@
-import datetime
-
 from django.contrib import admin, messages
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect, render
@@ -49,17 +47,6 @@ class SlotAdmin(admin.ModelAdmin):
     # 'Add Slot' button is only visible to the admin
     def has_add_permission(self, request):
         return bool(request.user.is_superuser)
-
-    @staticmethod
-    def time_left(current, end, duration):
-        """Checks if a slot can be made with `current time` and
-        `duration` before the `end time`"""
-        anchor = datetime.date.min  # cancels out; only the two times matter
-        diff = datetime.datetime.combine(anchor, end) - datetime.datetime.combine(
-            anchor, current
-        )
-
-        return diff >= duration
 
     def get_urls(self):
         urls = super().get_urls()
