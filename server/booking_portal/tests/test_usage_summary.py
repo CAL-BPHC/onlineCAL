@@ -1,6 +1,7 @@
 import datetime
 
 from django.test import Client, TestCase
+from django.utils import timezone
 
 from .. import reporting
 from ..factories import FacultyFactory, InstrumentFactory, StudentFactory
@@ -383,7 +384,7 @@ class RequestActionTestCase(RequestBuilderMixin, TestCase):
         request onward rather than marking it used. The queue must.
         """
         request = self.make_request(
-            StudentRequest.WAITING_FOR_FACULTY, datetime.date.today(), hours=2
+            StudentRequest.WAITING_FOR_FACULTY, timezone.localdate(), hours=2
         )
         before = self.client.get("/faculty/usage-summary", {"preset": "this_fy"}).json()
 

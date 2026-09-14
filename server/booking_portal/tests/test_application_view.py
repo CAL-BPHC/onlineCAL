@@ -2,6 +2,7 @@ import datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import Client, TestCase
+from django.utils import timezone
 
 from ..factories import (
     FacultyFactory,
@@ -311,7 +312,7 @@ class FillInFormTestCase(TestCase):
         self.instrument = InstrumentFactory(name="FTIR", pk=self.instrument_id)
         self.slot = Slot.objects.create(
             instrument=self.instrument,
-            date=datetime.date.today() + datetime.timedelta(days=3),
+            date=timezone.localdate() + datetime.timedelta(days=3),
             start_time=datetime.time(9),
             end_time=datetime.time(11),
             status=Slot.STATUS_1,

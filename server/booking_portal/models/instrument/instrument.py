@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 from ..request import StudentRequest
 from ..slot import Slot
@@ -27,7 +28,8 @@ class InstrumentManager(models.Manager):
                 slot__date__lte=end_date,
                 status=StudentRequest.APPROVED,
             ).select_related("slot")
-            approved_count = requests.count()
+            requests = list(requests)
+            approved_count = len(requests)
 
             # Calculate the total utilisation for the instrument
             utilisation = datetime.timedelta()
@@ -39,8 +41,7 @@ class InstrumentManager(models.Manager):
             row = {
                 "Instrument Name": instr.name,
                 "Approved Bookings": approved_count,
-                "Total Utilisation (hours:minutes)": "%s:%s"
-                % (int(util_hours), int(util_minutes)),
+                "Total Utilisation (hours:minutes)": f"{int(util_hours)}:{int(util_minutes):02d}",
             }
             writer.writerow(row)
 
@@ -74,7 +75,7 @@ def handle_requests(sender, instance, **kwargs):
     if instance.status:
         for slot in Slot.objects.filter(
             instrument=instance,
-            date__gte=datetime.datetime.today(),
+            date__gte=timezone.localdate(),
             status=Slot.STATUS_4,
         ):
             slot.status = Slot.STATUS_1
@@ -83,13 +84,13 @@ def handle_requests(sender, instance, **kwargs):
         slot_objects = Slot.objects.filter(
             ~(Q(status=Slot.STATUS_4)),
             instrument=instance,
-            date__gte=datetime.datetime.today(),
+            date__gte=timezone.localdate(),
         )
 
         req_objects = StudentRequest.objects.filter(
             ~(Q(status=StudentRequest.REJECTED) | Q(status=StudentRequest.CANCELLED)),
             instrument=instance,
-            slot__date__gte=datetime.datetime.today(),
+            slot__date__gte=timezone.localdate(),
         )
 
         for slot in slot_objects:

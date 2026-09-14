@@ -23,6 +23,11 @@ dev = [
     "pytest>=9.0.3",
 ]
 
+[tool.ruff.lint]
+ignore = ["RUF012"]  # Django's class-level Meta lists and dicts
+
 [tool.ruff.lint.per-file-ignores]
+# The Django project package predates the naming rule.
+"server/onlineCAL/__init__.py" = ["N999"]
 "__init__.py" = ["F401", "F403", "F405"]
 "server/booking_portal/config.py" = ["F403", "F405"]

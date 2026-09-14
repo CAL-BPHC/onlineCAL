@@ -1,3 +1,7 @@
+from django import forms
+from django.contrib.contenttypes.models import ContentType
+from django.core.validators import MaxValueValidator
+
 from booking_portal.models import (
     AdditionalPricingRules,
     CustomUser,
@@ -7,14 +11,11 @@ from booking_portal.models import (
     UserDetail,
     UserRemark,
 )
-from django import forms
-from django.contrib.contenttypes.models import ContentType
-from django.core.validators import MaxValueValidator
 
 
 class MyModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj: CustomUser):
-        return "{} ({})".format(obj.name, obj.email)
+        return f"{obj.name} ({obj.email})"
 
 
 class UserDetailsForm(forms.ModelForm):
@@ -44,7 +45,7 @@ class UserDetailsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         is_faculty = kwargs.pop("is_faculty", False)
-        super(UserDetailsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["user_name"].widget.attrs["disabled"] = True
         self.fields["sup_name"].widget.attrs["disabled"] = True
         self.fields["time"].widget.attrs["disabled"] = True

@@ -74,8 +74,8 @@ class EmailModel(models.Model):
 
     def __str__(self):
         if self.receiver:
-            return "{} : {}".format(self.subject, self.receiver)
-        return "{} : {} recipients".format(self.subject, self.recipient_count)
+            return f"{self.subject} : {self.receiver}"
+        return f"{self.subject} : {self.recipient_count} recipients"
 
 
 class FailedEmailAttempt(Exception):

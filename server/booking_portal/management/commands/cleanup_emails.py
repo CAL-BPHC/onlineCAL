@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand
-from django.utils.timezone import now
+from django.utils.timezone import localdate
 
 from ...models.email import EmailModel
 
@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = "Delete all EmailModel records up to one month ago with email_type 'new_announcement'"
 
     def handle(self, *args, **options):
-        cutoff_date = now().date() - timedelta(days=30)
+        cutoff_date = localdate() - timedelta(days=30)
 
         # Delete emails that are:
         # - marked as sent

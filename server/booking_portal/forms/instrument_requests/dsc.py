@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import DSC
 from django import forms
+
+from booking_portal.models.instrument.requests import DSC
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -31,55 +32,51 @@ class DSCForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "chemical_composition": "Chemical Composition",
-                "sample_amount": "Amount of Sample / mg",
-                "heating_program": "Heating Program (dynamic / isothermal)",
-                "temp_range": "Temperature Range (in degree celsius)",
-                "atmosphere": "Atmosphere (N2, Ar, Air)",
-                "heating_rate": "Heating Rate / C min^-1",
-            },
+            sample_code="Sample Code",
+            chemical_composition="Chemical Composition",
+            sample_amount="Amount of Sample / mg",
+            heating_program="Heating Program (dynamic / isothermal)",
+            temp_range="Temperature Range (in degree celsius)",
+            atmosphere="Atmosphere (N2, Ar, Air)",
+            heating_rate="Heating Rate / C min^-1",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "chemical_composition": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_amount": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "heating_program": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "temp_range": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "atmosphere": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "heating_rate": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            chemical_composition=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_amount=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            heating_program=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            temp_range=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            atmosphere=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            heating_rate=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import FTIR
 from django import forms
+
+from booking_portal.models.instrument.requests import FTIR
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -26,37 +27,33 @@ class FTIRForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "composition": "Composition",
-                "state": "Solid / Liquid",
-                "solvent": "Solvent Used (if any)",
-            },
+            sample_code="Sample Code",
+            composition="Composition",
+            state="Solid / Liquid",
+            solvent="Solvent Used (if any)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "composition": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "state": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "solvent": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            composition=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            state=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            solvent=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

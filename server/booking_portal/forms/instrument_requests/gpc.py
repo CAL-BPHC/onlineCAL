@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import GPC
 from django import forms
+
+from booking_portal.models.instrument.requests import GPC
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -26,31 +27,27 @@ class GPCForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Codes",
-                "solvent_column": "Solvent and Column",
-                "parameters": "Parameters(Flow rate,Column conditions)",
-            },
+            sample_code="Sample Codes",
+            solvent_column="Solvent and Column",
+            parameters="Parameters(Flow rate,Column conditions)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "solvent_column": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "parameters": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            solvent_column=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            parameters=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

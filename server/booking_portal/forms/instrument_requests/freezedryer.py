@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import FreezeDryer
 from django import forms
+
+from booking_portal.models.instrument.requests import FreezeDryer
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -30,37 +31,33 @@ class FreezeDryerForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "solvent": "Solvent",
-                "freezing_point": "Freezing Point",
-                "quantity": "Quantity (ml)",
-            },
+            sample_code="Sample Code",
+            solvent="Solvent",
+            freezing_point="Freezing Point",
+            quantity="Quantity (ml)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "solvent": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "freezing_point": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "quantity": forms.NumberInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            solvent=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            freezing_point=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            quantity=forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import ConfocalRamanSpectrometer
 from django import forms
+
+from booking_portal.models.instrument.requests import ConfocalRamanSpectrometer
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -29,43 +30,39 @@ class ConfocalRamanSpectrometerForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "sample_nature": "Powder or Film",
-                "scan_range_start": "Preferred Scan Range Start (cm⁻¹/nm)",
-                "scan_range_end": "Preferred Scan Range End (cm⁻¹/nm)",
-                "wavelength": "Wavelength of the laser to be used (nm)",
-            },
+            sample_code="Sample Code",
+            sample_nature="Powder or Film",
+            scan_range_start="Preferred Scan Range Start (cm⁻¹/nm)",
+            scan_range_end="Preferred Scan Range End (cm⁻¹/nm)",
+            wavelength="Wavelength of the laser to be used (nm)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_nature": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "scan_range_start": forms.NumberInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "scan_range_end": forms.NumberInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "wavelength": forms.NumberInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_nature=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            scan_range_start=forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            scan_range_end=forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            wavelength=forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.messages import get_messages
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from ..factories import InstrumentFactory, LabAssistantFactory
 from ..forms import BulkCreateSlotsForm
@@ -16,7 +17,7 @@ from ..models import Slot
 # window ending the next day, which the form refuses. The date stays today,
 # because the form refuses a start date in the past, rolled off Sunday, which
 # slot generation skips.
-_VALID_DATE_TIME = datetime.datetime.combine(datetime.date.today(), datetime.time(9))
+_VALID_DATE_TIME = datetime.datetime.combine(timezone.localdate(), datetime.time(9))
 if _VALID_DATE_TIME.date().weekday() == 6:
     _VALID_DATE_TIME += timedelta(days=1)
 
@@ -28,7 +29,7 @@ class OverlappingSlotTestCase(TestCase):
         self.slot = Slot.objects.create(
             instrument=instr,
             status=Slot.STATUS_1,
-            date=datetime.date.today(),
+            date=timezone.localdate(),
             start_time=self.now,
             end_time=self.now + timedelta(minutes=30),
         )
@@ -104,7 +105,7 @@ class BulkCreateSlotsFormTestCase(TestCase):
         self.form = BulkCreateSlotsForm(
             data={
                 "instrument": str(self.instr.pk),
-                "start_date": str(datetime.date.today()),
+                "start_date": str(timezone.localdate()),
                 "start_time": str(self.now.time()),
                 "end_time": str((self.now + timedelta(minutes=30)).time()),
                 "slot_duration": "30",
@@ -133,9 +134,7 @@ class BulkCreateSlotsFormTestCase(TestCase):
 
     def test_start_date_before_today(self):
         form = self.form
-        form.data["start_date"] = str(
-            (datetime.datetime.now() - timedelta(days=1)).date()
-        )
+        form.data["start_date"] = str(timezone.localdate() - timedelta(days=1))
 
         self.assertIn("start_date", form.errors)
         self.assertEqual(

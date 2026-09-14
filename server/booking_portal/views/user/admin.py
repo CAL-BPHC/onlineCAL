@@ -1,7 +1,6 @@
 import json
 from http import HTTPStatus
 
-from booking_portal.models import Department, Faculty, Student
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
@@ -9,6 +8,8 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
+
+from booking_portal.models import Department, Faculty, Student
 
 
 @login_required

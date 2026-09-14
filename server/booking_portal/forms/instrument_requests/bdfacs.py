@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import BDFACS
 from django import forms
+
+from booking_portal.models.instrument.requests import BDFACS
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -32,49 +33,45 @@ inform Technical staff before and after the analysis.</b>
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_codes": "Sample Codes",
-                "slot_duration": "Slot Duration(4hr)",
-                "lasers": "Lasers",
-                "excitation_emission": "Excitation / Emission",
-                "analysis_cell_sorting": "Analysis / Cell Sorting",
-                "additional_info": "Any remarks",
-            },
+            sample_codes="Sample Codes",
+            slot_duration="Slot Duration(4hr)",
+            lasers="Lasers",
+            excitation_emission="Excitation / Emission",
+            analysis_cell_sorting="Analysis / Cell Sorting",
+            additional_info="Any remarks",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_codes": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "slot_duration": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "lasers": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "excitation_emission": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "analysis_cell_sorting": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "additional_info": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_codes=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            slot_duration=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            lasers=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            excitation_emission=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            analysis_cell_sorting=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            additional_info=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

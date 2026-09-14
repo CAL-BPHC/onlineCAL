@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import NMR
 from django import forms
+
+from booking_portal.models.instrument.requests import NMR
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -30,56 +31,52 @@ class NMRForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "sample_nature": "Nature of Sample (Solid or Liquid)",
-                "quantity": "Quantity (in mg)",
-                "solvent": "Solvent for NMR",
-                "analysis": "NMR Analysis (Nuclei)",
-                "experiment": "2D-NMR Experiment (if any)",
-                "spectral_range": "Plotting spectral range in ppm (if any)",
-            },
+            sample_code="Sample Code",
+            sample_nature="Nature of Sample (Solid or Liquid)",
+            quantity="Quantity (in mg)",
+            solvent="Solvent for NMR",
+            analysis="NMR Analysis (Nuclei)",
+            experiment="2D-NMR Experiment (if any)",
+            spectral_range="Plotting spectral range in ppm (if any)",
         )
 
         UserDetailsForm.Meta.widgets.update()
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_nature": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "quantity": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "solvent": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "analysis": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "experiment": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "spectral_range": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_nature=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            quantity=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            solvent=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            analysis=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            experiment=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            spectral_range=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

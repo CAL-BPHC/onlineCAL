@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import GC
 from django import forms
+
+from booking_portal.models.instrument.requests import GC
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -32,61 +33,57 @@ class GCForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "appearance": "Color and Appearance",
-                "no_of_gc_peaks": "No. of GC Peaks",
-                "solvent_solubility": "Solvent Solubility",
-                "column_details": "Column Details",
-                "exp_mol_wt": "Exp. Mol. Wt.",
-                "mp_bp": "MP / BP (C)",
-                "sample_source": "Sample Source (Natural/ Synthesis/ Waste)",
-            },
+            sample_code="Sample Code",
+            appearance="Color and Appearance",
+            no_of_gc_peaks="No. of GC Peaks",
+            solvent_solubility="Solvent Solubility",
+            column_details="Column Details",
+            exp_mol_wt="Exp. Mol. Wt.",
+            mp_bp="MP / BP (C)",
+            sample_source="Sample Source (Natural/ Synthesis/ Waste)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "appearance": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "no_of_gc_peaks": forms.NumberInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "solvent_solubility": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "column_details": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "exp_mol_wt": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "mp_bp": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_source": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            appearance=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            no_of_gc_peaks=forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            solvent_solubility=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            column_details=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            exp_mol_wt=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            mp_bp=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_source=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

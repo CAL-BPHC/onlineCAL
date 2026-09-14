@@ -2,7 +2,7 @@ import datetime
 from typing import cast
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Model
 from django.forms import ModelChoiceField
 from django.http import Http404
@@ -22,7 +22,6 @@ from ..models import (
 )
 from ..permissions import get_user_type, is_department, is_faculty, is_lab_assistant
 from .user.portal import safe_portal_url
-
 
 # The remark fields are read as a group at the end of an application rather
 # than inline with the sample details.
@@ -234,7 +233,7 @@ def index(request):
 def show_application_student(request, id):
     try:
         request_obj: StudentRequest = StudentRequest.objects.get(id=id)
-    except Exception:
+    except ObjectDoesNotExist:
         raise Http404()
     if not _may_read_application(request.user, request_obj):
         raise Http404()
@@ -286,7 +285,7 @@ def show_application_student(request, id):
             form_object.fields[f"additional_charge_{charge_id}"].label = charge_data[
                 "description"
             ]
-        elif not rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
+        elif rule_type != AdditionalPricingRules.CONDITIONAL_FIELD:
             form_object.fields[
                 f"additional_charge_{charge_id}"
             ].label = f"{charge_data['description']} - Rs {charge_data['cost']}"
@@ -300,21 +299,13 @@ def show_application_student(request, id):
 
     # Check if Faculty and Assistant remarks are filled once, if yes
     # then these are made read-only
-    for field_val, val in form_object.fields.items():
+    user_type = get_user_type(request.user)
+    for field_val in form_object.fields:
         form_field_value = form_object[field_val].value()
         if (
-            (
-                field_val == "faculty_remarks"
-                and get_user_type(request.user) == "faculty"
-            )
-            or (
-                field_val == "lab_assistant_remarks"
-                and get_user_type(request.user) == "assistant"
-            )
-            or (
-                field_val == "department_remarks"
-                and get_user_type(request.user) == "department"
-            )
+            (field_val == "faculty_remarks" and user_type == "faculty")
+            or (field_val == "lab_assistant_remarks" and user_type == "assistant")
+            or (field_val == "department_remarks" and user_type == "department")
         ) and form_field_value is None:
             form_object.fields[field_val].widget.attrs["readonly"] = False
 
@@ -325,7 +316,6 @@ def show_application_student(request, id):
         if field_val.startswith("conditional_quantity"):
             form_object.fields[field_val].widget.attrs["style"] = ""
 
-    user_type = get_user_type(request.user)
     remark_field = _editable_remark_field(user_type, form_object)
     hidden = set(SLOT_FIELDS)
     if _owns_the_decision(request.user, user_type, request_obj):
@@ -367,7 +357,7 @@ def show_application_faculty(request, id):
     is_faculty = Faculty.objects.filter(id=request.user.id).exists()
     try:
         request_obj: FacultyRequest = FacultyRequest.objects.get(id=id)
-    except Exception:
+    except ObjectDoesNotExist:
         raise Http404()
     if not _may_read_application(request.user, request_obj):
         raise Http404()
@@ -420,7 +410,7 @@ def show_application_faculty(request, id):
             form_object.fields[f"additional_charge_{charge_id}"].label = charge_data[
                 "description"
             ]
-        elif not rule_type == AdditionalPricingRules.CONDITIONAL_FIELD:
+        elif rule_type != AdditionalPricingRules.CONDITIONAL_FIELD:
             form_object.fields[
                 f"additional_charge_{charge_id}"
             ].label = f"{charge_data['description']} - Rs {charge_data['cost']}"
@@ -434,17 +424,12 @@ def show_application_faculty(request, id):
 
     # Check if Faculty and Assistant remarks are filled once, if yes
     # then these are made read-only
-    for field_val, val in form_object.fields.items():
+    viewer_type = get_user_type(request.user)
+    for field_val in form_object.fields:
         form_field_value = form_object[field_val].value()
         if (
-            (
-                field_val == "lab_assistant_remarks"
-                and get_user_type(request.user) == "assistant"
-            )
-            or (
-                field_val == "department_remarks"
-                and get_user_type(request.user) == "department"
-            )
+            (field_val == "lab_assistant_remarks" and viewer_type == "assistant")
+            or (field_val == "department_remarks" and viewer_type == "department")
         ) and form_field_value is None:
             form_object.fields[field_val].widget.attrs["readonly"] = False
 
@@ -454,7 +439,7 @@ def show_application_faculty(request, id):
 
         if field_val.startswith("conditional_quantity"):
             form_object.fields[field_val].widget.attrs["style"] = ""
-    user_type = "student" if is_faculty else get_user_type(request.user)
+    user_type = "student" if is_faculty else viewer_type
     remark_field = _editable_remark_field(user_type, form_object)
     details, remarks = _application_rows(form_object, remark_field, SLOT_FIELDS)
 
@@ -513,7 +498,7 @@ def add_remarks(request, id):
             request_obj = FacultyRequest.objects.get(id=id)
         else:
             request_obj = StudentRequest.objects.get(id=id)
-    except Exception:
+    except ObjectDoesNotExist:
         raise Http404()
     # a remark belongs to the reviewer whose request this is
     if not _may_read_application(request.user, request_obj):

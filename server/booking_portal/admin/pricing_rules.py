@@ -1,5 +1,6 @@
-from booking_portal.models import CustomUser
 from django.contrib import admin
+
+from booking_portal.models import CustomUser
 
 
 class ModePricingRulesAdmin(admin.ModelAdmin):

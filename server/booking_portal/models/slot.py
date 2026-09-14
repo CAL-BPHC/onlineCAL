@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import calendar
 import datetime
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.db.models import Q
@@ -15,12 +15,12 @@ class SlotManager(models.Manager):
     @staticmethod
     def get_valid_slot_days(
         start_date: datetime.date, day_count: int
-    ) -> List[datetime.date]:
+    ) -> list[datetime.date]:
         # get the next `num_of_days`, skipping sundays
         next_days = [
-            start_date + datetime.timedelta(days=var) for var in range(0, day_count)
+            start_date + datetime.timedelta(days=var) for var in range(day_count)
         ]
-        return [day for day in next_days if not day.weekday() == 6]
+        return [day for day in next_days if day.weekday() != 6]
 
     def is_slot_overlapping(self, slot: Slot) -> bool:
         q = (
@@ -56,7 +56,7 @@ class SlotManager(models.Manager):
         end_time: datetime.time,
         duration: datetime.timedelta,
         day_count: int,
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         next_days = SlotManager.get_valid_slot_days(start_date, day_count)
 
         all_slots = {}
@@ -99,6 +99,11 @@ class SlotManager(models.Manager):
         return None, None
 
 
+def date_label(date):
+    """A date the way the portal prints it: 4 September 2026."""
+    return f"{date.day} {calendar.month_name[date.month]} {date.year}"
+
+
 class Slot(models.Model):
     STATUS_1 = "S1"
     STATUS_2 = "S2"
@@ -138,29 +143,27 @@ class Slot(models.Model):
 
     @property
     def duration(self):
-        now_date = datetime.datetime.now().date()
-        end_datetime = datetime.datetime.combine(now_date, self.end_time)
-        start_datetime = datetime.datetime.combine(now_date, self.start_time)
+        # the anchor date cancels out; only the two times matter
+        anchor = datetime.date.min
+        end_datetime = datetime.datetime.combine(anchor, self.end_time)
+        start_datetime = datetime.datetime.combine(anchor, self.start_time)
         return end_datetime - start_datetime
 
     @property
     def duration_verbose(self):
         hours, reminder = divmod(self.duration.total_seconds(), 3600)
-        minutes, seconds = divmod(reminder, 60)
+        minutes, _seconds = divmod(reminder, 60)
         hours = f"{int(hours)} hr" if hours > 0 else ""
         minutes = f"{int(minutes)} min" if minutes > 0 else ""
-        return " ".join((hours, minutes)).strip()
+        return f"{hours} {minutes}".strip()
 
     @property
     def description(self):
-        return "{} {} {} - {} to {} (Duration: {})".format(
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-            str(self.start_time),
-            str(self.end_time),
-            self.duration_verbose,
+        return (
+            f"{date_label(self.date)}"
+            f" - {self.start_time} to {self.end_time}"
+            f" (Duration: {self.duration_verbose})"
         )
 
     def __str__(self):
-        return "{} : {}".format(self.instrument, self.description)
+        return f"{self.instrument} : {self.description}"

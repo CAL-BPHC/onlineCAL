@@ -13,7 +13,7 @@ class BookingPortalConfig(AppConfig):
         from django.utils.timezone import now
         from django_q.tasks import Schedule, schedule
 
-        date = now().date()
+        first_run = now()
 
         tasks = [
             {
@@ -21,21 +21,21 @@ class BookingPortalConfig(AppConfig):
                 "name": "Send Pending Emails",
                 "schedule_type": Schedule.MINUTES,
                 "minutes": 1,
-                "next_run": date,
+                "next_run": first_run,
                 "repeats": -1,
             },
             {
                 "args": "cleanup_empty_slots",
                 "name": "Cleanup past empty slots",
                 "schedule_type": Schedule.DAILY,
-                "next_run": date,
+                "next_run": first_run,
                 "repeats": -1,
             },
             {
                 "args": "cleanup_emails",
                 "name": "Cleanup old email objects",
                 "schedule_type": Schedule.DAILY,
-                "next_run": date,
+                "next_run": first_run,
                 "repeats": -1,
             },
         ]

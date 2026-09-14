@@ -14,6 +14,7 @@ import os
 import os.path
 
 from django.contrib import messages
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -31,8 +32,9 @@ if os.path.exists(ENV_LOCATION):
 # SECURITY CONFIGURATION
 SECRET_FILE = os.path.normpath(os.path.join(BASE_DIR, "SECRET.key"))
 try:
-    SECRET_KEY = open(SECRET_FILE).read().strip()
-except IOError:
+    with open(SECRET_FILE) as f:
+        SECRET_KEY = f.read().strip()
+except OSError:
     try:
         from django.utils.crypto import get_random_string
 
@@ -40,8 +42,10 @@ except IOError:
         SECRET_KEY = get_random_string(50, chars)
         with open(SECRET_FILE, "w") as f:
             f.write(SECRET_KEY)
-    except IOError:
-        raise Exception("Could not open %s for writing!" % SECRET_FILE)
+    except OSError as err:
+        raise ImproperlyConfigured(
+            f"Could not open {SECRET_FILE} for writing!"
+        ) from err
 
 
 # SECURITY WARNING: don't run with debug turned on in production!

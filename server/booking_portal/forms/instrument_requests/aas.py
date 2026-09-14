@@ -1,7 +1,8 @@
 """Atomic Absorption Spectroscopy"""
 
-from booking_portal.models.instrument.requests import AAS
 from django import forms
+
+from booking_portal.models.instrument.requests import AAS
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -28,25 +29,21 @@ class AASForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "elements": "Elements to be Analyzed",
-            },
+            sample_code="Sample Code",
+            elements="Elements to be Analyzed",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "elements": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            elements=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

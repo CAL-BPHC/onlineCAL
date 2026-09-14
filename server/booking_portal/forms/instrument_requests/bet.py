@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import BET
 from django import forms
+
+from booking_portal.models.instrument.requests import BET
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -29,43 +30,39 @@ class BETForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "pretreatment_conditions": "Pretreatment Conditions",
-                "precautions": "Precautions to be taken",
-                "adsorption": "N2 / CO2 Adsorption",
-                "surface_area": "Specific surface area / surface area and pore size analysis to be required",
-            },
+            sample_code="Sample Code",
+            pretreatment_conditions="Pretreatment Conditions",
+            precautions="Precautions to be taken",
+            adsorption="N2 / CO2 Adsorption",
+            surface_area="Specific surface area / surface area and pore size analysis to be required",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "pretreatment_conditions": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "precautions": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "adsorption": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "surface_area": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            pretreatment_conditions=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            precautions=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            adsorption=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            surface_area=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

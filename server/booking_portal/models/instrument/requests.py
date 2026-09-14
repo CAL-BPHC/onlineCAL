@@ -1,10 +1,10 @@
-import calendar
-
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.forms import ValidationError
+
+from ..slot import date_label
 
 
 class UserDetail(models.Model):
@@ -29,12 +29,10 @@ class UserDetail(models.Model):
     )
 
     def __str__(self):
-        return "UserDetail: {} {} {} - {}".format(
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-            str(self.time),
-        )
+        # _meta names the concrete instrument model ("FESEM"), or "User Detail"
+        # for rows read through the base model's own admin, where the time is
+        # what tells same-day rows apart.
+        return f"{self._meta.verbose_name} : {date_label(self.date)} - {self.time}"
 
     class Meta:
         verbose_name = "User Detail"
@@ -77,14 +75,6 @@ class FESEM(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "FESEM",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "FESEM"
         verbose_name_plural = "FESEM"
@@ -107,14 +97,6 @@ class TCSPC(UserDetail, UserRemark):
     )
     chemical_composition = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "TCSPC",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "TCSPC"
         verbose_name_plural = "TCSPC"
@@ -131,14 +113,6 @@ class FTIR(UserDetail, UserRemark):
         ],
     )
     solvent = models.CharField(max_length=75)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "FTIR",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "FTIR"
@@ -161,14 +135,6 @@ class LCMS(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "LCMS",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "LCMS"
         verbose_name_plural = "LCMS"
@@ -184,14 +150,6 @@ class Rheometer(UserDetail, UserRemark):
     )
     analysis_required = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Rheometer",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "Rheometer"
         verbose_name_plural = "Rheometer"
@@ -200,14 +158,6 @@ class Rheometer(UserDetail, UserRemark):
 class AAS(UserDetail, UserRemark):
     sample_code = models.CharField(max_length=75)
     elements = models.CharField(max_length=75)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "AAS",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "AAS"
@@ -237,14 +187,6 @@ class TGA(UserDetail, UserRemark):
     heating_rate = models.CharField(max_length=75)
     sample_solubility = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "TGA",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "TGA"
         verbose_name_plural = "TGA"
@@ -256,14 +198,6 @@ class BET(UserDetail, UserRemark):
     precautions = models.CharField(max_length=75)
     adsorption = models.CharField(max_length=75)
     surface_area = models.CharField(max_length=75)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "BET",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "BET"
@@ -281,14 +215,6 @@ class CDSpectrophotometer(UserDetail, UserRemark):
     concentration = models.CharField(max_length=75)
     cell_path_length = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "CDSpectrophotometer",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "CDSpectrophotometer"
         verbose_name_plural = "CDSpectrophotometer"
@@ -300,14 +226,6 @@ class LSCM(UserDetail, UserRemark):
     excitation_wavelength = models.CharField(max_length=75)
     emission_range = models.CharField(max_length=75)
     analysis_details = models.CharField(max_length=75)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "LSCM",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "LSCM"
@@ -332,14 +250,6 @@ class DSC(UserDetail, UserRemark):
     )
     heating_rate = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "DSC",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "DSC"
         verbose_name_plural = "DSC"
@@ -362,14 +272,6 @@ class GC(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "GC",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "GC"
         verbose_name_plural = "GC"
@@ -388,14 +290,6 @@ class EDXRF(UserDetail, UserRemark):
         ],
     )
     elements_present = models.CharField(max_length=75)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "EDXRF",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "EDXRF"
@@ -421,28 +315,12 @@ class HLPCBase(models.Model):
 
 
 class HPLC(UserDetail, UserRemark, HLPCBase):
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "HPLC",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "HPLC"
         verbose_name_plural = "HPLC"
 
 
 class HPLC_FD(UserDetail, UserRemark, HLPCBase):
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "HPLC-FD",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "HPLC-FD"
         verbose_name_plural = "HPLC-FD"
@@ -463,14 +341,6 @@ class NMR(UserDetail, UserRemark):
     experiment = models.CharField(max_length=75)
     spectral_range = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "NMR",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "NMR"
         verbose_name_plural = "NMR"
@@ -490,14 +360,6 @@ class PXRD(UserDetail, UserRemark):
     range = models.CharField(max_length=75)
     scanning_rate = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "PXRD",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "PXRD"
         verbose_name_plural = "PXRD"
@@ -515,14 +377,6 @@ class SAXS_WAXS(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "SAXS/WAXS",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "SAXS/WAXS"
         verbose_name_plural = "SAXS/WAXS"
@@ -539,14 +393,6 @@ class SCXRD(UserDetail, UserRemark):
             ("Mo", "Mo"),
         ],
     )
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "SCXRD",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "SCXRD"
@@ -568,14 +414,6 @@ class XPS(UserDetail, UserRemark):
     analysed_elements = models.CharField(max_length=75)
     scan_details = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "XPS",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "XPS"
         verbose_name_plural = "XPS"
@@ -595,14 +433,6 @@ class UVSpectrophotometer(UserDetail, UserRemark):
     )
     wavelength = models.CharField(max_length=75)
     ordinate_mode = models.CharField(max_length=75)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "UVSpectrophotometer",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "UVSpectrophotometer"
@@ -661,14 +491,6 @@ class VSM(UserDetail, UserRemark):
     field = models.CharField(max_length=75)
     step_size = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "VSM",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "VSM"
         verbose_name_plural = "VSM"
@@ -686,14 +508,6 @@ class EPR_ESR(UserDetail, UserRemark):
     field = models.CharField(max_length=75)
     temperature_series = models.CharField(max_length=75)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "EPR/ESR",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "EPR/ESR"
         verbose_name_plural = "EPR/ESR"
@@ -703,14 +517,6 @@ class GPC(UserDetail, UserRemark):
     sample_code = models.CharField(max_length=75)
     solvent_column = models.CharField(max_length=100)
     parameters = models.CharField(max_length=100)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "GPC",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "GPC"
@@ -728,14 +534,6 @@ class CHNS(UserDetail, UserRemark):
     )
     parameters = models.CharField(max_length=100)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "CHNS",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "CHNS"
         verbose_name_plural = "CHNS"
@@ -746,14 +544,6 @@ class RT_PCR(UserDetail, UserRemark):
     slot_duration = models.CharField(max_length=75)
     fluorophore = models.CharField(max_length=75)
     strips_plate = models.CharField(max_length=75)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "RT-PCR",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "RT-PCR"
@@ -766,14 +556,6 @@ class Quantachrome(UserDetail, UserRemark):
     precautions = models.CharField(max_length=200)
     adsorption = models.CharField(max_length=75)
     surface_area_pore_size = models.CharField(max_length=100)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Quantachrome",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "Quantachrome"
@@ -796,14 +578,6 @@ class DLS(UserDetail, UserRemark):
     solvent = models.CharField(max_length=75)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "DLS",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "DLS"
         verbose_name_plural = "DLS"
@@ -817,14 +591,6 @@ class BDFACS(UserDetail, UserRemark):
     analysis_cell_sorting = models.CharField(max_length=75)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "BD-FACS",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "BD-FACS"
         verbose_name_plural = "BD-FACS"
@@ -837,14 +603,6 @@ class ContactAngle(UserDetail, UserRemark):
     parameters = models.CharField(max_length=75)
     analysis_type = models.CharField(max_length=75)
     additional_info = models.CharField(max_length=300)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Contact Angle",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "Contact Angle"
@@ -860,14 +618,6 @@ class DigitalPolarimeter(UserDetail, UserRemark):
     cuvette_path_length = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Digital Polarimeter",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "Digital Polarimeter"
         verbose_name_plural = "Digital Polarimeter"
@@ -881,14 +631,6 @@ class Fluorolog3(UserDetail, UserRemark):
     sample_type = models.CharField(max_length=75)
     utilization_of_source = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Fluorolog3",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "Fluorolog3"
@@ -904,14 +646,6 @@ class Fluoromax(UserDetail, UserRemark):
     utilization_of_source = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Fluoromax",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "Fluoromax"
         verbose_name_plural = "Fluoromax"
@@ -925,14 +659,6 @@ class SpectraFluorimeter(UserDetail, UserRemark):
     sample_type = models.CharField(max_length=75)
     utilization_of_source = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Spectra Fluorimeter",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "Spectra Fluorimeter"
@@ -955,14 +681,6 @@ class Ultracentrifuge(UserDetail, UserRemark):
     utilization_of_rotor = models.CharField(max_length=300)
     additional_info = models.CharField(max_length=300)
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Ultracentrifuge",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "Ultracentrifuge"
         verbose_name_plural = "Ultracentrifuge"
@@ -973,14 +691,6 @@ class FreezeDryer(UserDetail, UserRemark):
     solvent = models.CharField(max_length=75)
     freezing_point = models.CharField(max_length=75)
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Freeze Dryer",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "Freeze Dryer"
@@ -998,14 +708,6 @@ class TubularMuffleFurnace(UserDetail, UserRemark):
     )
     temperature = models.IntegerField()
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Tubular/Muffle Furnace",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "Tubular/Muffle Furnace"
@@ -1037,14 +739,6 @@ class AFM(UserDetail, UserRemark):
         ],
     )
 
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "AFM",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
-
     class Meta:
         verbose_name = "AFM"
         verbose_name_plural = "AFM"
@@ -1056,14 +750,6 @@ class ICPMS(UserDetail, UserRemark):
     target_elements_concentration = models.IntegerField(
         validators=[MaxValueValidator(200), MinValueValidator(1)]
     )
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "ICP-MS",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "ICP-MS"
@@ -1095,14 +781,6 @@ class ConfocalRamanSpectrometer(UserDetail, UserRemark):
                     "scan_range_end": "Scan range end must be greater than scan range start."
                 }
             )
-
-    def __str__(self):
-        return "{} : {} {} {}".format(
-            "Confocal Raman Spectrometer",
-            str(self.date.day),
-            calendar.month_name[self.date.month],
-            str(self.date.year),
-        )
 
     class Meta:
         verbose_name = "Confocal Raman Spectrometer"

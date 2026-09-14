@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import CDSpectrophotometer
 from django import forms
+
+from booking_portal.models.instrument.requests import CDSpectrophotometer
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -34,66 +35,62 @@ class CDSpectrophotometerForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "wavelength_scan_start": "Wavalength Range - Scan - Start",
-                "wavelength_scan_end": "Wavelength Range - Scan - End",
-                "wavelength_fixed": "Wavelength Range - Fixed",
-                "temp_range_scan_start": "Temperature Range (20-70 C) - Scan - Start",
-                "temp_range_scan_end": "Temperature Range (20-70 C) - Scan - End",
-                "temp_range_fixed": "Temperature Range (20-70 C) - Fixed",
-                "concentration": "Concentration in mg/ml",
-                "cell_path_length": "Cell path length 0.1 / 0.2 / 0.5 / 1 cm",
-            },
+            sample_code="Sample Code",
+            wavelength_scan_start="Wavalength Range - Scan - Start",
+            wavelength_scan_end="Wavelength Range - Scan - End",
+            wavelength_fixed="Wavelength Range - Fixed",
+            temp_range_scan_start="Temperature Range (20-70 C) - Scan - Start",
+            temp_range_scan_end="Temperature Range (20-70 C) - Scan - End",
+            temp_range_fixed="Temperature Range (20-70 C) - Fixed",
+            concentration="Concentration in mg/ml",
+            cell_path_length="Cell path length 0.1 / 0.2 / 0.5 / 1 cm",
         )
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "wavelength_scan_start": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "wavelength_scan_end": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "wavelength_fixed": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "temp_range_scan_start": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "temp_range_scan_end": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "temp_range_fixed": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "concentration": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "cell_path_length": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            wavelength_scan_start=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            wavelength_scan_end=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            wavelength_fixed=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            temp_range_scan_start=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            temp_range_scan_end=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            temp_range_fixed=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            concentration=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            cell_path_length=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

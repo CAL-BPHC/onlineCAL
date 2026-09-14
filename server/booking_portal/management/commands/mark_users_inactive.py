@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, List, Set, Tuple
 
 from django.core.management.base import BaseCommand, CommandError
 
@@ -39,7 +39,7 @@ class Command(BaseCommand):
             )
 
         inactivated_count = 0
-        missing: List[str] = []
+        missing: list[str] = []
 
         for email in sorted(emails):
             inactivated, found = self._mark_inactive_for_email(email, dry_run)
@@ -56,8 +56,8 @@ class Command(BaseCommand):
                 self.stderr.write(f" - {email}")
 
     @staticmethod
-    def _normalize_emails(values: Iterable[str]) -> List[str]:
-        out: List[str] = []
+    def _normalize_emails(values: Iterable[str]) -> list[str]:
+        out: list[str] = []
         for v in values:
             v = (v or "").strip()
             if not v:
@@ -66,9 +66,9 @@ class Command(BaseCommand):
             out.extend(parts)
         return out
 
-    def _collect_emails(self, options) -> Set[str]:
-        emails: Set[str] = set()
-        cli_emails: List[str] = options.get("emails") or []
+    def _collect_emails(self, options) -> set[str]:
+        emails: set[str] = set()
+        cli_emails: list[str] = options.get("emails") or []
         emails.update(self._normalize_emails(cli_emails))
 
         file_path = options.get("file")
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                 emails.update(self._normalize_emails(file_emails))
         return emails
 
-    def _mark_inactive_for_email(self, email: str, dry_run: bool) -> Tuple[int, bool]:
+    def _mark_inactive_for_email(self, email: str, dry_run: bool) -> tuple[int, bool]:
         qs = CustomUser.objects.filter(email__iexact=email)
         if not qs.exists():
             return 0, False

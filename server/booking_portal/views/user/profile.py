@@ -1,6 +1,7 @@
-from booking_portal.models.user import Department, Faculty, LabAssistant, Student
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+
+from booking_portal.models.user import Department, Faculty, LabAssistant, Student
 
 
 @login_required

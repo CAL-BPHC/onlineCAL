@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import UVSpectrophotometer
 from django import forms
+
+from booking_portal.models.instrument.requests import UVSpectrophotometer
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -29,49 +30,45 @@ class UVSpectrophotometerForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "sample_composition": "Sample Composition",
-                "molucular_weight": "Molecular weight of the sample (if mode of analysis is liquid)",
-                "analysis_mode": "Mode of analysis",
-                "wavelength": "Wavelength range for analysis",
-                "ordinate_mode": "Ordinate Mode %A%T%R",
-            },
+            sample_code="Sample Code",
+            sample_composition="Sample Composition",
+            molucular_weight="Molecular weight of the sample (if mode of analysis is liquid)",
+            analysis_mode="Mode of analysis",
+            wavelength="Wavelength range for analysis",
+            ordinate_mode="Ordinate Mode %A%T%R",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_composition": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "molecular_weight": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "analysis_mode": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "wavelength": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "ordinate_mode": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_composition=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            molecular_weight=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            analysis_mode=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            wavelength=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            ordinate_mode=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

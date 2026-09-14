@@ -16,7 +16,7 @@ def main():
             "forget to activate a virtual environment?"
         ) from exc
     except AssertionError as err:
-        raise Exception(
+        raise RuntimeError(
             "Email username and password are empty! "
             + "See onlineCAL/config.py for more info"
         ) from err

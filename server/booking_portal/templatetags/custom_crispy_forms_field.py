@@ -31,7 +31,7 @@ def bs4_appended_prepended_text(field, append="", prepend="", form_show_labels=T
 
         context = Context(attributes)
         template = loader.get_template(
-            "%s/layout/prepended_appended_text.html" % get_template_pack()
+            f"{get_template_pack()}/layout/prepended_appended_text.html"
         )
         context["crispy_prepended_text"] = prepend
         context["crispy_appended_text"] = append
