@@ -42,8 +42,10 @@ except OSError:
         SECRET_KEY = get_random_string(50, chars)
         with open(SECRET_FILE, "w") as f:
             f.write(SECRET_KEY)
-    except OSError:
-        raise ImproperlyConfigured(f"Could not open {SECRET_FILE} for writing!")
+    except OSError as err:
+        raise ImproperlyConfigured(
+            f"Could not open {SECRET_FILE} for writing!"
+        ) from err
 
 
 # SECURITY WARNING: don't run with debug turned on in production!

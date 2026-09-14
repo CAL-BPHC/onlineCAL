@@ -4,7 +4,6 @@ from django.contrib import admin, messages
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import path
-from django.utils import timezone
 from django.utils.translation import gettext_lazy
 from rangefilter.filter import DateRangeFilter
 
@@ -55,9 +54,9 @@ class SlotAdmin(admin.ModelAdmin):
     def time_left(current, end, duration):
         """Checks if a slot can be made with `current time` and
         `duration` before the `end time`"""
-        today = timezone.localdate()
-        diff = datetime.datetime.combine(today, end) - datetime.datetime.combine(
-            today, current
+        anchor = datetime.date.min  # cancels out; only the two times matter
+        diff = datetime.datetime.combine(anchor, end) - datetime.datetime.combine(
+            anchor, current
         )
 
         return diff >= duration

@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from django.db import models
 from django.db.models import Q
-from django.utils import timezone
 
 if TYPE_CHECKING:
     from ..models.instrument import Instrument
@@ -139,9 +138,10 @@ class Slot(models.Model):
 
     @property
     def duration(self):
-        now_date = timezone.localdate()
-        end_datetime = datetime.datetime.combine(now_date, self.end_time)
-        start_datetime = datetime.datetime.combine(now_date, self.start_time)
+        # the anchor date cancels out; only the two times matter
+        anchor = datetime.date.min
+        end_datetime = datetime.datetime.combine(anchor, self.end_time)
+        start_datetime = datetime.datetime.combine(anchor, self.start_time)
         return end_datetime - start_datetime
 
     @property

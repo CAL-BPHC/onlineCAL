@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
 from django.urls import reverse
-from django.utils.timezone import now
+from django.utils.timezone import localdate
 
 from ..models.instrument import Instrument
 from ..models.slot import Slot
@@ -44,7 +44,7 @@ class SlotList(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["slots"] = SlotModelChoiceField(
             queryset=Slot.objects.filter(
-                instrument=instr, status=Slot.STATUS_1, date__gte=now().date()
+                instrument=instr, status=Slot.STATUS_1, date__gte=localdate()
             )
         )
 

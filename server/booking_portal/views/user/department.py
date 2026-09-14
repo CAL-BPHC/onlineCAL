@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.db.models import BooleanField, Value
@@ -7,6 +9,8 @@ from django.views.decorators.http import require_POST
 
 from ... import models, permissions
 from .portal import BasePortalFilter, get_pagintion_nav_range, portal_return_url
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -75,8 +79,8 @@ def department_accept(request, id):
                 return redirect(portal_return_url(request, "department_portal"))
             else:
                 return HttpResponse("Bad Request")
-    except Exception as e:  # noqa: BLE001 - any failure here is a 404 by design
-        print(e)
+    except Exception:
+        logger.exception("Department could not accept request %s", id)
         raise Http404("Page Not Found")
 
 
@@ -102,5 +106,6 @@ def department_reject(request, id):
                 return redirect(portal_return_url(request, "department_portal"))
             else:
                 return HttpResponse("Bad Request")
-    except Exception:  # noqa: BLE001 - any failure here is a 404 by design
+    except Exception:
+        logger.exception("Department could not reject request %s", id)
         raise Http404("Page Not Found")

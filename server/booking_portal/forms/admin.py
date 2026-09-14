@@ -103,7 +103,7 @@ class BulkCreateSlotsForm(forms.Form):
         label="Select Instrument",
     )
     start_date = forms.DateField(
-        initial=datetime.date.today,
+        initial=timezone.localdate,
         widget=DateInput,
         label="Date from/on which the slot has to be made",
     )
@@ -246,7 +246,7 @@ class UtilisationReportForm(forms.Form):
         label="Start date for usage report",
     )
     end_date = forms.DateField(
-        initial=datetime.date.today, widget=DateInput, label="End date for usage report"
+        initial=timezone.localdate, widget=DateInput, label="End date for usage report"
     )
 
     def __init__(self, *args, **kwargs):

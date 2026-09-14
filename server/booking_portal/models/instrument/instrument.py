@@ -40,7 +40,7 @@ class InstrumentManager(models.Manager):
             row = {
                 "Instrument Name": instr.name,
                 "Approved Bookings": approved_count,
-                "Total Utilisation (hours:minutes)": f"{int(util_hours)}:{int(util_minutes)}",
+                "Total Utilisation (hours:minutes)": f"{int(util_hours)}:{int(util_minutes):02d}",
             }
             writer.writerow(row)
 
