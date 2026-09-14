@@ -230,7 +230,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text = render_to_string(
             "email/department_pending.txt",
             {
-                "recipient_name": instance.faculty.department.name,
+                "recipient_name": instance.faculty.department.salutation,
                 "student_name": instance.faculty.name,
                 "instrument_name": instance.instrument.name,
                 "slot": instance.slot.description,
@@ -240,7 +240,7 @@ def send_email_after_save(sender, instance, **kwargs):
         text_html = render_to_string(
             "email/department_pending.html",
             {
-                "recipient_name": instance.faculty.department.name,
+                "recipient_name": instance.faculty.department.salutation,
                 "student_name": instance.faculty.name,
                 "instrument_name": instance.instrument.name,
                 "slot": instance.slot.description,

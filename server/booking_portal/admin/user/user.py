@@ -155,7 +155,7 @@ class CustomUserAdmin(UserAdmin):
                 text = render_to_string(
                     "email/welcome.txt",
                     {
-                        "recipient_name": user.name,
+                        "recipient_name": user.salutation,
                         "email": user.email,
                         "password": raw_password,
                         "user_type": user_type.__name__,
@@ -164,7 +164,7 @@ class CustomUserAdmin(UserAdmin):
                 text_html = render_to_string(
                     "email/welcome.html",
                     {
-                        "recipient_name": user.name,
+                        "recipient_name": user.salutation,
                         "email": user.email,
                         "password": raw_password,
                         "user_type": user_type.__name__,

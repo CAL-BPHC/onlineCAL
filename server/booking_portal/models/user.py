@@ -97,6 +97,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return "{} ({})".format(self.name, self.email[: self.email.find("@")].lower())
 
+    @property
+    def salutation(self):
+        """How the user is addressed in the "Dear ..." line of an email."""
+        return self.name
+
 
 class Department(CustomUser):
     default_role = CustomUser.Role.DEPARTMENT
@@ -105,6 +110,10 @@ class Department(CustomUser):
     class Meta:
         verbose_name = "Department"
         default_related_name = "departments"
+
+    @property
+    def salutation(self):
+        return f"HOD of {self.name.title()} Department"
 
 
 class Faculty(CustomUser):
