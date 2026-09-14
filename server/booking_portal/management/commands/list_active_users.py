@@ -5,7 +5,7 @@ from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.db.models import Count, Max
-from django.utils.timezone import now
+from django.utils.timezone import localdate
 
 from booking_portal.models import Faculty, FacultyRequest, Student, StudentRequest
 
@@ -14,7 +14,7 @@ class Command(BaseCommand):
     help = "Generate a CSV report of active users by department for those with requests in the past two years"
 
     def handle(self, *args, **options):
-        threshold_date = now().date() - timedelta(days=365 * 2)
+        threshold_date = localdate() - timedelta(days=365 * 2)
 
         faculty_agg = (
             FacultyRequest.objects.filter(slot__date__gte=threshold_date)

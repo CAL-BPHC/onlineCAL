@@ -40,7 +40,7 @@ class InstrumentAdmin(admin.ModelAdmin):
         instruments = request.GET.get("instruments", "")
         try:
             instruments = Instrument.objects.filter(pk__in=instruments.split(","))
-        except ValidationError:
+        except (ValueError, ValidationError):
             messages.error(request, "Invalid instruments")
             return redirect(reverse(f"admin:{app_label}_{model_name}_changelist"))
 
@@ -78,7 +78,7 @@ class InstrumentAdmin(admin.ModelAdmin):
         instruments = request.GET.get("instruments", "")
         try:
             instruments = Instrument.objects.filter(pk__in=instruments.split(","))
-        except ValidationError:
+        except (ValueError, ValidationError):
             messages.error(request, "Invalid instruments")
             return redirect(reverse(f"admin:{app_label}_{model_name}_changelist"))
 
