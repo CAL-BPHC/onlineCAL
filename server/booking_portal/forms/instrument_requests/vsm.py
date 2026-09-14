@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import VSM
 from django import forms
+
+from booking_portal.models.instrument.requests import VSM
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -27,37 +28,33 @@ class VSMForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Codes",
-                "sample_nature": "Nature of Sample",
-                "field": "Field(B) Range(Oe)",
-                "step_size": "Step Size & Hold Time(secs)",
-            },
+            sample_code="Sample Codes",
+            sample_nature="Nature of Sample",
+            field="Field(B) Range(Oe)",
+            step_size="Step Size & Hold Time(secs)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_nature": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "field": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "step_size": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_nature=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            field=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            step_size=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

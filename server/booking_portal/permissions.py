@@ -2,27 +2,19 @@ from .models import Department, Faculty, LabAssistant, Student
 
 
 def is_faculty(user):
-    if (len(Faculty.objects.filter(email=user.username))) > 0:
-        return True
-    return False
+    return len(Faculty.objects.filter(email=user.username)) > 0
 
 
 def is_student(user):
-    if (len(Student.objects.filter(email=user.username))) > 0:
-        return True
-    return False
+    return len(Student.objects.filter(email=user.username)) > 0
 
 
 def is_lab_assistant(user):
-    if (len(LabAssistant.objects.filter(email=user.username))) > 0:
-        return True
-    return False
+    return len(LabAssistant.objects.filter(email=user.username)) > 0
 
 
 def is_department(user):
-    if (len(Department.objects.filter(email=user.username))) > 0:
-        return True
-    return False
+    return len(Department.objects.filter(email=user.username)) > 0
 
 
 def get_user_type(user):

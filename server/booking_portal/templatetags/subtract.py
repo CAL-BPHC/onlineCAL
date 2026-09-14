@@ -11,5 +11,5 @@ def subtract(value, arg):
     except (ValueError, TypeError):
         try:
             return value + arg
-        except Exception:
+        except Exception:  # noqa: BLE001 - a filter must never raise
             return ""

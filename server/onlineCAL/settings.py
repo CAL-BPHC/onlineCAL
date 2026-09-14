@@ -31,17 +31,19 @@ if os.path.exists(ENV_LOCATION):
 # SECURITY CONFIGURATION
 SECRET_FILE = os.path.normpath(os.path.join(BASE_DIR, "SECRET.key"))
 try:
-    SECRET_KEY = open(SECRET_FILE).read().strip()
-except IOError:
+    with open(SECRET_FILE) as f:
+        SECRET_KEY = f.read().strip()
+except OSError:
     try:
+        from django.core.exceptions import ImproperlyConfigured
         from django.utils.crypto import get_random_string
 
         chars = "abcdefghijklmnopqrstuvwxyz0123456789!$%&()=+-_"
         SECRET_KEY = get_random_string(50, chars)
         with open(SECRET_FILE, "w") as f:
             f.write(SECRET_KEY)
-    except IOError:
-        raise Exception("Could not open %s for writing!" % SECRET_FILE)
+    except OSError:
+        raise ImproperlyConfigured(f"Could not open {SECRET_FILE} for writing!")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!

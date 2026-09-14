@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import ICPMS
 from django import forms
+
+from booking_portal.models.instrument.requests import ICPMS
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -55,32 +56,28 @@ class ICPMSForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "sample_state": "Sample State (Aqueous, Acid extract, etc.)",
-                "target_elements_concentration": "Approx. concentration of target elements (Max 200 ppb)",
-                "number_of_samples": "Total Number of Samples (No. of Samples + No. of Standards)",
-            },
+            sample_code="Sample Code",
+            sample_state="Sample State (Aqueous, Acid extract, etc.)",
+            target_elements_concentration="Approx. concentration of target elements (Max 200 ppb)",
+            number_of_samples="Total Number of Samples (No. of Samples + No. of Standards)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_state": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "target_elements_concentration": forms.NumberInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_state=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            target_elements_concentration=forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

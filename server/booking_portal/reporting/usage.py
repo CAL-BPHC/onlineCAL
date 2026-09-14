@@ -10,6 +10,7 @@ import calendar
 import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
 from ..models.faculty_request import FacultyRequest
 from ..models.request import StudentRequest
@@ -76,7 +77,7 @@ def request_hours(request):
 
 def financial_year_bounds(on_date=None):
     """Return (start, end) of the financial year containing `on_date`."""
-    on_date = on_date or datetime.date.today()
+    on_date = on_date or timezone.localdate()
     year = on_date.year if on_date.month >= FY_START_MONTH else on_date.year - 1
     start = datetime.date(year, FY_START_MONTH, 1)
     end = datetime.date(year + 1, FY_START_MONTH, 1) - datetime.timedelta(days=1)
@@ -85,7 +86,7 @@ def financial_year_bounds(on_date=None):
 
 def financial_year_label(start):
     """'FY 25-26' for a financial year starting in 2025."""
-    return "FY {:02d}-{:02d}".format(start.year % 100, (start.year + 1) % 100)
+    return f"FY {start.year % 100:02d}-{(start.year + 1) % 100:02d}"
 
 
 def status_label(status):
@@ -107,18 +108,18 @@ def resolve_range(preset=None, start=None, end=None, today=None):
 
     `start`/`end` may be None, which means unbounded on that side.
     """
-    today = today or datetime.date.today()
+    today = today or timezone.localdate()
     preset = preset or DEFAULT_PRESET
 
     if preset == "custom":
         if start and end and start > end:
             start, end = end, start
         if start and end:
-            label = "{:%d %b %Y} - {:%d %b %Y}".format(start, end)
+            label = f"{start:%d %b %Y} - {end:%d %b %Y}"
         elif start:
-            label = "From {:%d %b %Y}".format(start)
+            label = f"From {start:%d %b %Y}"
         elif end:
-            label = "Up to {:%d %b %Y}".format(end)
+            label = f"Up to {end:%d %b %Y}"
         else:
             label = "Custom range"
         return start, end, label

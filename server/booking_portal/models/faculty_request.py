@@ -1,6 +1,5 @@
 from typing import cast
 
-import booking_portal.models.instrument
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,7 +8,9 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
-from django.utils.timezone import now
+from django.utils.timezone import localdate
+
+import booking_portal.models.instrument
 
 from .email import EmailModel
 from .instrument.requests import UserDetail
@@ -97,8 +98,10 @@ class FacultyRequestManager(models.Manager):
             slot.update_status(Slot.STATUS_2)
 
     @staticmethod
-    def has_faculty_booked_upcoming_instrument_slot(instr, faculty, date=now().date()):
+    def has_faculty_booked_upcoming_instrument_slot(instr, faculty, date=None):
         """Check if a faculty has booked an upcoming slot for an instrument"""
+        if date is None:
+            date = localdate()
         return FacultyRequest.objects.filter(
             ~(
                 Q(status=FacultyRequest.REJECTED)
@@ -201,11 +204,13 @@ class FacultyRequest(models.Model):
                     if charge["selected_choice"] == choice["value"]:
                         total_cost += choice["cost"] * num_samples
                         break
-            elif charge["rule_type"] == Rule.CONDITIONAL_FIELD:
-                if charge["conditional_quantity"]:
-                    total_cost += (
-                        charge["conditional_cost"] * charge["conditional_quantity"]
-                    )
+            elif (
+                charge["rule_type"] == Rule.CONDITIONAL_FIELD
+                and charge["conditional_quantity"]
+            ):
+                total_cost += (
+                    charge["conditional_cost"] * charge["conditional_quantity"]
+                )
         return total_cost
 
     def update_status(self, status):
@@ -219,7 +224,7 @@ class FacultyRequest(models.Model):
         self.save(update_fields=["status"])
 
     def __str__(self):
-        return "Request: {}".format(self.slot)
+        return f"Request: {self.slot}"
 
 
 @receiver(signal=post_save, sender=FacultyRequest)

@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import TCSPC
 from django import forms
+
+from booking_portal.models.instrument.requests import TCSPC
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -25,31 +26,27 @@ class TCSPCForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "sample_nature": "Nature of Sample",
-                "chemical_composition": "Chemical Composition",
-            },
+            sample_code="Sample Code",
+            sample_nature="Nature of Sample",
+            chemical_composition="Chemical Composition",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_nature": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "chemical_composition": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_nature=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            chemical_composition=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

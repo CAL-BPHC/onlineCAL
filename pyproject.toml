@@ -23,6 +23,15 @@ dev = [
     "pytest>=9.0.3",
 ]
 
+[tool.ruff.lint]
+# RUF012 flags Django's `fields`, `widgets`, `labels` and friends on Meta
+# classes, which are the framework's idiom rather than a mutable-default bug.
+ignore = ["RUF012"]
+
 [tool.ruff.lint.per-file-ignores]
+# Applied migrations are frozen history; do not restyle them.
+"**/migrations/*" = ["DTZ", "SIM401"]
+# The Django project package predates the naming rule.
+"server/onlineCAL/__init__.py" = ["N999"]
 "__init__.py" = ["F401", "F403", "F405"]
 "server/booking_portal/config.py" = ["F403", "F405"]

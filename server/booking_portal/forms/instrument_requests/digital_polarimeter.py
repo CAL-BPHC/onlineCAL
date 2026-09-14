@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import DigitalPolarimeter
 from django import forms
+
+from booking_portal.models.instrument.requests import DigitalPolarimeter
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -32,55 +33,51 @@ class DigitalPolarimeterForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_codes": "Sample Codes",
-                "slot_duration": "Slot Duration(2hr)",
-                "filters_used": "Filters Used",
-                "measurement_type": "Type of Measurement",
-                "solvent": "Solvent Used",
-                "cuvette_path_length": "Cuvette Path Length",
-                "additional_info": "Any remarks",
-            },
+            sample_codes="Sample Codes",
+            slot_duration="Slot Duration(2hr)",
+            filters_used="Filters Used",
+            measurement_type="Type of Measurement",
+            solvent="Solvent Used",
+            cuvette_path_length="Cuvette Path Length",
+            additional_info="Any remarks",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_codes": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "slot_duration": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "filters_used": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "measurement_type": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "solvent": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "cuvette_path_length": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "additional_info": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_codes=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            slot_duration=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            filters_used=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            measurement_type=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            solvent=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            cuvette_path_length=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            additional_info=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import EPR_ESR
 from django import forms
+
+from booking_portal.models.instrument.requests import EPR_ESR
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -28,37 +29,33 @@ class EPR_ESRForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Codes",
-                "sample_nature": "Nature of Sample",
-                "field": "Field(B) Range(mT)",
-                "temperature_series": "RT/Temperature Series *",
-            },
+            sample_code="Sample Codes",
+            sample_nature="Nature of Sample",
+            field="Field(B) Range(mT)",
+            temperature_series="RT/Temperature Series *",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_nature": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "field": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "temperature_series": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_nature=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            field=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            temperature_series=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

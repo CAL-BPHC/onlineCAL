@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import DLS
 from django import forms
+
+from booking_portal.models.instrument.requests import DLS
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -31,43 +32,39 @@ after the analysis.</b>
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_codes": "Sample Codes",
-                "slot_duration": "Slot Duration(3hr)",
-                "cuvettes": "Cuvettes",
-                "solvent": "Solvent Used",
-                "additional_info": "Any other relevant information",
-            },
+            sample_codes="Sample Codes",
+            slot_duration="Slot Duration(3hr)",
+            cuvettes="Cuvettes",
+            solvent="Solvent Used",
+            additional_info="Any other relevant information",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_codes": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "slot_duration": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "cuvettes": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "solvent": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "additional_info": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_codes=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            slot_duration=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            cuvettes=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            solvent=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            additional_info=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

@@ -12,7 +12,7 @@ from ..permissions import is_faculty, is_student
 @login_required
 @user_passes_test(lambda u: is_student(u) or is_faculty(u))
 def slot_list(request):
-    if not request.method == "POST":
+    if request.method != "POST":
         messages.error(request, "Bad Request")
         return HttpResponseRedirect(reverse("instrument-list"))
 

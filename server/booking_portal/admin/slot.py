@@ -4,6 +4,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import path
+from django.utils import timezone
 from django.utils.translation import gettext_lazy
 from rangefilter.filter import DateRangeFilter
 
@@ -48,15 +49,13 @@ class SlotAdmin(admin.ModelAdmin):
 
     # 'Add Slot' button is only visible to the admin
     def has_add_permission(self, request):
-        if request.user.is_superuser:
-            return True
-        return False
+        return bool(request.user.is_superuser)
 
     @staticmethod
     def time_left(current, end, duration):
         """Checks if a slot can be made with `current time` and
         `duration` before the `end time`"""
-        today = datetime.date.today()
+        today = timezone.localdate()
         diff = datetime.datetime.combine(today, end) - datetime.datetime.combine(
             today, current
         )
@@ -65,13 +64,13 @@ class SlotAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        info = self.model._meta.app_label, self.model._meta.model_name
+        app_label, model_name = self.model._meta.app_label, self.model._meta.model_name
 
         my_urls = [
             path(
                 "bulk-slots/",
                 SlotAdmin.generate_slots,
-                name="%s_%s_bulk-slots_create" % info,
+                name=f"{app_label}_{model_name}_bulk-slots_create",
             )
         ]
         return my_urls + urls

@@ -2,8 +2,6 @@ import csv
 from io import StringIO
 from itertools import chain
 
-from booking_portal.models.faculty_request import FacultyRequest
-from booking_portal.models.request import StudentRequest
 from django.contrib import admin, messages
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -11,9 +9,12 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 
+from booking_portal.models.faculty_request import FacultyRequest
+from booking_portal.models.request import StudentRequest
+
 from ..forms import InstrumentChangeForm, InstrumentCreateForm, UtilisationReportForm
-from ..reporting import request_hours, safe_total_cost
 from ..models import CustomUser, Instrument
+from ..reporting import request_hours, safe_total_cost
 
 DETAILED_REPORT_TITLE = "Download Detailed Usage Report"
 
@@ -28,22 +29,20 @@ class InstrumentAdmin(admin.ModelAdmin):
 
     # only superuser has permission to add instruments
     def has_add_permission(self, request):
-        if request.user.is_superuser:
-            return True
-        return False
+        return bool(request.user.is_superuser)
 
     @staticmethod
     @user_passes_test(
         lambda u: u.is_authenticated and (u.role == "PORTAL_ADMIN" or u.is_superuser)
     )
     def instrument_usage_report_form(request):
-        info = Instrument._meta.app_label, Instrument._meta.model_name
+        app_label, model_name = Instrument._meta.app_label, Instrument._meta.model_name
         instruments = request.GET.get("instruments", "")
         try:
             instruments = Instrument.objects.filter(pk__in=instruments.split(","))
         except ValidationError:
             messages.error(request, "Invalid instruments")
-            return redirect(reverse("admin:%s_%s_changelist" % info))
+            return redirect(reverse(f"admin:{app_label}_{model_name}_changelist"))
 
         if request.method == "POST":
             form = UtilisationReportForm(request.POST)
@@ -75,13 +74,13 @@ class InstrumentAdmin(admin.ModelAdmin):
             or request.user.is_superuser
         ):
             raise PermissionDenied
-        info = Instrument._meta.app_label, Instrument._meta.model_name
+        app_label, model_name = Instrument._meta.app_label, Instrument._meta.model_name
         instruments = request.GET.get("instruments", "")
         try:
             instruments = Instrument.objects.filter(pk__in=instruments.split(","))
         except ValidationError:
             messages.error(request, "Invalid instruments")
-            return redirect(reverse("admin:%s_%s_changelist" % info))
+            return redirect(reverse(f"admin:{app_label}_{model_name}_changelist"))
 
         if request.method == "POST":
             form = UtilisationReportForm(request.POST)
@@ -188,18 +187,18 @@ class InstrumentAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        info = self.model._meta.app_label, self.model._meta.model_name
+        app_label, model_name = self.model._meta.app_label, self.model._meta.model_name
 
         my_urls = [
             path(
                 "usage-report/",
                 InstrumentAdmin.instrument_usage_report_form,
-                name="%s_%s_usage-report" % info,
+                name=f"{app_label}_{model_name}_usage-report",
             ),
             path(
                 "detailed-usage-report/",
                 self.admin_site.admin_view(self.detailed_usage_report_form),
-                name="%s_%s_detailed-usage-report" % info,
+                name=f"{app_label}_{model_name}_detailed-usage-report",
             ),
             path(
                 "report/instrument/<int:instrument_id>",
@@ -305,13 +304,9 @@ class InstrumentAdmin(admin.ModelAdmin):
     def _redirect_to_report(self, queryset, url_name):
         selected = queryset.values_list("pk", flat=True)
         opts = self.model._meta
-        url = "%s?instruments=%s" % (
-            reverse(
-                "admin:%s_%s_%s" % (opts.app_label, opts.model_name, url_name),
-            ),
-            ",".join([str(pk) for pk in selected]),
-        )
-        return redirect(url)
+        report_url = reverse(f"admin:{opts.app_label}_{opts.model_name}_{url_name}")
+        instruments = ",".join(str(pk) for pk in selected)
+        return redirect(f"{report_url}?instruments={instruments}")
 
     instrument_usage_report_action.short_description = (
         "Download Instrument Usage Report"

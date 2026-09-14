@@ -91,7 +91,7 @@ def lab_assistant_accept(request, id):
                     "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
                 )
             )
-    except Exception:
+    except Exception:  # noqa: BLE001 - any failure here is a 404 by design
         raise Http404("Page Not Found")
 
 
@@ -121,5 +121,5 @@ def lab_assistant_reject(request, id):
                     "lab_assistant_faculty_portal" if is_faculty else "lab_assistant",
                 )
             )
-    except Exception:
+    except Exception:  # noqa: BLE001 - any failure here is a 404 by design
         raise Http404("Page Not Found")

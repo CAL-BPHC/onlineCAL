@@ -3,10 +3,11 @@ import csv
 import os
 from datetime import timedelta
 
-from booking_portal.models import Faculty, FacultyRequest, Student, StudentRequest
 from django.core.management.base import BaseCommand
 from django.db.models import Count, Max
 from django.utils.timezone import now
+
+from booking_portal.models import Faculty, FacultyRequest, Student, StudentRequest
 
 
 class Command(BaseCommand):

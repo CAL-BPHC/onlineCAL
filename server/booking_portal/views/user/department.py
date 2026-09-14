@@ -75,7 +75,7 @@ def department_accept(request, id):
                 return redirect(portal_return_url(request, "department_portal"))
             else:
                 return HttpResponse("Bad Request")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - any failure here is a 404 by design
         print(e)
         raise Http404("Page Not Found")
 
@@ -102,5 +102,5 @@ def department_reject(request, id):
                 return redirect(portal_return_url(request, "department_portal"))
             else:
                 return HttpResponse("Bad Request")
-    except Exception:
+    except Exception:  # noqa: BLE001 - any failure here is a 404 by design
         raise Http404("Page Not Found")

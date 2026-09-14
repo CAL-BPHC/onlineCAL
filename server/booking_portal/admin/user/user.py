@@ -94,7 +94,7 @@ class CustomUserAdmin(UserAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        info = self.model._meta.app_label, self.model._meta.model_name
+        app_label, model_name = self.model._meta.app_label, self.model._meta.model_name
 
         def wrap(view):
             def wrapper(*args, **kwargs):
@@ -104,11 +104,15 @@ class CustomUserAdmin(UserAdmin):
             return update_wrapper(wrapper, view)
 
         my_urls = [
-            path("import-csv/", wrap(self.import_csv), name="%s_%s_import-csv" % info),
+            path(
+                "import-csv/",
+                wrap(self.import_csv),
+                name=f"{app_label}_{model_name}_import-csv",
+            ),
             path(
                 "import-csv/sample/",
                 wrap(self.import_csv_sample),
-                name="%s_%s_import-csv-sample" % info,
+                name=f"{app_label}_{model_name}_import-csv-sample",
             ),
         ]
         return my_urls + urls
@@ -128,7 +132,7 @@ class CustomUserAdmin(UserAdmin):
         """
         headers = self.get_csv_headers()
         if set(records.fieldnames) != set(headers):
-            raise Exception(f"Invalid CSV headers/columns. Expected: {headers}")
+            raise ValueError(f"Invalid CSV headers/columns. Expected: {headers}")
 
         created_users = []
         for record in records:
@@ -198,10 +202,8 @@ class CustomUserAdmin(UserAdmin):
                 dialect = csv.Sniffer().sniff(csv_file.read())
                 csv_file.seek(0)
                 reader = csv.DictReader(csv_file, dialect=dialect)
-            except Exception as err:
-                self.message_user(
-                    request, "Error: {}".format(err), level=messages.ERROR
-                )
+            except Exception as err:  # noqa: BLE001 - shown as the form error
+                self.message_user(request, f"Error: {err}", level=messages.ERROR)
                 return self.render_bulk_import_form(request, form)
 
             try:
@@ -214,7 +216,7 @@ class CustomUserAdmin(UserAdmin):
                 created_users = self.create_users(
                     user_type, reader, staff, send_email, skip_existing=ignore_existing
                 )
-            except Exception as err:
+            except Exception as err:  # noqa: BLE001 - shown as the form error
                 self.message_user(
                     request,
                     f"Error on row number {reader.line_num}: {err}",
@@ -227,9 +229,7 @@ class CustomUserAdmin(UserAdmin):
                 self.message_user(
                     request,
                     mark_safe(
-                        "{} users have been created:<br/>{}".format(
-                            len(created_users), names
-                        )
+                        f"{len(created_users)} users have been created:<br/>{names}"
                     ),
                 )
                 return redirect("..")

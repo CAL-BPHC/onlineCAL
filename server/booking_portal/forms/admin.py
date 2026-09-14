@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
+from django.utils import timezone
 
 from ..models.instrument import Instrument
 from ..models.slot import SlotManager
@@ -153,7 +154,7 @@ class BulkCreateSlotsForm(forms.Form):
                 "start_time", ValidationError("Start time cannot be after end time.")
             )
 
-        if start_date < datetime.date.today():
+        if start_date < timezone.localdate():
             self.add_error(
                 "start_date", ValidationError("Start date cannot be before today.")
             )

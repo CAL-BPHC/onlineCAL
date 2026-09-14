@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import HPLC_FD
 from django import forms
+
+from booking_portal.models.instrument.requests import HPLC_FD
 
 from .base import UserDetailsForm, UserRemarkForm
 from .hplc import HPLCForm
@@ -29,43 +30,39 @@ class HPLC_FDForm(HPLCForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "sample_information": "Sample information / composition",
-                "mobile_phase": "Mobile Phase Composition",
-                "column_for_lc": "Column for LC",
-                "detection_wavelength": "Detection Wavelength(s)",
-            },
+            sample_code="Sample Code",
+            sample_information="Sample information / composition",
+            mobile_phase="Mobile Phase Composition",
+            column_for_lc="Column for LC",
+            detection_wavelength="Detection Wavelength(s)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_information": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "mobile_phase": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "column_for_lc": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "detection_wavelength": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_information=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            mobile_phase=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            column_for_lc=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            detection_wavelength=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

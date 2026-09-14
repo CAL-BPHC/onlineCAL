@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import TubularMuffleFurnace
 from django import forms
+
+from booking_portal.models.instrument.requests import TubularMuffleFurnace
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -30,37 +31,33 @@ class TubularFurnaceForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "sample_nature": "Sample Nature",
-                "temperature": "Temperature (°C)",
-                "quantity": "Quantity (gms)",
-            },
+            sample_code="Sample Code",
+            sample_nature="Sample Nature",
+            temperature="Temperature (°C)",
+            quantity="Quantity (gms)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "sample_nature": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "temperature": forms.NumberInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "quantity": forms.NumberInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            sample_nature=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            temperature=forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            quantity=forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

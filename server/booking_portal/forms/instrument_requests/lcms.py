@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import LCMS
 from django import forms
+
+from booking_portal.models.instrument.requests import LCMS
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -32,61 +33,57 @@ class LCMSForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Code",
-                "composition": "Sample Information / Composition",
-                "phase": "Mobile Phase and Column for LC",
-                "no_of_lc_peaks": "No. of LC peaks",
-                "solvent_solubility": "Solvent Solubility",
-                "exact_mass": "Exact Mass",
-                "mass_adducts": "Expected Mass Adducts",
-                "analysis_mode": "Mode of Analysis (Positive / Negative)",
-            },
+            sample_code="Sample Code",
+            composition="Sample Information / Composition",
+            phase="Mobile Phase and Column for LC",
+            no_of_lc_peaks="No. of LC peaks",
+            solvent_solubility="Solvent Solubility",
+            exact_mass="Exact Mass",
+            mass_adducts="Expected Mass Adducts",
+            analysis_mode="Mode of Analysis (Positive / Negative)",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "composition": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "phase": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "no_of_lc_peaks": forms.NumberInput(
-                    attrs={
-                        "class": " form-control",
-                    }
-                ),
-                "solvent_solubility": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "exact_mass": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "mass_adducts": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "analysis_mode": forms.Select(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            composition=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            phase=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            no_of_lc_peaks=forms.NumberInput(
+                attrs={
+                    "class": " form-control",
+                }
+            ),
+            solvent_solubility=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            exact_mass=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            mass_adducts=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            analysis_mode=forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

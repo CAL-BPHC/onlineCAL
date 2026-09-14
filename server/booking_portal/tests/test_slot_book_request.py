@@ -1,5 +1,7 @@
-import datetime
 from datetime import timedelta
+
+from django.test import Client, TestCase
+from django.utils import timezone
 
 from booking_portal.factories import (
     InstrumentFactory,
@@ -7,10 +9,9 @@ from booking_portal.factories import (
     StudentFactory,
 )
 from booking_portal.models import Slot, StudentRequest
-from django.test import Client, TestCase
 
 # A valid date time will not fall on Sunday
-_VALID_DATE_TIME = datetime.datetime.now()
+_VALID_DATE_TIME = timezone.localtime()
 if _VALID_DATE_TIME.date().weekday() == 6:
     _VALID_DATE_TIME += timedelta(days=1)
 

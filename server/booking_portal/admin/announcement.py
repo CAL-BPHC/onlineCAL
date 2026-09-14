@@ -1,9 +1,10 @@
-from booking_portal.mail import MAX_RECIPIENTS_PER_EMAIL
-from booking_portal.models import CustomUser
-from booking_portal.models.email import EmailModel
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
+
+from booking_portal.mail import MAX_RECIPIENTS_PER_EMAIL
+from booking_portal.models import CustomUser
+from booking_portal.models.email import EmailModel
 
 
 def queue_announcement_emails(announcement):

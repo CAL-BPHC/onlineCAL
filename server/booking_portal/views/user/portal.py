@@ -56,7 +56,7 @@ def get_pagintion_nav_range(page_obj):
 
     begin += offset
     end += offset
-    end = page_obj.paginator.num_pages if end > page_obj.paginator.num_pages else end
+    end = min(end, page_obj.paginator.num_pages)
     return range(begin, end + 1)
 
 

@@ -1,5 +1,6 @@
-from booking_portal.models.instrument.requests import Quantachrome
 from django import forms
+
+from booking_portal.models.instrument.requests import Quantachrome
 
 from .base import UserDetailsForm, UserRemarkForm
 
@@ -29,43 +30,39 @@ class QuantachromeForm(UserDetailsForm, UserRemarkForm):
         labels = dict(
             **UserDetailsForm.Meta.labels,
             **UserRemarkForm.Meta.labels,
-            **{
-                "sample_code": "Sample Codes",
-                "pretreatment_conditions": "Pretreatment conditions",
-                "precautions": "Precautions to be taken",
-                "adsorption": "N2/CO2/Vapor Adsorption",
-                "surface_area_pore_size": "Specific surface area / surface area and pore size analysis to be required",
-            },
+            sample_code="Sample Codes",
+            pretreatment_conditions="Pretreatment conditions",
+            precautions="Precautions to be taken",
+            adsorption="N2/CO2/Vapor Adsorption",
+            surface_area_pore_size="Specific surface area / surface area and pore size analysis to be required",
         )
 
         widgets = dict(
             **UserDetailsForm.Meta.widgets,
             **UserRemarkForm.Meta.widgets,
-            **{
-                "sample_code": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "pretreatment_conditions": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "precautions": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "adsorption": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-                "surface_area_pore_size": forms.TextInput(
-                    attrs={
-                        "class": "form-control",
-                    }
-                ),
-            },
+            sample_code=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            pretreatment_conditions=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            precautions=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            adsorption=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+            surface_area_pore_size=forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
         )

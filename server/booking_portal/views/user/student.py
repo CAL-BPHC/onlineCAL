@@ -140,7 +140,7 @@ def book_machine_student(request, form_class, form_model_class):
                 # \\n to escape Javascript
                 messages.error(
                     request,
-                    f"Could not proccess your request, please try again. ({str(e)})",
+                    f"Could not proccess your request, please try again. ({e!s})",
                 )
                 return HttpResponseRedirect(reverse("instrument-list"))
         elif action == "calculate":
@@ -164,11 +164,14 @@ def book_machine_student(request, form_class, form_model_class):
                     num_samples = cleaned_data.get("number_of_samples")
                     if num_samples and mode.cost:
                         total_cost += mode.cost * num_samples
-                elif mode.rule_type == ModePricingRules.PER_TIME_UNIT:
-                    if duration and mode.cost:
-                        total_cost += mode.cost * (
-                            duration_in_minutes / mode.time_in_minutes
-                        )
+                elif (
+                    mode.rule_type == ModePricingRules.PER_TIME_UNIT
+                    and duration
+                    and mode.cost
+                ):
+                    total_cost += mode.cost * (
+                        duration_in_minutes / mode.time_in_minutes
+                    )
 
             # additional costs
             for key, value in cleaned_data.items():
@@ -316,7 +319,7 @@ def book_machine(request, instr_id):
                 # \\n to escape Javascript
                 messages.error(
                     request,
-                    f"Could not process your request, please try again. ({str(e)})",
+                    f"Could not process your request, please try again. ({e!s})",
                 )
                 return HttpResponseRedirect(reverse("instrument-list"))
         elif action == "calculate":
@@ -340,11 +343,14 @@ def book_machine(request, instr_id):
                     num_samples = cleaned_data.get("number_of_samples")
                     if num_samples and mode.cost:
                         total_cost += mode.cost * num_samples
-                elif mode.rule_type == ModePricingRules.PER_TIME_UNIT:
-                    if duration and mode.cost:
-                        total_cost += mode.cost * (
-                            duration_in_minutes / mode.time_in_minutes
-                        )
+                elif (
+                    mode.rule_type == ModePricingRules.PER_TIME_UNIT
+                    and duration
+                    and mode.cost
+                ):
+                    total_cost += mode.cost * (
+                        duration_in_minutes / mode.time_in_minutes
+                    )
 
             # additional costs
             for key, value in cleaned_data.items():
