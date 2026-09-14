@@ -20,10 +20,7 @@ def populate_email_types(apps, schema_editor):
     }
 
     for email in email_model.objects.all():
-        if email.subject in subject_to_type_mapping:
-            email.email_type = subject_to_type_mapping[email.subject]
-        else:
-            email.email_type = "other"
+        email.email_type = subject_to_type_mapping.get(email.subject, "other")
         email.save()
 
 

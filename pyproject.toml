@@ -29,8 +29,9 @@ dev = [
 ignore = ["RUF012"]
 
 [tool.ruff.lint.per-file-ignores]
-# Applied migrations are frozen history; do not restyle them.
-"**/migrations/*" = ["DTZ", "SIM401"]
+# 0012 combines "now" with a time only to take the time back out and parses
+# a duration string with strptime, so the timezone rules do not apply there.
+"**/migrations/*" = ["DTZ"]
 # The Django project package predates the naming rule.
 "server/onlineCAL/__init__.py" = ["N999"]
 "__init__.py" = ["F401", "F403", "F405"]
