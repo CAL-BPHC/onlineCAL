@@ -1,3 +1,4 @@
+import smtplib
 from unittest import mock
 
 from django.core import mail
@@ -20,6 +21,18 @@ class FailingSubjectBackend(LocMemBackend):
 
     def send_messages(self, messages):
         return super().send_messages([m for m in messages if "FAIL" not in m.subject])
+
+
+class ErrorOnceBackend(LocMemBackend):
+    """Raises `error` for the first email it is asked to send"""
+
+    error = None
+
+    def send_messages(self, messages):
+        error, ErrorOnceBackend.error = ErrorOnceBackend.error, None
+        if error is not None:
+            raise error
+        return super().send_messages(messages)
 
 
 class OverlappingRunBackend(LocMemBackend):
@@ -259,4 +272,66 @@ class AnnouncementEmailTestCase(TestCase):
             self.assertEqual(call_command("sendemails"), "No emails sent")
 
         self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(self._announcement_emails().filter(sent=False).count(), 3)
+
+    def _send_with_error(self, error):
+        ErrorOnceBackend.error = error
+        with override_settings(EMAIL_BACKEND=f"{TESTS_MODULE}.ErrorOnceBackend"):
+            return call_command("sendemails")
+
+    def test_batched_email_is_not_retried_when_the_connection_breaks(self):
+        """We can't know if it went out, and must not repeat it to 100 people"""
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+        first = self._announcement_emails().first()
+
+        output = self._send_with_error(smtplib.SMTPServerDisconnected("closed"))
+
+        # The run stops: the broken email stays claimed, the rest stay queued
+        self.assertEqual(output, "No emails sent")
+        self.assertEqual(len(mail.outbox), 0)
+        unsent = self._announcement_emails().filter(sent=False)
+        self.assertEqual(unsent.count(), 2)
+        self.assertNotIn(first.pk, unsent.values_list("pk", flat=True))
+        # Later runs send the rest, and never the broken one
+        call_command("sendemails")
+        call_command("sendemails")
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertNotIn(first.bcc_list, [m.bcc for m in mail.outbox])
+
+    def test_per_user_email_is_retried_when_the_connection_breaks(self):
+        self.faculty.send_email("Hello", "text body", "<p>html body</p>")
+
+        self.assertEqual(self._send_with_error(TimeoutError()), "No emails sent")
+
+        self.assertEqual(EmailModel.objects.filter(sent=False).count(), 1)
+        self.assertEqual(call_command("sendemails"), "Sent 1 emails to 1 recipients")
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_batched_email_is_retried_when_the_server_refuses_it(self):
+        """e.g. the daily quota is exhausted: nothing went out, so retry"""
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+
+        output = self._send_with_error(smtplib.SMTPDataError(550, b"quota exceeded"))
+
+        # Only the refused email failed, and it is still queued
+        self.assertEqual(output, f"Sent 2 emails to {self.user_count - 100} recipients")
+        self.assertEqual(self._announcement_emails().filter(sent=False).count(), 1)
+        call_command("sendemails")
+        self.assertEqual(len(mail.outbox), 3)
+        announced_to = [a for m in mail.outbox for a in m.bcc]
+        self.assertEqual(len(announced_to), len(set(announced_to)))
+        self.assertEqual(set(announced_to), self.expected_recipients)
+
+    def test_nothing_is_claimed_when_the_mail_server_is_unreachable(self):
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+
+        with mock.patch.object(
+            LocMemBackend, "open", side_effect=ConnectionRefusedError
+        ):
+            output = call_command("sendemails")
+
+        self.assertEqual(output, "No emails sent: could not connect to the mail server")
         self.assertEqual(self._announcement_emails().filter(sent=False).count(), 3)
