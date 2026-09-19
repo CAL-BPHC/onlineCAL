@@ -182,6 +182,8 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD", "test@123")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+# Don't let a stuck SMTP connection hang the email sender
+EMAIL_TIMEOUT = 60
 
 API_KEY = os.getenv("API_KEY", "testkey")
 

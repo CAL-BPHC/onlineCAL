@@ -1,4 +1,8 @@
+import smtplib
+from unittest import mock
+
 from django.core import mail
+from django.core.mail.backends.locmem import EmailBackend as LocMemBackend
 from django.core.management import call_command
 from django.test import Client, TestCase, override_settings
 
@@ -9,6 +13,38 @@ from ..models import Announcement, CustomUser
 from ..models.email import EmailModel
 
 LOCMEM_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+TESTS_MODULE = "booking_portal.tests.test_announcement_emails"
+
+
+class FailingSubjectBackend(LocMemBackend):
+    """Fails to send any email whose subject contains FAIL"""
+
+    def send_messages(self, messages):
+        return super().send_messages([m for m in messages if "FAIL" not in m.subject])
+
+
+class ErrorOnceBackend(LocMemBackend):
+    """Raises `error` for the first email it is asked to send"""
+
+    error = None
+
+    def send_messages(self, messages):
+        error, ErrorOnceBackend.error = ErrorOnceBackend.error, None
+        if error is not None:
+            raise error
+        return super().send_messages(messages)
+
+
+class OverlappingRunBackend(LocMemBackend):
+    """Starts a second `sendemails` run while the first email is being sent"""
+
+    overlapped = False
+
+    def send_messages(self, messages):
+        if not OverlappingRunBackend.overlapped:
+            OverlappingRunBackend.overlapped = True
+            call_command("sendemails")
+        return super().send_messages(messages)
 
 
 @override_settings(EMAIL_BACKEND=LOCMEM_BACKEND)
@@ -174,3 +210,128 @@ class AnnouncementEmailTestCase(TestCase):
     def test_sendemails_reports_nothing_to_send(self):
         self.assertEqual(call_command("sendemails"), "No emails sent")
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_overlapping_runs_never_send_an_email_twice(self):
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+        self.faculty.send_email("Hello", "text body", "<p>html body</p>")
+        OverlappingRunBackend.overlapped = False
+
+        with override_settings(EMAIL_BACKEND=f"{TESTS_MODULE}.OverlappingRunBackend"):
+            call_command("sendemails")
+
+        self.assertTrue(OverlappingRunBackend.overlapped)
+        self.assertEqual(len(mail.outbox), 4)
+        # 3 announcement batches and 1 per-user email, each sent exactly once
+        sent = [(m.subject, tuple(m.recipients())) for m in mail.outbox]
+        self.assertEqual(len(sent), len(set(sent)))
+        announced_to = [a for m in mail.outbox if m.bcc for a in m.bcc]
+        self.assertEqual(len(announced_to), len(set(announced_to)))
+        self.assertEqual(set(announced_to), self.expected_recipients)
+        self.assertFalse(EmailModel.objects.filter(sent=False).exists())
+
+    def test_a_failed_email_is_retried_and_does_not_affect_the_others(self):
+        self.faculty.send_email("FAIL this one", "text", "<p>html</p>")
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+
+        with override_settings(EMAIL_BACKEND=f"{TESTS_MODULE}.FailingSubjectBackend"):
+            output = call_command("sendemails")
+
+        self.assertEqual(output, f"Sent 3 emails to {self.user_count} recipients")
+        self.assertEqual(len(mail.outbox), 3)
+        # Exactly the failed email is still queued, and the next run sends it
+        unsent = EmailModel.objects.filter(sent=False)
+        self.assertEqual([e.subject for e in unsent], ["FAIL this one"])
+        self.assertEqual(call_command("sendemails"), "Sent 1 emails to 1 recipients")
+        self.assertEqual(len(mail.outbox), 4)
+        self.assertFalse(EmailModel.objects.filter(sent=False).exists())
+
+    def test_an_email_is_marked_sent_as_soon_as_it_is_sent(self):
+        """A run that is killed midway must not leave sent emails queued"""
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+        unsent_during_send = []
+
+        def record(messages):
+            unsent_during_send.append(EmailModel.objects.filter(sent=False).count())
+            return len(messages)
+
+        with mock.patch.object(LocMemBackend, "send_messages", side_effect=record):
+            call_command("sendemails")
+
+        self.assertEqual(unsent_during_send, [2, 1, 0])
+
+    def test_a_run_stops_picking_up_emails_when_out_of_time(self):
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+
+        with mock.patch(
+            "booking_portal.management.commands.sendemails.MAX_SECONDS_PER_COMMAND", -1
+        ):
+            self.assertEqual(call_command("sendemails"), "No emails sent")
+
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(self._announcement_emails().filter(sent=False).count(), 3)
+
+    def _send_with_error(self, error):
+        ErrorOnceBackend.error = error
+        with override_settings(EMAIL_BACKEND=f"{TESTS_MODULE}.ErrorOnceBackend"):
+            return call_command("sendemails")
+
+    def test_batched_email_is_not_retried_when_the_connection_breaks(self):
+        """We can't know if it went out, and must not repeat it to 100 people"""
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+        first = self._announcement_emails().first()
+
+        output = self._send_with_error(smtplib.SMTPServerDisconnected("closed"))
+
+        # The run stops: the broken email stays claimed, the rest stay queued
+        self.assertEqual(output, "No emails sent")
+        self.assertEqual(len(mail.outbox), 0)
+        unsent = self._announcement_emails().filter(sent=False)
+        self.assertEqual(unsent.count(), 2)
+        self.assertNotIn(first.pk, unsent.values_list("pk", flat=True))
+        # Later runs send the rest, and never the broken one
+        call_command("sendemails")
+        call_command("sendemails")
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertNotIn(first.bcc_list, [m.bcc for m in mail.outbox])
+
+    def test_per_user_email_is_retried_when_the_connection_breaks(self):
+        self.faculty.send_email("Hello", "text body", "<p>html body</p>")
+
+        self.assertEqual(self._send_with_error(TimeoutError()), "No emails sent")
+
+        self.assertEqual(EmailModel.objects.filter(sent=False).count(), 1)
+        self.assertEqual(call_command("sendemails"), "Sent 1 emails to 1 recipients")
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_batched_email_is_retried_when_the_server_refuses_it(self):
+        """e.g. the daily quota is exhausted: nothing went out, so retry"""
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+
+        output = self._send_with_error(smtplib.SMTPDataError(550, b"quota exceeded"))
+
+        # Only the refused email failed, and it is still queued
+        self.assertEqual(output, f"Sent 2 emails to {self.user_count - 100} recipients")
+        self.assertEqual(self._announcement_emails().filter(sent=False).count(), 1)
+        call_command("sendemails")
+        self.assertEqual(len(mail.outbox), 3)
+        announced_to = [a for m in mail.outbox for a in m.bcc]
+        self.assertEqual(len(announced_to), len(set(announced_to)))
+        self.assertEqual(set(announced_to), self.expected_recipients)
+
+    def test_nothing_is_claimed_when_the_mail_server_is_unreachable(self):
+        announcement = Announcement.objects.create(title="Holiday", text="...")
+        queue_announcement_emails(announcement)
+
+        with mock.patch.object(
+            LocMemBackend, "open", side_effect=ConnectionRefusedError
+        ):
+            output = call_command("sendemails")
+
+        self.assertEqual(output, "No emails sent: could not connect to the mail server")
+        self.assertEqual(self._announcement_emails().filter(sent=False).count(), 3)
