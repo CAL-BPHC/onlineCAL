@@ -1,5 +1,5 @@
 /**
- * Faculty usage panel.
+ * Faculty and department usage panel.
  *
  * Reads its endpoint and the portal filter's current selection from data
  * attributes on #usagePanel, so the parameter names stay owned by the
@@ -30,7 +30,7 @@
     "usageBookings", "usageBasis", "usageCustom", "usageFrom", "usageTo",
     "usageApply", "usageFilterChip", "queueAwaiting", "queueAwaitingHours",
     "queueAwaitingCost", "queueCleared", "queueClearedHours", "queueClearedCost",
-    "queueDownstream"
+    "queueDownstream", "pendingBookings", "pendingHours", "pendingCost"
   ].forEach(function (id) {
     el[id] = document.getElementById(id);
   });
@@ -38,13 +38,19 @@
   var presetButtons = Array.prototype.slice.call(panel.querySelectorAll("[data-preset]"));
   var groupButtons = Array.prototype.slice.call(panel.querySelectorAll("[data-group]"));
 
-  var state = { preset: "this_fy", from: "", to: "", group: "by_instrument" };
+  // Faculty and department panels group differently, so each keeps its own
+  // saved state and falls back to its own first grouping.
+  var storageKey = panel.dataset.storageKey || "cifUsagePanel";
+  var groups = groupButtons.map(function (button) {
+    return button.dataset.group;
+  });
+  var state = { preset: "this_fy", from: "", to: "", group: groups[0] };
   var latest = null;
   var inFlight = null;
   var pendingFlash = [];
 
   try {
-    var saved = JSON.parse(window.localStorage.getItem("cifUsagePanel") || "{}");
+    var saved = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
     ["preset", "from", "to", "group"].forEach(function (key) {
       if (saved[key]) {
         state[key] = saved[key];
@@ -53,12 +59,15 @@
   } catch (error) {
     /* storage unavailable: the defaults are fine */
   }
+  if (groups.indexOf(state.group) === -1) {
+    state.group = groups[0];
+  }
   // A filter the user just applied wins over whatever the panel last showed.
   state.preset = hasFilter ? "filter" : (state.preset === "filter" ? "this_fy" : state.preset);
 
   function persist() {
     try {
-      window.localStorage.setItem("cifUsagePanel", JSON.stringify(state));
+      window.localStorage.setItem(storageKey, JSON.stringify(state));
     } catch (error) {
       /* ignore */
     }
@@ -177,6 +186,24 @@
     }).join("");
   }
 
+  function renderQueue(queue) {
+    setFigure(el.queueAwaiting, number(queue.awaiting_you.bookings), !queue.awaiting_you.bookings);
+    setFigure(el.queueAwaitingHours, number(queue.awaiting_you.hours) + " h", !queue.awaiting_you.hours);
+    setFigure(el.queueAwaitingCost, rupees(queue.awaiting_you.cost), !queue.awaiting_you.cost);
+    setFigure(el.queueCleared, number(queue.cleared_by_you.bookings), !queue.cleared_by_you.bookings);
+    setFigure(el.queueClearedHours, number(queue.cleared_by_you.hours) + " h", !queue.cleared_by_you.hours);
+    setFigure(el.queueClearedCost, rupees(queue.cleared_by_you.cost), !queue.cleared_by_you.cost);
+
+    var downstream = [];
+    if (queue.with_department.bookings) {
+      downstream.push(queue.with_department.bookings + " with department");
+    }
+    if (queue.with_lab.bookings) {
+      downstream.push(queue.with_lab.bookings + " with lab assistant");
+    }
+    el.queueDownstream.textContent = downstream.join(", ");
+  }
+
   function renderSummary(data) {
     latest = data;
     var basis = data.basis;
@@ -202,21 +229,15 @@
     el.usageScope.innerHTML =
       escapeHtml(data.range.label) + (extra ? "<small>" + extra + "</small>" : "");
 
-    setFigure(el.queueAwaiting, number(queue.awaiting_you.bookings), !queue.awaiting_you.bookings);
-    setFigure(el.queueAwaitingHours, number(queue.awaiting_you.hours) + " h", !queue.awaiting_you.hours);
-    setFigure(el.queueAwaitingCost, rupees(queue.awaiting_you.cost), !queue.awaiting_you.cost);
-    setFigure(el.queueCleared, number(queue.cleared_by_you.bookings), !queue.cleared_by_you.bookings);
-    setFigure(el.queueClearedHours, number(queue.cleared_by_you.hours) + " h", !queue.cleared_by_you.hours);
-    setFigure(el.queueClearedCost, rupees(queue.cleared_by_you.cost), !queue.cleared_by_you.cost);
-
-    var downstream = [];
-    if (queue.with_department.bookings) {
-      downstream.push(queue.with_department.bookings + " with department");
+    if (queue && el.queueAwaiting) {
+      renderQueue(queue);
     }
-    if (queue.with_lab.bookings) {
-      downstream.push(queue.with_lab.bookings + " with lab assistant");
+    if (data.pending && el.pendingBookings) {
+      var pending = data.pending;
+      setFigure(el.pendingBookings, number(pending.bookings), !pending.bookings);
+      setFigure(el.pendingHours, number(pending.hours) + " h", !pending.hours);
+      setFigure(el.pendingCost, rupees(pending.cost), !pending.cost);
     }
-    el.queueDownstream.textContent = downstream.join(", ");
 
     renderRows();
     flushFlashes();

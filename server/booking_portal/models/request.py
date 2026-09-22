@@ -292,31 +292,6 @@ def send_email_after_save(sender, instance, **kwargs):
         instance.student.send_email(
             EmailModel.get_subject_for_type(email_type), text, text_html, email_type
         )
-    elif instance.status == StudentRequest.WAITING_FOR_DEPARTMENT:
-        email_type = EmailModel.DEPARTMENT_APPROVAL
-        text = render_to_string(
-            "email/department_pending.txt",
-            {
-                "recipient_name": instance.faculty.department.salutation,
-                "student_name": instance.student.name,
-                "instrument_name": instance.instrument.name,
-                "slot": instance.slot.description,
-                "faculty_name": instance.faculty.name,
-            },
-        )
-        text_html = render_to_string(
-            "email/department_pending.html",
-            {
-                "recipient_name": instance.faculty.department.salutation,
-                "student_name": instance.student.name,
-                "instrument_name": instance.instrument.name,
-                "slot": instance.slot.description,
-                "faculty_name": instance.faculty.name,
-            },
-        )
-        instance.faculty.department.send_email(
-            EmailModel.get_subject_for_type(email_type), text, text_html, email_type
-        )
     # elif instance.status == StudentRequest.WAITING_FOR_LAB_ASST:
     #     email_type = EmailModel.LAB_ASSISTANT_APPROVAL
     #     text = render_to_string(

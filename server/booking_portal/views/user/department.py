@@ -1,22 +1,25 @@
-import logging
-
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
 from django.db.models import BooleanField, Value
-from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, render
-from django.views.decorators.http import require_POST
+from django.shortcuts import render
+from django.views.decorators.http import require_GET
 
-from ... import models, permissions
-from .portal import BasePortalFilter, get_pagintion_nav_range, portal_return_url
-
-logger = logging.getLogger(__name__)
+from ... import models, permissions, reporting
+from .portal import (
+    BasePortalFilter,
+    active_filter_scope,
+    get_pagintion_nav_range,
+    usage_summary,
+)
 
 
 @login_required
 @user_passes_test(permissions.is_department)
 def department_portal(request):
+    """Every request billed to the department, read-only.
+
+    The department's approval is taken as given, so there is nothing here to
+    accept or reject: the list is a ledger of what its faculty booked.
+    """
     student_requests = (
         models.StudentRequest.objects.filter(
             faculty__department=request.user,
@@ -39,7 +42,6 @@ def department_portal(request):
         faculty_queryset=faculty_requests,
     )
     page_obj = f.paginate()
-    department = models.Department.objects.get(id=request.user.id)
 
     return render(
         request,
@@ -48,69 +50,16 @@ def department_portal(request):
             "page_obj": page_obj,
             "nav_range": get_pagintion_nav_range(page_obj),
             "filter_form": f.form,
+            "filter_scope": active_filter_scope(f),
             "user_type": "department",
             "user_is_student": False,
-            "balance": department.balance,
-            "modifiable_request_status": models.StudentRequest.WAITING_FOR_DEPARTMENT,
         },
     )
 
 
 @login_required
 @user_passes_test(permissions.is_department)
-@require_POST
-def department_accept(request, id):
-    is_faculty = (request.GET.get("is_faculty", False)) == "true"
-    try:
-        with transaction.atomic():
-            if is_faculty:
-                request_object = models.FacultyRequest.objects.get(
-                    id=id, status=models.FacultyRequest.WAITING_FOR_DEPARTMENT
-                )
-            else:
-                request_object: models.StudentRequest = (
-                    models.StudentRequest.objects.get(
-                        id=id, status=models.StudentRequest.WAITING_FOR_DEPARTMENT
-                    )
-                )
-            department = models.Department.objects.get(id=request.user.id)
-            if department == request_object.faculty.department:
-                request_object.status = models.StudentRequest.WAITING_FOR_LAB_ASST
-                request_object.save()
-                return redirect(portal_return_url(request, "department_portal"))
-            else:
-                return HttpResponse("Bad Request")
-    except ObjectDoesNotExist:
-        raise Http404("Page Not Found")
-    except Exception:
-        logger.exception("Department could not accept request %s", id)
-        raise Http404("Page Not Found")
-
-
-@login_required
-@user_passes_test(permissions.is_department)
-@require_POST
-def department_reject(request, id):
-    is_faculty = (request.GET.get("is_faculty", False)) == "true"
-    try:
-        with transaction.atomic():
-            if is_faculty:
-                request_object = models.FacultyRequest.objects.get(
-                    id=id, status=models.FacultyRequest.WAITING_FOR_DEPARTMENT
-                )
-            else:
-                request_object = models.StudentRequest.objects.get(
-                    id=id, status=models.StudentRequest.WAITING_FOR_DEPARTMENT
-                )
-            department = request_object.faculty.department
-            if department == models.Department.objects.get(id=request.user.id):
-                request_object.status = models.StudentRequest.REJECTED
-                request_object.save()
-                return redirect(portal_return_url(request, "department_portal"))
-            else:
-                return HttpResponse("Bad Request")
-    except ObjectDoesNotExist:
-        raise Http404("Page Not Found")
-    except Exception:
-        logger.exception("Department could not reject request %s", id)
-        raise Http404("Page Not Found")
+@require_GET
+def department_usage_summary(request):
+    """Faculty and instrument wise usage billed to the logged in department."""
+    return usage_summary(request, reporting.collect_department_usage, request.user)
