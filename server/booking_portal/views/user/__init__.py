@@ -1,5 +1,5 @@
 from .admin import admin_portal, create_faculty, create_student, get_faculty
-from .department import department_accept, department_portal, department_reject
+from .department import department_portal, department_usage_summary
 from .faculty import (
     faculty_portal,
     faculty_request_accept,

@@ -68,10 +68,6 @@ class UserDetailsForm(forms.ModelForm):
 
         if is_faculty:
             self.fields["user_name"].queryset = Faculty.objects.all()
-            self.fields["needs_department_approval"] = forms.BooleanField(
-                label="I need the department's approval for this request",
-                required=False,
-            )
 
             self.fields.pop("sup_name", None)
             self.fields.pop("sup_dept", None)

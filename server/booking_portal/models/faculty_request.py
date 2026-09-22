@@ -76,19 +76,16 @@ class FacultyRequestManager(models.Manager):
             for val in data_to_store:
                 del val["_state"]
 
-            status = FacultyRequest.WAITING_FOR_LAB_ASST
-            if form_instance.cleaned_data["needs_department_approval"]:
-                status = FacultyRequest.WAITING_FOR_DEPARTMENT
             form_saved = form_instance.save()
+            # Billed to the faculty's department, whose approval is taken as
+            # given: the booking goes straight to the lab assistant.
             self.create(
                 faculty=faculty,
                 instrument=instr,
                 slot=slot,
-                status=status,
+                status=FacultyRequest.WAITING_FOR_LAB_ASST,
                 content_object=form_saved,
-                needs_department_approval=form_instance.cleaned_data[
-                    "needs_department_approval"
-                ],
+                needs_department_approval=True,
                 mode_description=mode.description if mode else "",
                 mode_cost=mode.cost if mode else 0,
                 mode_rule_type=mode.rule_type if mode else "",
@@ -230,31 +227,6 @@ class FacultyRequest(models.Model):
 @receiver(signal=post_save, sender=FacultyRequest)
 def send_email_after_save(sender, instance, **kwargs):
     slot = Slot.objects.get(id=instance.slot.id)
-    if instance.status == FacultyRequest.WAITING_FOR_DEPARTMENT:
-        email_type = EmailModel.DEPARTMENT_APPROVAL
-        text = render_to_string(
-            "email/department_pending.txt",
-            {
-                "recipient_name": instance.faculty.department.salutation,
-                "student_name": instance.faculty.name,
-                "instrument_name": instance.instrument.name,
-                "slot": instance.slot.description,
-                "faculty_name": instance.faculty.name,
-            },
-        )
-        text_html = render_to_string(
-            "email/department_pending.html",
-            {
-                "recipient_name": instance.faculty.department.salutation,
-                "student_name": instance.faculty.name,
-                "instrument_name": instance.instrument.name,
-                "slot": instance.slot.description,
-                "faculty_name": instance.faculty.name,
-            },
-        )
-        instance.faculty.department.send_email(
-            EmailModel.get_subject_for_type(email_type), text, text_html, email_type
-        )
     # elif instance.status == FacultyRequest.WAITING_FOR_LAB_ASST:
     #     email_type = EmailModel.LAB_ASSISTANT_APPROVAL
     #     text = render_to_string(
@@ -289,7 +261,7 @@ def send_email_after_save(sender, instance, **kwargs):
     #         sent=False,
     #         email_type=email_type,
     #     ).save()
-    elif instance.status == FacultyRequest.APPROVED:
+    if instance.status == FacultyRequest.APPROVED:
         slot.update_status(Slot.STATUS_3)
         email_type = EmailModel.BOOKING_APPROVED
         text = render_to_string(

@@ -2,7 +2,6 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 {% load query_utils %}
-{% load subtract %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -11,7 +10,7 @@
     <!-- Usage panel and filter -->
     <div class="col-lg-3 order-lg-1">
       <div class="container-fluid pt-4">
-        {% if user_type == 'faculty' %}
+        {% if user_type == 'faculty' or user_type == 'department' %}
           {% include 'booking_portal/portal_forms/_usage_panel.html' %}
         {% endif %}
         <div class="card bg-light mb-3">
@@ -32,16 +31,14 @@
       <div class="container-fluid pt-4 text-center">
         <div class="card bg-light mb-3">
           <div class="card-body">
-            <h2 class="card-title">Pending Requests</h2>
+            <h2 class="card-title">{% if user_type == 'department' %}Department Requests{% else %}Pending Requests{% endif %}</h2>
             <div class="table-responsive">
               <table class="table table-hover">
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
                     {% if not faculty_request %}
-                    {% if not user_type == 'department' %}
                     <th scope="col">Student Name</th>
-                    {% endif %}
                     {% endif %}
                     <th scope="col">Faculty</th>
                     <th scope="col">Instrument</th>
@@ -49,7 +46,7 @@
                     <th scope="col">Status</th>
                     <th scope="col">Application</th>
                     <th scope="col">Total Cost</th>
-                    {% if not user_is_student %}
+                    {% if not user_is_student and user_type != 'department' %}
                       <th scope="col" colspan="2">Actions</th>
                     {% endif %}
                   </tr>
@@ -60,9 +57,7 @@
                   <tr>
                     <th scope="row">{{ request.pk }}</th>
                     {% if not faculty_request %}
-                    {% if not user_type == 'department' %}
-                    <td>{{ request.student }}</td>
-                    {% endif %}
+                    <td>{% if request.is_faculty_request %}&mdash;{% else %}{{ request.student }}{% endif %}</td>
                     {% endif %}
                     <td>{{ request.faculty }}</td>
                     <td>{{ request.instrument }}</td>
@@ -70,24 +65,13 @@
                     <td>{% if request.status == 'R1' %}Waiting for Faculty Approval{% elif request.status == 'R2' %}Waiting for Lab Assistant Approval{% elif request.status == 'R3' %}Approved{% elif request.status == 'R4' %}Rejected{% elif request.status == 'R5' %}Cancelled{% elif request.status == 'R6' %}Waiting for Department Approval{% endif %}</td>
                     <td><a href="{% url 'view-application' id=request.id %}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" target="_blank"> View Application </a></td>
                     <td>{{ request.total_cost }}</td>
-                    {% if not user_is_student %}
+                    {% if not user_is_student and user_type != 'department' %}
                       {% if request.status == modifiable_request_status %}
                       {% if user_type == 'faculty' %}
                         {# faculty decide from the application itself #}
                         <td colspan="2">
                           <a class="btn btn-primary" href="{% url 'view-application' id=request.id %}">Review &amp; decide</a>
                         </td>
-                      {% elif user_type == 'department' %}
-                        <td>
-                          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirmationModal{{request.id}}{{request.is_faculty_request}}">Accept</button>
-                        </td>
-                        <td>
-                          <form action="/requests_department/reject/{{ request.id }}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" method="post" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">Reject</button>
-                          </form>
-                        </td>
-
                       {% elif user_type == 'assistant' %}
                         <td>
                           <form action="/requests_assistant/accept/{{ request.id }}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" method="post" class="d-inline">
@@ -165,34 +149,4 @@
       </div>
     </div>
   </div>
-
-  {% if user_type == 'department' %}
-    {# a <form> inside a <tr> parses with its children detached, so these live outside the table #}
-    {% for request in page_obj %}
-      {% if request.status == modifiable_request_status %}
-                        <div class="modal fade" id="confirmationModal{{request.id}}{{request.is_faculty_request}}" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLable" aria-hidden="true">
-                          <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="confirmationModalLable">Please confirm the following</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                  <span aria-hidden="true">&times;</span>
-                                </button>
-                              </div>
-                              <div class="modal-body">
-                                Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you <b>{{ request.total_cost }}</b> and your final balance will be <b>{{ balance | subtract:request.total_cost }}</b>.
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                  <form action="/requests_department/accept/{{ request.id }}{% if faculty_request or request.is_faculty_request %}?is_faculty=true{% endif %}" method="post" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-success">Confirm</button>
-                                  </form>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-      {% endif %}
-    {% endfor %}
-  {% endif %}
 {% endblock %}
