@@ -98,20 +98,15 @@ def _application_rows(form_object, editable_field=None, hidden_fields=()):
 
 # Who may act on a request, in which state, and where that lands them. A
 # reviewer decides from the application itself so that it has at least been in
-# front of them; the department and the lab assistant keep their list buttons
-# as well, since they clear far more requests in a sitting.
+# front of them; the lab assistant keeps their list buttons as well, since they
+# clear far more requests in a sitting. The department's approval is taken as
+# given, so it has no decision to make.
 DECISIONS = {
     "faculty": {
         "status": StudentRequest.WAITING_FOR_FACULTY,
         "accept": "faculty_request_accept",
         "reject": "faculty_request_reject",
         "portal": "faculty_portal",
-    },
-    "department": {
-        "status": StudentRequest.WAITING_FOR_DEPARTMENT,
-        "accept": "department_request_accept",
-        "reject": "department_request_reject",
-        "portal": "department_portal",
     },
     "assistant": {
         "status": StudentRequest.WAITING_FOR_LAB_ASST,
@@ -127,6 +122,7 @@ def _owns_the_decision(user, user_type, request_obj):
     if user_type == "faculty":
         return request_obj.faculty_id == user.id
     if user_type == "department":
+        # departments no longer decide, but what is billed to them is theirs
         return request_obj.faculty.department_id == user.id
     # lab assistants work the whole queue, as their portal already shows
     return user_type == "assistant"
@@ -157,18 +153,13 @@ def _decision(request, user_type, request_obj, faculty_request=False):
 
 def _decision_context(request, user_type, request_obj, decision):
     """What the confirmation modal has to state before this reviewer accepts."""
-    empty = {"balance": None, "department": None, "payer": None}
+    empty = {"department": None, "payer": None}
     if decision is None:
         return empty
 
     if user_type == "faculty":
-        faculty = Faculty.objects.filter(id=request.user.id).first()
-        if faculty is None:
-            return empty
-        return {**empty, "balance": faculty.balance, "department": faculty.department}
-    if user_type == "department":
-        department = Department.objects.filter(id=request.user.id).first()
-        return {**empty, "balance": department.balance if department else None}
+        # the request will be billed to the faculty's department
+        return {**empty, "department": request_obj.faculty.department}
     # the lab assistant's approval is what actually spends: the bill lands on
     # whoever the request was routed through
     return {
@@ -189,8 +180,9 @@ def _may_read_application(user, request_obj):
     if user.is_staff or user.is_superuser:
         return True
     user_type = get_user_type(user)
-    if user_type in DECISIONS:
-        # the reviewers who could act on it, at whatever stage it is in
+    if user_type in DECISIONS or user_type == "department":
+        # the reviewers who could act on it, at whatever stage it is in, and
+        # the department it is billed to
         return _owns_the_decision(user, user_type, request_obj)
     # a student sees the requests they raised
     return getattr(request_obj, "student_id", None) == user.id
@@ -366,7 +358,6 @@ def show_application_faculty(request, id):
 
     data = content_object.__dict__
     data["user_name"] = Faculty.objects.get(id=data["user_id"])
-    data["needs_department_approval"] = request_obj.needs_department_approval
 
     for charge_data in request_obj.additional_charges:
         charge_id = charge_data["id"]

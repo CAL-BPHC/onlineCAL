@@ -1,5 +1,4 @@
 {% extends 'instrument_form_base.html' %}
-{% load subtract %}
 
 {% block title %} {{ instrument_title }} {% endblock %}
 {% block subtitle %} {{ instrument_subtitle }} {% endblock %}
@@ -176,29 +175,24 @@
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           </div>
           <div class="modal-body">
-            {% if balance != None %}
-              Your current balance stands at <b>{{ balance }}</b>. If you accept this request, it will cost you
-              <b>{{ total_cost }}</b> and your final balance will be <b>{{ balance|subtract:total_cost }}</b>.
+            {% if user_type == 'faculty' %}
+              {% if department %}
+                Accepting request <b>#{{ request_obj.id }}</b> sends it to the lab assistant. Its cost,
+                <b>&#8377;{{ total_cost|floatformat:"-2" }}</b>, will be charged to the <b>{{ department.name|title }} Department</b>'s balance once the
+                lab assistant approves it.
+              {% else %}
+                <p class="text-danger mb-0">Your account is not associated with any department. Please contact the admin.</p>
+              {% endif %}
             {% else %}
               Approving request <b>#{{ request_obj.id }}</b> costs <b>{{ total_cost }}</b>, taken from
               <b>{{ payer }}</b>'s balance.
             {% endif %}
-            {% if user_type == 'faculty' %}
-              <p class="mt-2"><b>Note: If the request is routed through your department then your balance is not affected.</b></p>
-              {% if not department %}
-                <p class="text-danger">Your account is not associated with any department. Please contact the admin.</p>
-              {% endif %}
-            {% endif %}
             <form action="{{ decision.accept_url }}" method="post">
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ decision.back_url }}">
-              {% if user_type == 'faculty' %}
-                <input type="hidden" name="departmentRoute" value="True">
-                <p class="mb-0"><b>Note: For now, all requests are routed through the department, as faculty-level balance is not yet active.</b></p>
-              {% endif %}
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-success">Confirm</button>
+                <button type="submit" class="btn btn-success"{% if user_type == 'faculty' and not department %} disabled{% endif %}>Confirm</button>
               </div>
             </form>
           </div>

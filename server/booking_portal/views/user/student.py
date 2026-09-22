@@ -250,6 +250,14 @@ def book_machine(request, instr_id):
         return HttpResponseRedirect(reverse("instrument-list"))
 
     faculty = Faculty.objects.get(id=request.user.id)
+    # a faculty's bookings are billed to their department
+    if not faculty.department:
+        messages.error(
+            request,
+            "You need to be assigned to a department to book a slot. "
+            "Please contact the admin.",
+        )
+        return HttpResponseRedirect(reverse("instrument-list"))
     slot, instr = cast(
         tuple[Slot, Instrument], Slot.objects.get_instr_from_slot_id(slot_id)
     )

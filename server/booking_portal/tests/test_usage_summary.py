@@ -313,13 +313,11 @@ class RequestActionTestCase(RequestBuilderMixin, TestCase):
     def test_accepting_routes_the_request_onward(self):
         request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
 
-        response = self.client.post(
-            f"/requests_faculty/accept/{request.id}", {"departmentRoute": "True"}
-        )
+        response = self.client.post(f"/requests_faculty/accept/{request.id}")
 
         self.assertEqual(response.status_code, 302)
         request.refresh_from_db()
-        self.assertEqual(request.status, StudentRequest.WAITING_FOR_DEPARTMENT)
+        self.assertEqual(request.status, StudentRequest.WAITING_FOR_LAB_ASST)
 
     def test_rejecting_marks_the_request_rejected(self):
         request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
@@ -345,10 +343,7 @@ class RequestActionTestCase(RequestBuilderMixin, TestCase):
 
         response = client.post(
             f"/requests_faculty/accept/{request.id}",
-            {
-                "departmentRoute": "True",
-                "csrfmiddlewaretoken": client.cookies["csrftoken"].value,
-            },
+            {"csrfmiddlewaretoken": client.cookies["csrftoken"].value},
             HTTP_HOST=host,
             HTTP_X_FORWARDED_PROTO="https",
             HTTP_ORIGIN=f"https://{host}",
@@ -356,7 +351,7 @@ class RequestActionTestCase(RequestBuilderMixin, TestCase):
 
         self.assertEqual(response.status_code, 302)
         request.refresh_from_db()
-        self.assertEqual(request.status, StudentRequest.WAITING_FOR_DEPARTMENT)
+        self.assertEqual(request.status, StudentRequest.WAITING_FOR_LAB_ASST)
 
     def test_plain_post_still_redirects(self):
         request = self.make_request(StudentRequest.WAITING_FOR_FACULTY)
@@ -388,10 +383,7 @@ class RequestActionTestCase(RequestBuilderMixin, TestCase):
         )
         before = self.client.get("/faculty/usage-summary", {"preset": "this_fy"}).json()
 
-        self.client.post(
-            f"/requests_faculty/accept/{request.id}",
-            {"departmentRoute": "True"},
-        )
+        self.client.post(f"/requests_faculty/accept/{request.id}")
 
         after = self.client.get("/faculty/usage-summary", {"preset": "this_fy"}).json()
 
@@ -400,7 +392,8 @@ class RequestActionTestCase(RequestBuilderMixin, TestCase):
         self.assertEqual(after["queue"]["awaiting_you"]["bookings"], 0)
         self.assertEqual(after["queue"]["cleared_by_you"]["bookings"], 1)
         self.assertEqual(after["queue"]["cleared_by_you"]["hours"], 2.0)
-        self.assertEqual(after["queue"]["with_department"]["bookings"], 1)
+        self.assertEqual(after["queue"]["with_department"]["bookings"], 0)
+        self.assertEqual(after["queue"]["with_lab"]["bookings"], 1)
         # the headline is untouched: nothing has actually been used yet
         self.assertEqual(after["totals"], before["totals"])
 
