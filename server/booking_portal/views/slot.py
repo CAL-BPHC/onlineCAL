@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from ..forms.portal import InstrumentList, SlotList
 from ..models import StudentRequest
+from ..models.request import MAX_PENDING_REQUESTS_PER_INSTRUMENT
 from ..permissions import is_faculty, is_student
 
 
@@ -34,11 +35,13 @@ def slot_list(request):
                 "form": InstrumentList(),
             },
         )
-    if StudentRequest.objects.does_student_have_three_pending_requests(
+    if StudentRequest.objects.has_student_reached_pending_request_limit(
         instr, request.user
     ):
         messages.error(
-            request, "You already have 3 pending requests for this instrument."
+            request,
+            f"You already have {MAX_PENDING_REQUESTS_PER_INSTRUMENT} pending "
+            "requests for this instrument.",
         )
         return render(
             request,
