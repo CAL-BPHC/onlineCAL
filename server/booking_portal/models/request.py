@@ -17,6 +17,8 @@ from .email import EmailModel
 from .slot import Slot
 from .user import Faculty, LabAssistant, Student
 
+MAX_PENDING_REQUESTS_PER_INSTRUMENT = 2
+
 
 class StudentRequestManager(models.Manager):
     def create_request(self, form_instance, slot_id, student):
@@ -28,10 +30,13 @@ class StudentRequestManager(models.Manager):
             if not slot.is_available_for_booking():
                 raise ValueError("Slot is not available for booking.")
 
-            if StudentRequest.objects.does_student_have_three_pending_requests(
+            if StudentRequest.objects.has_student_reached_pending_request_limit(
                 instr, student
             ):
-                raise ValueError("3 upcoming slots for instrument already booked.")
+                raise ValueError(
+                    f"{MAX_PENDING_REQUESTS_PER_INSTRUMENT} upcoming slots for "
+                    "instrument already booked."
+                )
 
             # mode_id = form_instance.cleaned_data.get("mode")
             # if not mode_id:
@@ -110,8 +115,8 @@ class StudentRequestManager(models.Manager):
         ).exists()
 
     @staticmethod
-    def does_student_have_three_pending_requests(instr, student, date=None):
-        """Check if a student has three pending requests for an instrument"""
+    def has_student_reached_pending_request_limit(instr, student, date=None):
+        """Check if a student has the maximum pending requests for an instrument"""
         if date is None:
             date = localdate()
         return (
@@ -125,7 +130,7 @@ class StudentRequestManager(models.Manager):
                 student=student,
                 slot__date__gte=date,
             ).count()
-            >= 3
+            >= MAX_PENDING_REQUESTS_PER_INSTRUMENT
         )
 
 

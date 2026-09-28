@@ -18,6 +18,7 @@ from ...models import (
     Student,
     StudentRequest,
 )
+from ...models.request import MAX_PENDING_REQUESTS_PER_INSTRUMENT
 from .portal import BasePortalFilter, get_pagintion_nav_range
 
 
@@ -96,11 +97,13 @@ def book_machine_student(request, form_class, form_model_class):
             messages.error(request, "Sorry, This slot is not available anymore.")
             return HttpResponseRedirect(reverse("instrument-list"))
 
-        if StudentRequest.objects.does_student_have_three_pending_requests(
+        if StudentRequest.objects.has_student_reached_pending_request_limit(
             instr, student
         ):
             messages.error(
-                request, "You already have 3 ongoing applications for this machine."
+                request,
+                f"You already have {MAX_PENDING_REQUESTS_PER_INSTRUMENT} ongoing "
+                "applications for this machine.",
             )
             return HttpResponseRedirect(reverse("instrument-list"))
 

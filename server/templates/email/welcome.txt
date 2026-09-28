@@ -16,7 +16,7 @@ with the portal:
 Please change your password as soon as possible.
 {% if user_type|lower == "student" %}
     You can start booking slots right away! However, please note that you
-    can only have up to three active requests for the same machine at any given time.
+    can only have up to two active requests for the same machine at any given time.
     If this limit is reached, you must wait for one or more requests to either be
     completed (in the past) or rejected before making additional bookings. You can book
     slots for other machines while you may have pending requests.
