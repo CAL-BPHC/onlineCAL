@@ -98,14 +98,40 @@ class ApplicationViewTestCase(ApplicationFixtureMixin, TestCase):
 
     def test_accepting_from_the_application_moves_the_request(self):
         response = self.client.post(
-            f"/requests_faculty/accept/{self.request.id}",
-            {"departmentRoute": "True"},
-            HTTP_REFERER=self.url(),
+            f"/requests_faculty/accept/{self.request.id}", HTTP_REFERER=self.url()
         )
 
         self.request.refresh_from_db()
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.request.status, StudentRequest.WAITING_FOR_DEPARTMENT)
+        # the department's approval is taken as given, but it still pays
+        self.assertEqual(self.request.status, StudentRequest.WAITING_FOR_LAB_ASST)
+        self.assertTrue(self.request.needs_department_approval)
+
+    def test_the_confirmation_says_who_pays(self):
+        body = self.client.get(self.url()).content.decode()
+
+        self.assertIn("sends it to the lab assistant", body)
+        self.assertIn("Chemistry Department</b>'s balance", body)
+        self.assertNotIn("Your current balance", body)
+        self.assertNotIn("departmentRoute", body)
+
+    def test_a_faculty_without_a_department_is_warned_and_cannot_confirm(self):
+        self.faculty.department = None
+        self.faculty.save()
+
+        body = self.client.get(self.url()).content.decode()
+
+        self.assertIn("not associated with any department", body)
+        self.assertIn('class="btn btn-success" disabled>Confirm', body)
+
+    def test_a_faculty_without_a_department_cannot_accept(self):
+        self.faculty.department = None
+        self.faculty.save()
+
+        self.client.post(f"/requests_faculty/accept/{self.request.id}")
+
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, StudentRequest.WAITING_FOR_FACULTY)
 
     def test_the_faculty_list_links_to_the_application_instead_of_deciding(self):
         body = self.client.get("/faculty/").content.decode()
@@ -150,7 +176,7 @@ class ReturnAfterDecidingTestCase(ApplicationFixtureMixin, TestCase):
 
         response = self.client.post(
             f"/requests_faculty/accept/{self.request.id}",
-            {"departmentRoute": "True", "next": listing},
+            {"next": listing},
         )
 
         self.assertEqual(response["Location"], listing)
@@ -158,7 +184,7 @@ class ReturnAfterDecidingTestCase(ApplicationFixtureMixin, TestCase):
     def test_an_off_site_return_target_is_refused(self):
         response = self.client.post(
             f"/requests_faculty/accept/{self.request.id}",
-            {"departmentRoute": "True", "next": "https://evil.example.com/"},
+            {"next": "https://evil.example.com/"},
         )
 
         self.assertEqual(response["Location"], "/faculty/")
@@ -187,20 +213,26 @@ class ReviewerDecisionTestCase(ApplicationFixtureMixin, TestCase):
     def open_as(self, user, request_obj):
         return self.response_as(user, request_obj).content.decode()
 
-    def test_the_department_decides_on_a_request_waiting_on_it(self):
-        request_obj = self.make_request(
-            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
-        )
+    def test_the_department_reads_what_it_is_billed_for_but_decides_nothing(self):
+        for status in (
+            StudentRequest.WAITING_FOR_LAB_ASST,
+            # left over from before its approval was taken as given
+            StudentRequest.WAITING_FOR_DEPARTMENT,
+        ):
+            with self.subTest(status=status):
+                request_obj = self.make_request(status, needs_department_approval=True)
 
-        body = self.open_as(self.department, request_obj)
+                response = self.response_as(self.department, request_obj)
+                body = response.content.decode()
 
-        self.assertIn("Accept request", body)
-        self.assertIn(f"/requests_department/accept/{request_obj.id}", body)
-        self.assertIn(f"/requests_department/reject/{request_obj.id}", body)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("Application details", body)
+                self.assertNotIn("Accept request", body)
+                self.assertNotIn("/requests_department/", body)
 
     def test_the_department_does_not_see_its_own_name_back(self):
         request_obj = self.make_request(
-            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+            StudentRequest.WAITING_FOR_LAB_ASST, needs_department_approval=True
         )
 
         body = self.open_as(self.department, request_obj)
@@ -221,7 +253,7 @@ class ReviewerDecisionTestCase(ApplicationFixtureMixin, TestCase):
     def test_another_department_cannot_open_it_at_all(self):
         stranger = Department.objects.create(email="other@example.com", name="physics")
         request_obj = self.make_request(
-            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+            StudentRequest.WAITING_FOR_LAB_ASST, needs_department_approval=True
         )
 
         self.assertEqual(self.response_as(stranger, request_obj).status_code, 404)
@@ -231,22 +263,23 @@ class ReviewerDecisionTestCase(ApplicationFixtureMixin, TestCase):
 
         self.assertNotIn("Accept request", self.open_as(self.department, request_obj))
 
-    def test_accepting_as_the_department_moves_the_request_on(self):
+    def test_the_department_decision_endpoints_are_gone(self):
         request_obj = self.make_request(
             StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
         )
         self.client.force_login(self.department)
 
-        response = self.client.post(
-            f"/requests_department/accept/{request_obj.id}",
-            {"next": "http://testserver/department/?status=R6"},
-        )
+        for action in ("accept", "reject"):
+            with self.subTest(action=action):
+                response = self.client.post(
+                    f"/requests_department/{action}/{request_obj.id}"
+                )
 
-        request_obj.refresh_from_db()
-        self.assertEqual(request_obj.status, StudentRequest.WAITING_FOR_LAB_ASST)
-        self.assertEqual(
-            response["Location"], "http://testserver/department/?status=R6"
-        )
+                self.assertEqual(response.status_code, 404)
+                request_obj.refresh_from_db()
+                self.assertEqual(
+                    request_obj.status, StudentRequest.WAITING_FOR_DEPARTMENT
+                )
 
     def test_the_lab_assistant_decides_on_a_request_waiting_on_it(self):
         request_obj = self.make_request(StudentRequest.WAITING_FOR_LAB_ASST)
@@ -282,16 +315,16 @@ class ReviewerDecisionTestCase(ApplicationFixtureMixin, TestCase):
 
     def test_a_return_target_for_another_portal_is_refused(self):
         request_obj = self.make_request(
-            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+            StudentRequest.WAITING_FOR_LAB_ASST, needs_department_approval=True
         )
-        self.client.force_login(self.department)
+        self.client.force_login(LabAssistantFactory())
 
         response = self.client.post(
-            f"/requests_department/accept/{request_obj.id}",
+            f"/requests_assistant/accept/{request_obj.id}",
             {"next": "http://testserver/faculty/"},
         )
 
-        self.assertEqual(response["Location"], "/department/")
+        self.assertEqual(response["Location"], "/lab-assistant/")
 
 
 class FillInFormTestCase(TestCase):
@@ -484,11 +517,6 @@ class DecisionEndpointsTestCase(ApplicationFixtureMixin, TestCase):
     def test_a_get_cannot_decide(self):
         cases = (
             (
-                self.department,
-                StudentRequest.WAITING_FOR_DEPARTMENT,
-                "/requests_department/{}/{}",
-            ),
-            (
                 LabAssistantFactory(),
                 StudentRequest.WAITING_FOR_LAB_ASST,
                 "/requests_assistant/{}/{}",
@@ -508,31 +536,19 @@ class DecisionEndpointsTestCase(ApplicationFixtureMixin, TestCase):
                     request_obj.refresh_from_db()
                     self.assertEqual(request_obj.status, status)
 
-    def test_the_confirm_form_is_not_stranded_inside_the_table(self):
+    def test_the_lab_assistant_list_posts_its_decisions(self):
         self.make_request(
-            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+            StudentRequest.WAITING_FOR_LAB_ASST, needs_department_approval=True
         )
-        self.client.force_login(self.department)
+        self.client.force_login(LabAssistantFactory())
 
-        body = self.client.get("/department/").content.decode()
-
-        # a <form> inside a <tr> parses with its children detached, so the
-        # confirm dialog has to live after the table, not in the row
-        self.assertLess(body.index("</table>"), body.index('id="confirmationModal'))
-
-    def test_the_list_posts_its_decisions(self):
-        self.make_request(
-            StudentRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
-        )
-        self.client.force_login(self.department)
-
-        body = self.client.get("/department/").content.decode()
+        body = self.client.get("/lab-assistant/").content.decode()
 
         self.assertIn('method="post"', body)
         self.assertIn("csrfmiddlewaretoken", body)
         # nothing decides by being followed
-        self.assertNotIn('<a href="/requests_department/accept/', body)
-        self.assertNotIn('<a href="/requests_department/reject/', body)
+        self.assertNotIn('<a href="/requests_assistant/accept/', body)
+        self.assertNotIn('<a href="/requests_assistant/reject/', body)
 
 
 class FacultyRequestTestCase(ApplicationFixtureMixin, TestCase):
@@ -589,20 +605,16 @@ class FacultyRequestTestCase(ApplicationFixtureMixin, TestCase):
             with self.subTest(who=who):
                 self.assertEqual(self.response_as(user, request_obj).status_code, 404)
 
-    def test_the_department_decides_when_it_is_routed_to_them(self):
+    def test_the_department_reads_it_and_may_remark_but_decides_nothing(self):
         request_obj = self.make_faculty_request(
-            FacultyRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+            FacultyRequest.WAITING_FOR_LAB_ASST, needs_department_approval=True
         )
 
         body = self.response_as(self.department, request_obj).content.decode()
 
-        self.assertIn("Accept request", body)
-        self.assertIn(
-            f"/requests_department/accept/{request_obj.id}?is_faculty=true", body
-        )
-        self.assertIn(
-            f"/requests_department/reject/{request_obj.id}?is_faculty=true", body
-        )
+        self.assertIn("Application details", body)
+        self.assertNotIn("Accept request", body)
+        self.assertNotIn("/requests_department/", body)
         self.assertIn(
             f"/application/edit/remarks/{request_obj.id}?is_faculty=true", body
         )
@@ -631,7 +643,7 @@ class FacultyRequestTestCase(ApplicationFixtureMixin, TestCase):
 
     def test_the_department_can_remark_on_it(self):
         request_obj = self.make_faculty_request(
-            FacultyRequest.WAITING_FOR_DEPARTMENT, needs_department_approval=True
+            FacultyRequest.WAITING_FOR_LAB_ASST, needs_department_approval=True
         )
         self.client.force_login(self.department)
 

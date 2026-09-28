@@ -1,4 +1,4 @@
-"""Usage aggregation for the faculty portal panel.
+"""Usage aggregation for the faculty and department portal panels.
 
 Cost lives in a Python property on the request models (it depends on the
 generic form object and on the additional_charges JSON), so none of this can be
@@ -150,14 +150,18 @@ def _new_bucket(key, with_children=False):
     return bucket
 
 
-def _add(store, key, hours, cost, with_children=False):
-    bucket = store.get(key)
-    if bucket is None:
-        bucket = store[key] = _new_bucket(key, with_children)
+def _tally(bucket, hours, cost):
     bucket["hours"] += hours
     bucket["cost"] += cost
     bucket["bookings"] += 1
     return bucket
+
+
+def _add(store, key, hours, cost, with_children=False):
+    bucket = store.get(key)
+    if bucket is None:
+        bucket = store[key] = _new_bucket(key, with_children)
+    return _tally(bucket, hours, cost)
 
 
 def _rounded(bucket):
@@ -296,3 +300,84 @@ def collect_usage(faculty, start=None, end=None, instrument=None, status=None):
 def approval_queue(faculty, start=None, end=None, instrument=None):
     """The faculty's approval workload over a range, defaulting to all of it."""
     return collect_usage(faculty, start, end, instrument)["queue"]
+
+
+def collect_department_usage(
+    department, start=None, end=None, instrument=None, status=None
+):
+    """Aggregate what a department's faculty used, between two dates (inclusive).
+
+    Covers every request billed to the department: its faculty's students'
+    requests and the faculty's own bookings. The department no longer approves
+    anything, so there is no approval queue to walk and the range, instrument
+    and status all narrow the rows in SQL. Without a status the totals cover
+    approved bookings, which are the ones the department has been charged for;
+    `pending` is what the lab assistant still has to approve, and so what is
+    still to come off the balance.
+    """
+    status = status or StudentRequest.APPROVED
+    counts_towards_usage = status not in NON_USAGE_STATUSES
+    instrument = int(instrument) if instrument else None
+
+    wanted = {StudentRequest.WAITING_FOR_LAB_ASST}
+    if counts_towards_usage:
+        wanted.add(status)
+
+    def billed(model):
+        requests = model.objects.filter(
+            faculty__department=department,
+            needs_department_approval=True,
+            status__in=wanted,
+        )
+        if start:
+            requests = requests.filter(slot__date__gte=start)
+        if end:
+            requests = requests.filter(slot__date__lte=end)
+        if instrument:
+            requests = requests.filter(instrument_id=instrument)
+        return requests.select_related(
+            "slot", "instrument", "faculty"
+        ).prefetch_related("content_object")
+
+    totals = _new_bucket("totals")
+    pending = _new_bucket("pending")
+    by_faculty = {}
+    by_instrument = {}
+
+    for model in (StudentRequest, FacultyRequest):
+        for request in billed(model):
+            hours = request_hours(request)
+            cost = safe_total_cost(request)
+
+            if request.status == StudentRequest.WAITING_FOR_LAB_ASST:
+                _tally(pending, hours, cost)
+
+            if counts_towards_usage and request.status == status:
+                who = str(request.faculty)
+                name = request.instrument.name
+                _tally(totals, hours, cost)
+                _add(
+                    _add(by_faculty, who, hours, cost, True)["children"],
+                    name,
+                    hours,
+                    cost,
+                )
+                _add(
+                    _add(by_instrument, name, hours, cost, True)["children"],
+                    who,
+                    hours,
+                    cost,
+                )
+
+    return {
+        "basis": {
+            "status": status,
+            "label": status_label(status),
+            "is_approved": status == StudentRequest.APPROVED,
+            "counts_towards_usage": counts_towards_usage,
+        },
+        "totals": _rounded(totals),
+        "pending": _rounded(pending),
+        "by_faculty": _serialise(by_faculty),
+        "by_instrument": _serialise(by_instrument),
+    }

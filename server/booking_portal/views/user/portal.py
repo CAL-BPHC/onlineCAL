@@ -3,11 +3,13 @@ from urllib.parse import urlparse
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import JsonResponse
 from django.urls import reverse
+from django.utils.dateparse import parse_date
 from django.utils.http import url_has_allowed_host_and_scheme
 from django_filters import DateFilter, FilterSet, OrderingFilter
 
-from ... import forms, models
+from ... import forms, models, reporting
 
 
 def safe_portal_url(candidate, request, portal):
@@ -47,6 +49,53 @@ def active_filter_scope(portal_filter):
         name: data.get(name, "")
         for name in ("status", "instrument", "from_date", "to_date")
     }
+
+
+def usage_summary(request, collect, owner):
+    """JSON usage summary for a portal's usage panel.
+
+    Validates the range, instrument and status the panel asks for, then hands
+    them to `collect(owner, start, end, instrument, status)`.
+    """
+    preset = request.GET.get("preset") or reporting.DEFAULT_PRESET
+    if preset not in reporting.PRESETS:
+        return JsonResponse({"error": "Unknown preset"}, status=400)
+
+    start = parse_date(request.GET.get("from") or "")
+    end = parse_date(request.GET.get("to") or "")
+    if preset == "custom" and not (start or end):
+        return JsonResponse(
+            {"error": "A custom range needs a valid from or to date"}, status=400
+        )
+
+    # The panel can follow the instrument picked in the portal's own filter.
+    instrument = None
+    instrument_id = request.GET.get("instrument") or ""
+    if instrument_id:
+        instrument = models.Instrument.objects.filter(pk=instrument_id).first()
+        if instrument is None:
+            return JsonResponse({"error": "Unknown instrument"}, status=400)
+
+    status = request.GET.get("status") or ""
+    if status and status not in dict(models.StudentRequest.STATUS_CHOICES):
+        return JsonResponse({"error": "Unknown status"}, status=400)
+
+    start, end, label = reporting.resolve_range(preset, start, end)
+    payload = collect(
+        owner,
+        start,
+        end,
+        instrument.pk if instrument else None,
+        status or None,
+    )
+    payload["range"] = {
+        "preset": preset,
+        "from": start.isoformat() if start else None,
+        "to": end.isoformat() if end else None,
+        "label": label,
+        "instrument": instrument.name if instrument else None,
+    }
+    return JsonResponse(payload)
 
 
 def get_pagintion_nav_range(page_obj):
@@ -111,13 +160,13 @@ class BasePortalFilter(FilterSet):
     def qs(self):
         # For department portal, we need to filter on both student and faculty requests
         # Django doesn't support filtering on union queryset directly
-        if (
-            self.student_queryset is not None
-            and self.faculty_queryset is not None
-            and self.form.is_valid()
-        ):
+        if self.student_queryset is not None and self.faculty_queryset is not None:
             student_filtered = self.student_queryset
             faculty_filtered = self.faculty_queryset
+            # An invalid field is dropped, as FilterSet itself does, rather
+            # than falling back to super().qs: with no queryset of its own
+            # that is every request of every department.
+            self.form.is_valid()
             cleaned_data = {k: v for k, v in self.form.cleaned_data.items() if v}
             order_by = cleaned_data.pop("order", ["-slot__date"])
             for field, value in cleaned_data.items():

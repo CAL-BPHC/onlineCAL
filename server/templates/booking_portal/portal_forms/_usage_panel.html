@@ -1,6 +1,6 @@
 {% comment %}
-Usage summary for the logged in faculty, shown under the Filter card in the
-sidebar. Behaviour lives in booking_portal/static/booking_portal/usage_panel.js,
+Usage summary for the logged in faculty or department, shown above the Filter
+card in the sidebar. Behaviour lives in booking_portal/static/booking_portal/usage_panel.js,
 which reads the endpoint and the portal filter's current selection from the
 data attributes below.
 {% endcomment %}
@@ -9,13 +9,18 @@ data attributes below.
 <link rel="stylesheet" href="{% static 'booking_portal/usage_panel.css' %}">
 
 <div class="card bg-light mb-3" id="usagePanel"
+     {% if user_type == 'department' %}
+     data-usage-url="{% url 'department_usage_summary' %}"
+     data-storage-key="cifUsagePanel:department"
+     {% else %}
      data-usage-url="{% url 'faculty_usage_summary' %}"
+     {% endif %}
      data-filter-status="{{ filter_scope.status }}"
      data-filter-instrument="{{ filter_scope.instrument }}"
      data-filter-from="{{ filter_scope.from_date }}"
      data-filter-to="{{ filter_scope.to_date }}">
   <div class="card-body">
-    <h3 class="card-title text-center h5 mb-3">My Usage</h3>
+    <h3 class="card-title text-center h5 mb-3">{% if user_type == 'department' %}Department Usage{% else %}My Usage{% endif %}</h3>
 
     <div class="usage-seg mb-2">
       <button type="button" class="d-none" data-preset="filter" id="usageFilterChip">Filter</button>
@@ -54,6 +59,21 @@ data attributes below.
     </div>
     <p class="usage-note text-center" id="usageBookings">&nbsp;</p>
 
+    {% if user_type == 'department' %}
+    <div class="usage-block">
+      <p class="usage-heading">Awaiting lab assistant</p>
+      <div class="row no-gutters text-center">
+        <div class="col-6">
+          <div class="usage-figure" id="pendingHours">&ndash;</div>
+          <div class="usage-caption"><span id="pendingBookings">&ndash;</span> bookings</div>
+        </div>
+        <div class="col-6">
+          <div class="usage-figure" id="pendingCost">&ndash;</div>
+          <div class="usage-caption">to be charged</div>
+        </div>
+      </div>
+    </div>
+    {% else %}
     <div class="usage-block">
       <p class="usage-heading">Approval queue</p>
       <div class="row no-gutters text-center">
@@ -70,12 +90,18 @@ data attributes below.
       </div>
       <p class="usage-note mb-0 text-center" id="queueDownstream"></p>
     </div>
+    {% endif %}
 
     <div class="usage-block">
       <p class="usage-heading">Breakdown <span>&middot; <span id="usageBasis">approved</span></span></p>
       <div class="usage-seg mb-2">
+        {% if user_type == 'department' %}
+        <button type="button" class="active" data-group="by_faculty">By faculty</button>
+        <button type="button" data-group="by_instrument">By instrument</button>
+        {% else %}
         <button type="button" class="active" data-group="by_instrument">By instrument</button>
         <button type="button" data-group="by_student">By student</button>
+        {% endif %}
       </div>
       <div id="usageRows"></div>
     </div>
