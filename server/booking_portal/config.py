@@ -61,6 +61,7 @@ form_template_dict = {
     42: (AFMForm, AFM),
     43: (ICPMSForm, ICPMS),
     44: (ConfocalRamanSpectrometerForm, ConfocalRamanSpectrometer),
+    45: (DSCTGAForm, DSCTGA),
 }
 
 view_application_dict = {
