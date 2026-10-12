@@ -13,6 +13,7 @@ from .dsc_tga import DSCTGAForm
 from .edxrf import EDXRFForm
 from .epr_esr import EPR_ESRForm
 from .fesem import FESEMForm
+from .fluorescence_microscope import FluorescenceMicroscopeForm
 from .fluorolog3 import Fluorolog3Form
 from .fluoromax import FluoromaxForm
 from .freezedryer import FreezeDryerForm

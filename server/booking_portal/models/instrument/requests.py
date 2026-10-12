@@ -813,3 +813,21 @@ class DSCTGA(UserDetail, UserRemark):
     class Meta:
         verbose_name = "DSC-TGA"
         verbose_name_plural = "DSC-TGA"
+
+
+class FluorescenceMicroscope(UserDetail, UserRemark):
+    sample_description = models.CharField(max_length=75)
+    sample_type = models.CharField(max_length=75)
+    imaging_mode = models.CharField(
+        max_length=30,
+        choices=[
+            ("Fluorescence - Single Colour", "Fluorescence - Single Colour"),
+            ("Fluorescence - Multi Colour", "Fluorescence - Multi Colour"),
+            ("Brightfield", "Brightfield"),
+            ("Black & White", "Black & White"),
+        ],
+    )
+
+    class Meta:
+        verbose_name = "Fluorescence Microscope"
+        verbose_name_plural = "Fluorescence Microscope"
