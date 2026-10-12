@@ -35,6 +35,7 @@ from .requests import (
     Fluorolog3,
     Fluoromax,
     FreezeDryer,
+    NanoDrop,
     Quantachrome,
     Rheometer,
     SpectraFluorimeter,
