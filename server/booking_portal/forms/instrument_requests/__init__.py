@@ -8,6 +8,7 @@ from .confocal_raman_spectrometer import ConfocalRamanSpectrometerForm
 from .contact_angle import ContactAngleForm
 from .digital_polarimeter import DigitalPolarimeterForm
 from .dls import DLSForm
+from .dls_zetasizer import DLSZetasizerForm
 from .dsc import DSCForm
 from .dsc_tga import DSCTGAForm
 from .edxrf import EDXRFForm

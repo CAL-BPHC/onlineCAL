@@ -848,3 +848,22 @@ class NanoDrop(UserDetail, UserRemark):
     class Meta:
         verbose_name = "NanoDrop"
         verbose_name_plural = "NanoDrop"
+
+
+class DLSZetasizer(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    cuvettes = models.CharField(
+        max_length=10,
+        choices=[
+            ("Disposable", "Disposable"),
+            ("Glass", "Glass"),
+            ("Quartz", "Quartz"),
+            ("Omega", "Omega"),
+            ("Univette", "Univette"),
+        ],
+    )
+    solvent = models.CharField(max_length=75)
+
+    class Meta:
+        verbose_name = "DLS Zetasizer"
+        verbose_name_plural = "DLS Zetasizer"
