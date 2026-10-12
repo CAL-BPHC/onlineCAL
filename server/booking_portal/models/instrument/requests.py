@@ -831,3 +831,20 @@ class FluorescenceMicroscope(UserDetail, UserRemark):
     class Meta:
         verbose_name = "Fluorescence Microscope"
         verbose_name_plural = "Fluorescence Microscope"
+
+
+class NanoDrop(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    sample_type = models.CharField(max_length=75)
+    analysis_required = models.CharField(
+        max_length=15,
+        choices=[
+            ("Concentration", "Concentration"),
+            ("Purity", "Purity"),
+            ("Other", "Other"),
+        ],
+    )
+
+    class Meta:
+        verbose_name = "NanoDrop"
+        verbose_name_plural = "NanoDrop"

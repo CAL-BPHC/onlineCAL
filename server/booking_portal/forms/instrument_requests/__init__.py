@@ -28,6 +28,7 @@ from .lscm import LSCMForm
 from .mufflefurnace1 import MuffleFurnace1Form
 from .mufflefurnace2 import MuffleFurnace2Form
 from .mufflefurnace3 import MuffleFurnace3Form
+from .nanodrop import NanoDropForm
 from .nmr import NMRForm
 from .pxrd import PXRDForm
 from .quantachrome import QuantachromeForm
