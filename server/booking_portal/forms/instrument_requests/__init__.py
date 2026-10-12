@@ -38,6 +38,7 @@ from .rt_pcr import RT_PCRForm
 from .saxs_waxs import SAXSWAXSForm
 from .scxrd import SCXRDForm
 from .spectrafluorimeter import SpectraFluorimeterForm
+from .spectramax import SpectraMaxForm
 from .tcspc import TCSPCForm
 from .tga import TGAForm
 from .tga_setline import TGASetlineForm

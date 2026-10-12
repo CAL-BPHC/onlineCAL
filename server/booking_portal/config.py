@@ -66,6 +66,7 @@ form_template_dict = {
     47: (NanoDropForm, NanoDrop),
     48: (DLSZetasizerForm, DLSZetasizer),
     49: (TGASetlineForm, TGASetline),
+    50: (SpectraMaxForm, SpectraMax),
 }
 
 view_application_dict = {
