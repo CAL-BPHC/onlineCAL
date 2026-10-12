@@ -31,6 +31,7 @@ from .requests import (
     ConfocalRamanSpectrometer,
     ContactAngle,
     DigitalPolarimeter,
+    FluorescenceMicroscope,
     Fluorolog3,
     Fluoromax,
     FreezeDryer,
