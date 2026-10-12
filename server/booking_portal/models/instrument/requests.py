@@ -895,3 +895,40 @@ class TGASetline(UserDetail, UserRemark):
     class Meta:
         verbose_name = "TGA Setline"
         verbose_name_plural = "TGA Setline"
+
+
+class SpectraMax(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    plate_type = models.CharField(
+        max_length=10,
+        choices=[
+            ("96-well", "96-well"),
+            ("384-well", "384-well"),
+            ("Other", "Other"),
+        ],
+    )
+    read_mode = models.CharField(
+        max_length=10,
+        choices=[
+            ("ABS", "ABS"),
+            ("FRET", "FRET"),
+            ("LUM", "LUM"),
+            ("TRF", "TRF"),
+            ("TR-FRET", "TR-FRET"),
+            ("FP", "FP"),
+            ("LUM-DUAL", "LUM-DUAL"),
+        ],
+    )
+    read_type = models.CharField(
+        max_length=10,
+        choices=[
+            ("Endpoint", "Endpoint"),
+            ("Kinetic", "Kinetic"),
+            ("Well Scan", "Well Scan"),
+            ("Spectrum", "Spectrum"),
+        ],
+    )
+
+    class Meta:
+        verbose_name = "SpectraMax iD5"
+        verbose_name_plural = "SpectraMax iD5"

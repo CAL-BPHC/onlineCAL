@@ -40,6 +40,7 @@ from .requests import (
     Quantachrome,
     Rheometer,
     SpectraFluorimeter,
+    SpectraMax,
     TGASetline,
     TubularMuffleFurnace,
     Ultracentrifuge,
