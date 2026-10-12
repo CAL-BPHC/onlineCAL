@@ -867,3 +867,31 @@ class DLSZetasizer(UserDetail, UserRemark):
     class Meta:
         verbose_name = "DLS Zetasizer"
         verbose_name_plural = "DLS Zetasizer"
+
+
+class TGASetline(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    temp_range_start = models.IntegerField()
+    temp_range_end = models.IntegerField()
+    atmosphere = models.CharField(
+        max_length=5,
+        choices=[
+            ("N2", "N2"),
+            ("Air", "Air"),
+        ],
+    )
+    heating_rate = models.IntegerField(validators=[MinValueValidator(1)])
+
+    def clean(self):
+        if self.temp_range_start is None or self.temp_range_end is None:
+            return
+        if self.temp_range_end <= self.temp_range_start:
+            raise ValidationError(
+                {
+                    "temp_range_end": "Temperature range end must be greater than temperature range start."
+                }
+            )
+
+    class Meta:
+        verbose_name = "TGA Setline"
+        verbose_name_plural = "TGA Setline"
