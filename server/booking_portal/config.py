@@ -65,6 +65,7 @@ form_template_dict = {
     46: (FluorescenceMicroscopeForm, FluorescenceMicroscope),
     47: (NanoDropForm, NanoDrop),
     48: (DLSZetasizerForm, DLSZetasizer),
+    49: (TGASetlineForm, TGASetline),
 }
 
 view_application_dict = {

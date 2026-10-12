@@ -40,6 +40,7 @@ from .scxrd import SCXRDForm
 from .spectrafluorimeter import SpectraFluorimeterForm
 from .tcspc import TCSPCForm
 from .tga import TGAForm
+from .tga_setline import TGASetlineForm
 from .tubularfurnace import TubularFurnaceForm
 from .ultracentrifuge import UltracentrifugeForm
 from .utm import UTMForm
