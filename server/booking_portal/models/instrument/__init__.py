@@ -7,6 +7,7 @@ from .requests import (
     CHNS,
     DLS,
     DSC,
+    DSCTGA,
     EDXRF,
     EPR_ESR,
     FESEM,

@@ -785,3 +785,31 @@ class ConfocalRamanSpectrometer(UserDetail, UserRemark):
     class Meta:
         verbose_name = "Confocal Raman Spectrometer"
         verbose_name_plural = "Confocal Raman Spectrometer"
+
+
+class DSCTGA(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    temp_range_start = models.IntegerField()
+    temp_range_end = models.IntegerField()
+    atmosphere = models.CharField(
+        max_length=5,
+        choices=[
+            ("N2", "N2"),
+            ("Air", "Air"),
+        ],
+    )
+    heating_rate = models.IntegerField(validators=[MinValueValidator(1)])
+
+    def clean(self):
+        if self.temp_range_start is None or self.temp_range_end is None:
+            return
+        if self.temp_range_end <= self.temp_range_start:
+            raise ValidationError(
+                {
+                    "temp_range_end": "Temperature range end must be greater than temperature range start."
+                }
+            )
+
+    class Meta:
+        verbose_name = "DSC-TGA"
+        verbose_name_plural = "DSC-TGA"

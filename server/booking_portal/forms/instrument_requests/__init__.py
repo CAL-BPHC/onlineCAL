@@ -9,6 +9,7 @@ from .contact_angle import ContactAngleForm
 from .digital_polarimeter import DigitalPolarimeterForm
 from .dls import DLSForm
 from .dsc import DSCForm
+from .dsc_tga import DSCTGAForm
 from .edxrf import EDXRFForm
 from .epr_esr import EPR_ESRForm
 from .fesem import FESEMForm
