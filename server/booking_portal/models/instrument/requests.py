@@ -579,8 +579,8 @@ class DLS(UserDetail, UserRemark):
     additional_info = models.CharField(max_length=300)
 
     class Meta:
-        verbose_name = "DLS"
-        verbose_name_plural = "DLS"
+        verbose_name = "DLS-700"
+        verbose_name_plural = "DLS-700"
 
 
 class BDFACS(UserDetail, UserRemark):
