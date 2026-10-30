@@ -75,6 +75,7 @@ form_template_dict = {
     56: (SolarSimulatorForm, SolarSimulator),
     57: (KeithleySourceMeterForm, KeithleySourceMeter),
     58: (InSituFTIRForm, InSituFTIR),
+    59: (GloveboxForm, Glovebox),
 }
 
 view_application_dict = {
