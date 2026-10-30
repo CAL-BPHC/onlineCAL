@@ -38,6 +38,7 @@ from .requests import (
     Fluorolog3,
     Fluoromax,
     FreezeDryer,
+    Glovebox,
     HighPressureBatchReactor,
     HighPressureFlowReactor,
     HighPressureGasAdsorption,

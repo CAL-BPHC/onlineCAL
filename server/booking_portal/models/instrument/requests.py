@@ -1115,3 +1115,12 @@ class InSituFTIR(UserDetail, UserRemark):
     class Meta:
         verbose_name = "In-situ FTIR"
         verbose_name_plural = "In-situ FTIR"
+
+
+class Glovebox(UserDetail, UserRemark):
+    sample_type = models.CharField(max_length=75)
+    experiment_type = models.CharField(max_length=250)
+
+    class Meta:
+        verbose_name = "Glovebox"
+        verbose_name_plural = "Glovebox"

@@ -22,6 +22,7 @@ from .freezedryer import FreezeDryerForm
 from .ftir import FTIRForm
 from .gc import GCForm
 from .gc_ms import GCMSForm
+from .glovebox import GloveboxForm
 from .gpc import GPCForm
 from .high_pressure_batch_reactor import HighPressureBatchReactorForm
 from .high_pressure_flow_reactor import HighPressureFlowReactorForm
