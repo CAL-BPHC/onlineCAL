@@ -69,6 +69,7 @@ form_template_dict = {
     50: (SpectraMaxForm, SpectraMax),
     51: (GCMSForm, GCMS),
     52: (HighPressureFlowReactorForm, HighPressureFlowReactor),
+    53: (HighPressureBatchReactorForm, HighPressureBatchReactor),
 }
 
 view_application_dict = {
