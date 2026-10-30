@@ -29,6 +29,7 @@ from .high_pressure_gas_adsorption import HighPressureGasAdsorptionForm
 from .hplc import HPLCForm
 from .hplc_fd import HPLC_FDForm
 from .icp_ms import ICPMSForm
+from .in_situ_ftir import InSituFTIRForm
 from .keithley_source_meter import KeithleySourceMeterForm
 from .lcms import LCMSForm
 from .lscm import LSCMForm
