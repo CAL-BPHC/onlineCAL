@@ -37,6 +37,7 @@ from .requests import (
     Fluorolog3,
     Fluoromax,
     FreezeDryer,
+    HighPressureBatchReactor,
     HighPressureFlowReactor,
     NanoDrop,
     Quantachrome,
