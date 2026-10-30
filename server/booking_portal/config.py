@@ -70,6 +70,7 @@ form_template_dict = {
     51: (GCMSForm, GCMS),
     52: (HighPressureFlowReactorForm, HighPressureFlowReactor),
     53: (HighPressureBatchReactorForm, HighPressureBatchReactor),
+    54: (HighPressureGasAdsorptionForm, HighPressureGasAdsorption),
 }
 
 view_application_dict = {

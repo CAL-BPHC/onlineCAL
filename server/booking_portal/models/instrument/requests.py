@@ -982,3 +982,36 @@ class HighPressureBatchReactor(UserDetail, UserRemark):
     class Meta:
         verbose_name = "High Pressure Batch Reactor"
         verbose_name_plural = "High Pressure Batch Reactor"
+
+
+class HighPressureGasAdsorption(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    sample_type = models.CharField(max_length=75)
+    activation_temperature = models.IntegerField()
+    activation_time = models.IntegerField(validators=[MinValueValidator(1)])
+    required_gas = models.CharField(
+        max_length=5,
+        choices=[
+            ("CH4", "CH4"),
+            ("H2", "H2"),
+            ("N2", "N2"),
+            ("CO2", "CO2"),
+        ],
+    )
+    temperature = models.IntegerField()
+    pressure_range_start = models.FloatField(validators=[MinValueValidator(0)])
+    pressure_range_end = models.FloatField()
+
+    def clean(self):
+        if self.pressure_range_start is None or self.pressure_range_end is None:
+            return
+        if self.pressure_range_end <= self.pressure_range_start:
+            raise ValidationError(
+                {
+                    "pressure_range_end": "Pressure range end must be greater than pressure range start."
+                }
+            )
+
+    class Meta:
+        verbose_name = "High Pressure Gas Adsorption Instrument"
+        verbose_name_plural = "High Pressure Gas Adsorption Instrument"
