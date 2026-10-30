@@ -44,6 +44,7 @@ from .requests import (
     NanoDrop,
     Quantachrome,
     Rheometer,
+    SolarSimulator,
     SpectraFluorimeter,
     SpectraMax,
     TGASetline,

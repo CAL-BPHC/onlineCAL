@@ -1034,3 +1034,14 @@ class BatteryFabricationTesting(UserDetail, UserRemark):
     class Meta:
         verbose_name = "Battery Fabrication and Testing Unit"
         verbose_name_plural = "Battery Fabrication and Testing Unit"
+
+
+class SolarSimulator(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    measurement_requirement = models.CharField(max_length=75)
+    measurement_condition = models.CharField(max_length=75)
+    light_intensity = models.IntegerField(validators=[MinValueValidator(1)])
+
+    class Meta:
+        verbose_name = "Solar Simulator"
+        verbose_name_plural = "Solar Simulator"
