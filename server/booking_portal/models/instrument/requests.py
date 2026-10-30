@@ -1098,3 +1098,20 @@ class KeithleySourceMeter(UserDetail, UserRemark):
     class Meta:
         verbose_name = "Keithley Source Meter"
         verbose_name_plural = "Keithley Source Meter"
+
+
+class InSituFTIR(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    composition = models.CharField(max_length=75)
+    state = models.CharField(
+        max_length=10,
+        choices=[
+            ("Solid", "Solid"),
+            ("Liquid", "Liquid"),
+        ],
+    )
+    solvent = models.CharField(max_length=75, blank=True)
+
+    class Meta:
+        verbose_name = "In-situ FTIR"
+        verbose_name_plural = "In-situ FTIR"
