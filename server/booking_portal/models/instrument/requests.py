@@ -944,3 +944,22 @@ class GCMS(UserDetail, UserRemark):
     class Meta:
         verbose_name = "GC-MS"
         verbose_name_plural = "GC-MS"
+
+
+class HighPressureFlowReactor(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    cuvettes = models.CharField(
+        max_length=10,
+        choices=[
+            ("Disposable", "Disposable"),
+            ("Glass", "Glass"),
+            ("Quartz", "Quartz"),
+            ("Omega", "Omega"),
+            ("Univette", "Univette"),
+        ],
+    )
+    solvent = models.CharField(max_length=75)
+
+    class Meta:
+        verbose_name = "High Pressure Flow Reactor"
+        verbose_name_plural = "High Pressure Flow Reactor"
