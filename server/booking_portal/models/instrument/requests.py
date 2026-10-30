@@ -1045,3 +1045,56 @@ class SolarSimulator(UserDetail, UserRemark):
     class Meta:
         verbose_name = "Solar Simulator"
         verbose_name_plural = "Solar Simulator"
+
+
+class KeithleySourceMeter(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    iv_characterization = models.CharField(
+        max_length=3,
+        choices=[
+            ("Yes", "Yes"),
+            ("No", "No"),
+        ],
+    )
+    resistance_measurement = models.CharField(
+        max_length=3,
+        choices=[
+            ("Yes", "Yes"),
+            ("No", "No"),
+        ],
+    )
+    voltage_range_start = models.FloatField()
+    voltage_range_end = models.FloatField()
+    current_range_start = models.FloatField()
+    current_range_end = models.FloatField()
+
+    def clean(self):
+        errors = {}
+        if self.iv_characterization == "No" and self.resistance_measurement == "No":
+            errors["iv_characterization"] = (
+                "Choose at least one of I–V characterization and resistance measurement."
+            )
+        # A start equal to the end is a single fixed value, such as one bias
+        # voltage or one current limit.
+        if (
+            self.voltage_range_start is not None
+            and self.voltage_range_end is not None
+            and self.voltage_range_end < self.voltage_range_start
+        ):
+            errors["voltage_range_end"] = (
+                "Voltage range end cannot be less than voltage range start."
+            )
+        if (
+            self.current_range_start is not None
+            and self.current_range_end is not None
+            and self.current_range_end < self.current_range_start
+        ):
+            errors["current_range_end"] = (
+                "Current range end cannot be less than current range start."
+            )
+        if errors:
+            raise ValidationError(errors)
+
+    class Meta:
+        verbose_name = "Keithley Source Meter"
+        verbose_name_plural = "Keithley Source Meter"
