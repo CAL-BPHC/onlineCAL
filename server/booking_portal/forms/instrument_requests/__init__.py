@@ -42,6 +42,7 @@ from .rheometer import RheometerForm
 from .rt_pcr import RT_PCRForm
 from .saxs_waxs import SAXSWAXSForm
 from .scxrd import SCXRDForm
+from .solar_simulator import SolarSimulatorForm
 from .spectrafluorimeter import SpectraFluorimeterForm
 from .spectramax import SpectraMaxForm
 from .tcspc import TCSPCForm
