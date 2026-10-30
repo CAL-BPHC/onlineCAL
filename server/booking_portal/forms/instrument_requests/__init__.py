@@ -24,6 +24,7 @@ from .gc_ms import GCMSForm
 from .gpc import GPCForm
 from .high_pressure_batch_reactor import HighPressureBatchReactorForm
 from .high_pressure_flow_reactor import HighPressureFlowReactorForm
+from .high_pressure_gas_adsorption import HighPressureGasAdsorptionForm
 from .hplc import HPLCForm
 from .hplc_fd import HPLC_FDForm
 from .icp_ms import ICPMSForm

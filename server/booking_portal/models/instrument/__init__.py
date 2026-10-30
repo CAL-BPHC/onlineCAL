@@ -39,6 +39,7 @@ from .requests import (
     FreezeDryer,
     HighPressureBatchReactor,
     HighPressureFlowReactor,
+    HighPressureGasAdsorption,
     NanoDrop,
     Quantachrome,
     Rheometer,
