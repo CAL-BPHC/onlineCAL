@@ -41,6 +41,7 @@ from .requests import (
     HighPressureBatchReactor,
     HighPressureFlowReactor,
     HighPressureGasAdsorption,
+    KeithleySourceMeter,
     NanoDrop,
     Quantachrome,
     Rheometer,

@@ -73,6 +73,7 @@ form_template_dict = {
     54: (HighPressureGasAdsorptionForm, HighPressureGasAdsorption),
     55: (BatteryFabricationTestingForm, BatteryFabricationTesting),
     56: (SolarSimulatorForm, SolarSimulator),
+    57: (KeithleySourceMeterForm, KeithleySourceMeter),
 }
 
 view_application_dict = {
