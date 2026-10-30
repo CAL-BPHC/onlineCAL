@@ -20,6 +20,7 @@ from .fluoromax import FluoromaxForm
 from .freezedryer import FreezeDryerForm
 from .ftir import FTIRForm
 from .gc import GCForm
+from .gc_ms import GCMSForm
 from .gpc import GPCForm
 from .hplc import HPLCForm
 from .hplc_fd import HPLC_FDForm

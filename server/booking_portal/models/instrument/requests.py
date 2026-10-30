@@ -932,3 +932,15 @@ class SpectraMax(UserDetail, UserRemark):
     class Meta:
         verbose_name = "SpectraMax iD5"
         verbose_name_plural = "SpectraMax iD5"
+
+
+class GCMS(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    required_gas = models.CharField(max_length=75)
+    required_column = models.CharField(max_length=75)
+    mol_wt_formula = models.CharField(max_length=75)
+    required_detector = models.CharField(max_length=75)
+
+    class Meta:
+        verbose_name = "GC-MS"
+        verbose_name_plural = "GC-MS"

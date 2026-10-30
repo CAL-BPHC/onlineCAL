@@ -67,6 +67,7 @@ form_template_dict = {
     48: (DLSZetasizerForm, DLSZetasizer),
     49: (TGASetlineForm, TGASetline),
     50: (SpectraMaxForm, SpectraMax),
+    51: (GCMSForm, GCMS),
 }
 
 view_application_dict = {

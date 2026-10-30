@@ -13,6 +13,7 @@ from .requests import (
     FESEM,
     FTIR,
     GC,
+    GCMS,
     GPC,
     HPLC,
     ICPMS,
