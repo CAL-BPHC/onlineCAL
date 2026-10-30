@@ -151,6 +151,14 @@ class FacultyBookingTestCase(TestCase):
             ).exists()
         )
 
+    def test_an_invalid_form_comes_back_with_its_errors(self):
+        response = self.client.post(
+            self.url(), self.filled_in(number_of_samples=0, action="submit")
+        )
+
+        self.assertContains(response, "greater than or equal to 1")
+        self.assertFalse(FacultyRequest.objects.exists())
+
     def test_a_faculty_without_a_department_cannot_book(self):
         self.faculty.department = None
         self.faculty.save()

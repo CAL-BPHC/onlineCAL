@@ -318,7 +318,7 @@ def book_machine(request, instr_id):
             return render(
                 request,
                 "booking_portal/instrument_form.html",
-                {"form": form(is_faculty=not is_student), **default_context},
+                {"form": form, **default_context},
             )
         action = request.POST.get("action")
         if action == "submit":
