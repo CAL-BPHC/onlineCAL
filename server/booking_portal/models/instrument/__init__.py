@@ -28,6 +28,7 @@ from .requests import (
     TGA,
     VSM,
     XPS,
+    BatteryFabricationTesting,
     CDSpectrophotometer,
     ConfocalRamanSpectrometer,
     ContactAngle,

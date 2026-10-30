@@ -71,6 +71,7 @@ form_template_dict = {
     52: (HighPressureFlowReactorForm, HighPressureFlowReactor),
     53: (HighPressureBatchReactorForm, HighPressureBatchReactor),
     54: (HighPressureGasAdsorptionForm, HighPressureGasAdsorption),
+    55: (BatteryFabricationTestingForm, BatteryFabricationTesting),
 }
 
 view_application_dict = {

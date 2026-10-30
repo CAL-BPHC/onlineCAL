@@ -1015,3 +1015,22 @@ class HighPressureGasAdsorption(UserDetail, UserRemark):
     class Meta:
         verbose_name = "High Pressure Gas Adsorption Instrument"
         verbose_name_plural = "High Pressure Gas Adsorption Instrument"
+
+
+class BatteryFabricationTesting(UserDetail, UserRemark):
+    sample_codes = models.CharField(max_length=75)
+    cuvettes = models.CharField(
+        max_length=10,
+        choices=[
+            ("Disposable", "Disposable"),
+            ("Glass", "Glass"),
+            ("Quartz", "Quartz"),
+            ("Omega", "Omega"),
+            ("Univette", "Univette"),
+        ],
+    )
+    solvent = models.CharField(max_length=75)
+
+    class Meta:
+        verbose_name = "Battery Fabrication and Testing Unit"
+        verbose_name_plural = "Battery Fabrication and Testing Unit"
