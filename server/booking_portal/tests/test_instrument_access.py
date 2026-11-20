@@ -10,15 +10,31 @@ from django.utils import timezone
 
 from ..admin.user import StudentAdmin
 from ..factories import (
+    CustomUserFaker,
     FacultyFactory,
     InstrumentFactory,
     LabAssistantFactory,
     StudentFactory,
 )
-from ..models import Department, EmailModel, Slot, Student, StudentRequest
+from ..models import (
+    CustomUser,
+    Department,
+    EmailModel,
+    Slot,
+    Student,
+    StudentRequest,
+)
 from .test_portal_filters import RequestBuilderMixin
 
-ACCESS_URL = "/lab-assistant/instrument-access"
+ACCESS_URL = "/admin-portal/instrument-access"
+
+
+def portal_admin_lab_assistant():
+    """A lab assistant made a portal admin, as make_portal_admin does."""
+    user = LabAssistantFactory()
+    user.role = CustomUser.Role.PORTAL_ADMIN
+    user.save()
+    return user
 
 
 def open_slot(instrument):
@@ -102,31 +118,43 @@ class FacultyBookingTestCase(TestCase):
 
 
 class InstrumentAccessPageTestCase(TestCase):
-    """Lab assistants assign a student an instrument after training, or revoke it."""
+    """Portal admins assign a student an instrument after training, or revoke it."""
 
     def setUp(self):
         self.student = StudentFactory(name="Asha Rao")
         self.ftir = InstrumentFactory(name="FTIR")
         self.nmr = InstrumentFactory(name="NMR")
         self.client = Client()
-        self.client.force_login(LabAssistantFactory())
+        self.client.force_login(portal_admin_lab_assistant())
 
     def url(self):
         return f"{ACCESS_URL}/{self.student.pk}"
 
-    def test_only_lab_assistants_can_use_it(self):
+    def test_portal_admins_are_shown_it(self):
+        for user in (portal_admin_lab_assistant(), CustomUserFaker()):
+            with self.subTest(is_lab_assistant=hasattr(user, "labassistant")):
+                self.client.force_login(user)
+
+                for url in (ACCESS_URL, self.url()):
+                    self.assertEqual(self.client.get(url).status_code, 200)
+                self.assertContains(self.client.get("/"), "Instrument Access")
+
+    def test_no_one_else_can_use_it(self):
+        lab_assistant = LabAssistantFactory()
         department = Department.objects.create(email="d@example.com", name="chem")
-        for user in (self.student, self.student.supervisor, department):
+        for user in (lab_assistant, self.student, self.student.supervisor, department):
             with self.subTest(role=user.role):
                 self.client.force_login(user)
 
                 for url in (ACCESS_URL, self.url()):
                     self.assertEqual(self.client.get(url).status_code, 302)
-                self.client.post(
-                    self.url(), {"instrument": self.ftir.pk, "action": "assign"}
-                )
+                assign = {"instrument": self.ftir.pk, "action": "assign"}
+                self.client.post(self.url(), assign)
+                self.client.post(ACCESS_URL, {**assign, "students": self.student.pk})
 
         self.assertFalse(self.student.instruments.exists())
+        self.client.force_login(lab_assistant)
+        self.assertNotContains(self.client.get("/lab-assistant/"), "Instrument Access")
 
     def test_students_are_found_by_name_or_email_or_instrument(self):
         other = StudentFactory(name="Ravi Kumar", email="ravi@example.com")
@@ -143,6 +171,44 @@ class InstrumentAccessPageTestCase(TestCase):
         self.assertContains(by_instrument, "Ravi Kumar")
         self.assertNotContains(by_instrument, "Asha Rao")
 
+    def test_several_students_are_found_at_once(self):
+        StudentFactory(name="Ravi Kumar")
+        StudentFactory(name="Meena Iyer")
+
+        response = self.client.get(ACCESS_URL, {"q": "asha, ravi,"})
+
+        self.assertContains(response, "Asha Rao")
+        self.assertContains(response, "Ravi Kumar")
+        self.assertNotContains(response, "Meena Iyer")
+
+    def test_ticked_students_are_assigned_or_revoked_together(self):
+        ravi = StudentFactory(name="Ravi Kumar")
+        meena = StudentFactory(name="Meena Iyer")  # not ticked
+        meena.instruments.add(self.ftir)
+        self.student.instruments.add(self.nmr)
+        ticked = {"students": [self.student.pk, ravi.pk], "instrument": self.ftir.pk}
+
+        assigned = self.client.post(
+            f"{ACCESS_URL}?q=a", {**ticked, "action": "assign"}, follow=True
+        )
+        self.assertCountEqual(self.ftir.students.all(), [self.student, ravi, meena])
+        revoked = self.client.post(ACCESS_URL, {**ticked, "action": "revoke"})
+
+        # back to the same search, saying what changed
+        self.assertEqual(assigned.redirect_chain, [(f"{ACCESS_URL}?q=a", 302)])
+        self.assertContains(assigned, "2 students can now book FTIR.")
+        self.assertRedirects(revoked, ACCESS_URL, fetch_redirect_response=False)
+        self.assertCountEqual(self.ftir.students.all(), [meena])
+        self.assertCountEqual(self.student.instruments.all(), [self.nmr])
+
+    def test_nothing_ticked_changes_nothing(self):
+        response = self.client.post(
+            ACCESS_URL, {"instrument": self.ftir.pk, "action": "assign"}, follow=True
+        )
+
+        self.assertContains(response, "Tick at least one student")
+        self.assertFalse(self.ftir.students.exists())
+
     def test_the_page_offers_to_revoke_what_is_assigned_and_assign_the_rest(self):
         self.student.instruments.add(self.ftir)
 
@@ -153,7 +219,7 @@ class InstrumentAccessPageTestCase(TestCase):
         self.assertNotIn(f'<option value="{self.ftir.pk}">', body)
 
     def test_assigning_and_revoking_change_one_instrument_each(self):
-        # assigned by another lab assistant since this page was opened
+        # assigned by another admin since this page was opened
         self.student.instruments.add(self.nmr)
 
         assigned = self.client.post(

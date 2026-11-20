@@ -11,6 +11,7 @@
       <p class="text-center">
         Students can book only the instruments assigned to them. Find a student
         to assign an instrument once they are trained on it, or to revoke one.
+        Tick several students to change them all at once.
       </p>
 
       <form method="get" class="form-row">
@@ -21,38 +22,65 @@
         </div>
       </form>
 
-      <div class="table-responsive mt-2">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Student</th>
-              <th scope="col">Supervisor</th>
-              <th scope="col">Can book</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for student in page_obj %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-row align-items-center border-top pt-3 mt-2">
+          <div class="col-md-auto mb-2"><strong>Ticked students:</strong></div>
+          <div class="col-md mb-2">
+            <select name="instrument" class="custom-select" required aria-label="Instrument for the ticked students">
+              <option value="">Choose an instrument</option>
+              {% for instrument in instruments %}
+                <option value="{{ instrument.pk }}">{{ instrument }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-auto mb-2">
+            <button type="submit" name="action" value="assign" class="btn btn-primary">Assign</button>
+            <button type="submit" name="action" value="revoke" class="btn btn-outline-danger" onclick="return confirm('Revoke this instrument from every ticked student?')">Revoke</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
               <tr>
-                <td>{{ student.name }}<br><small class="text-muted text-nowrap">{{ student.email }}</small></td>
-                <td>{{ student.supervisor.name }}</td>
-                <td>
-                  {% for instrument in student.instruments.all %}
-                    <span class="badge badge-secondary">{{ instrument }}</span>
-                  {% empty %}
-                    <span class="text-muted">Nothing yet</span>
-                  {% endfor %}
-                </td>
-                <td class="text-right">
-                  <a class="btn btn-outline-primary btn-sm" href="{% url 'lab_assistant_student_instruments' student.pk %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">Manage</a>
-                </td>
+                <th scope="col">
+                  <input type="checkbox" aria-label="Tick every student on this page" onclick="document.querySelectorAll('input[name=students]').forEach(box => box.checked = this.checked)">
+                </th>
+                <th scope="col">Student</th>
+                <th scope="col">Supervisor</th>
+                <th scope="col">Can book</th>
+                <th scope="col"></th>
               </tr>
-            {% empty %}
-              <tr><td colspan="4" class="text-center text-muted">No students found.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {% for student in page_obj %}
+                <tr>
+                  <td><input type="checkbox" name="students" value="{{ student.pk }}" id="student-{{ student.pk }}"></td>
+                  <td>
+                    <label for="student-{{ student.pk }}" class="mb-0">
+                      {{ student.name }}<br><small class="text-muted text-nowrap">{{ student.email }}</small>
+                    </label>
+                  </td>
+                  <td>{{ student.supervisor.name }}</td>
+                  <td>
+                    {% for instrument in student.instruments.all %}
+                      <span class="badge badge-secondary">{{ instrument }}</span>
+                    {% empty %}
+                      <span class="text-muted">Nothing yet</span>
+                    {% endfor %}
+                  </td>
+                  <td class="text-right">
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'student_instruments' student.pk %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">Manage</a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5" class="text-center text-muted">No students found.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </form>
 
       {% if page_obj.has_other_pages %}
         <nav aria-label="Page Navigation">

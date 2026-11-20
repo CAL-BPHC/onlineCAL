@@ -23,16 +23,6 @@ urlpatterns = [
         views.lab_assistant_faculty_portal,
         name="lab_assistant_faculty_portal",
     ),
-    path(
-        "lab-assistant/instrument-access",
-        views.lab_assistant_instrument_access,
-        name="lab_assistant_instrument_access",
-    ),
-    path(
-        "lab-assistant/instrument-access/<int:student_id>",
-        views.lab_assistant_student_instruments,
-        name="lab_assistant_student_instruments",
-    ),
     path("student/", views.student_portal, name="student"),
     path("department/", views.department_portal, name="department_portal"),
     path(
@@ -66,6 +56,16 @@ urlpatterns = [
     path("admin-portal/create/student", views.create_student, name="create_student"),
     path("admin-portal/create/faculty", views.create_faculty, name="create_faculty"),
     path("admin-portal/get/faculty", views.get_faculty, name="get_faculty"),
+    path(
+        "admin-portal/instrument-access",
+        views.instrument_access,
+        name="instrument_access",
+    ),
+    path(
+        "admin-portal/instrument-access/<int:student_id>",
+        views.student_instruments,
+        name="student_instruments",
+    ),
     path("about-us/", views.about_us, name="about_us"),
     path("guidelines/", views.guidelines, name="guidelines"),
     path("announcements/", views.announcements, name="announcements"),

@@ -16,9 +16,8 @@ with the portal:
 Please change your password as soon as possible.
 {% if user_type|lower == "student" %}
     Your account starts with no instruments assigned, and you can book only
-    the instruments assigned to you. A CIF lab assistant assigns an instrument
-    once you are trained on it, so contact them to arrange training before
-    you book.
+    the instruments assigned to you. An instrument is assigned once you are
+    trained on it, so contact the CIF lab to arrange training before you book.
 
     Please note that you can only have up to two active requests for the same
     machine at any given time.

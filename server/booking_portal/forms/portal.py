@@ -6,6 +6,7 @@ from django.utils.timezone import localdate
 
 from ..models.instrument import Instrument
 from ..models.slot import Slot
+from ..models.user import Student
 
 
 class SlotModelChoiceField(forms.ModelChoiceField):
@@ -44,7 +45,10 @@ class StudentSearchForm(forms.Form):
     q = forms.CharField(
         required=False,
         widget=forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Student name or email"}
+            attrs={
+                "class": "form-control",
+                "placeholder": "Names or emails, separated by commas",
+            }
         ),
     )
     instrument = forms.ModelChoiceField(
@@ -53,6 +57,11 @@ class StudentSearchForm(forms.Form):
         empty_label="Any instrument",
         widget=forms.Select(attrs={"class": "custom-select"}),
     )
+
+    def clean_q(self):
+        # several at once, so a group trained together can be ticked together
+        terms = (term.strip() for term in self.cleaned_data["q"].split(","))
+        return [term for term in terms if term]
 
 
 class InstrumentAccessForm(forms.Form):
@@ -63,6 +72,12 @@ class InstrumentAccessForm(forms.Form):
 
     instrument = forms.ModelChoiceField(queryset=Instrument.objects.all())
     action = forms.ChoiceField(choices=((ASSIGN, "Assign"), (REVOKE, "Revoke")))
+
+
+class BulkInstrumentAccessForm(InstrumentAccessForm):
+    """Assigns one instrument to several students at once, or revokes it"""
+
+    students = forms.ModelMultipleChoiceField(queryset=Student.objects.all())
 
 
 class SlotList(forms.Form):

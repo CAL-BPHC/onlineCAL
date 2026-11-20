@@ -130,7 +130,7 @@ class Faculty(CustomUser):
 class Student(CustomUser):
     default_role = CustomUser.Role.STUDENT
     supervisor = models.ForeignKey(Faculty, on_delete=models.PROTECT, null=False)
-    # The only instruments the student may book, assigned by a lab assistant
+    # The only instruments the student may book, assigned by a portal admin
     # once they are trained on one. Faculty may book every instrument.
     instruments = models.ManyToManyField("Instrument", blank=True)
 

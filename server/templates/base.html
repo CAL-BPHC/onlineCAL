@@ -58,9 +58,9 @@
             <a class="nav-link" href="{% url 'department_portal' %}">Requests<span class="sr-only"> (current)</span></a>
           {% endif %}
         </li>
-        {% if user_type == 'assistant' %}
+        {% if user.role == 'PORTAL_ADMIN' or user.is_superuser %}
         <li class="nav-item active">
-          <a class="nav-link" href="{% url 'lab_assistant_instrument_access' %}">Instrument Access<span class="sr-only"> (current)</span></a>
+          <a class="nav-link" href="{% url 'instrument_access' %}">Instrument Access<span class="sr-only"> (current)</span></a>
         </li>
         {% endif %}
 

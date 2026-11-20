@@ -1,4 +1,11 @@
-from .admin import admin_portal, create_faculty, create_student, get_faculty
+from .admin import (
+    admin_portal,
+    create_faculty,
+    create_student,
+    get_faculty,
+    instrument_access,
+    student_instruments,
+)
 from .department import department_portal, department_usage_summary
 from .faculty import (
     faculty_portal,
@@ -10,10 +17,8 @@ from .faculty import (
 from .lab_assistant import (
     lab_assistant_accept,
     lab_assistant_faculty_portal,
-    lab_assistant_instrument_access,
     lab_assistant_portal,
     lab_assistant_reject,
-    lab_assistant_student_instruments,
 )
 from .profile import user_profile
 from .student import book_machine, student_portal

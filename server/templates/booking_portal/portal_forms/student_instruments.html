@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container pt-4" style="max-width: 720px;">
-  <a href="{% url 'lab_assistant_instrument_access' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">&larr; Back to students</a>
+  <a href="{% url 'instrument_access' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">&larr; Back to students</a>
   <div class="card bg-light mt-2 mb-3">
     <div class="card-body">
       <h3 class="card-title mb-1">{{ student.name }}</h3>
