@@ -241,26 +241,27 @@ class InstrumentAccessPageTestCase(TestCase):
 
 
 class SeedFromBookingsTestCase(RequestBuilderMixin, TestCase):
-    """Existing students keep the instruments they already book."""
+    """Existing students keep the instruments they were approved for."""
 
-    def test_each_instrument_booked_is_assigned_unless_it_never_took_place(self):
+    def test_only_an_approved_request_assigns_an_instrument(self):
         seed = importlib.import_module(
             "booking_portal.migrations.0094_seed_student_instruments"
         )
         self.build_portal_fixtures()
-        pending, refused = InstrumentFactory(name="NMR"), InstrumentFactory(name="XPS")
         self.make_request(StudentRequest.APPROVED)
         self.make_request(StudentRequest.APPROVED)
-        self.make_request(StudentRequest.WAITING_FOR_FACULTY, instrument=pending)
-        self.make_request(StudentRequest.REJECTED, instrument=refused)
-        self.make_request(StudentRequest.CANCELLED, instrument=refused)
+        for name, status in (
+            ("NMR", StudentRequest.WAITING_FOR_FACULTY),
+            ("XPS", StudentRequest.WAITING_FOR_LAB_ASST),
+            ("BET", StudentRequest.REJECTED),
+            ("AAS", StudentRequest.CANCELLED),
+        ):
+            self.make_request(status, instrument=InstrumentFactory(name=name))
 
-        seed.assign_booked_instruments(apps, None)
-        seed.assign_booked_instruments(apps, None)
+        seed.assign_approved_instruments(apps, None)
+        seed.assign_approved_instruments(apps, None)
 
-        self.assertCountEqual(
-            self.student.instruments.all(), [self.instrument, pending]
-        )
+        self.assertCountEqual(self.student.instruments.all(), [self.instrument])
 
 
 class NewStudentTestCase(TestCase):
