@@ -93,6 +93,11 @@ def book_machine_student(request, form_class, form_model_class):
             messages.error(request, "Invalid slot or instrument.")
             return HttpResponseRedirect(reverse("instrument-list"))
 
+        # the slot, not the URL, decides which instrument is booked
+        if not student.instruments.filter(pk=instr.pk).exists():
+            messages.error(request, f"{instr} is not assigned to you.")
+            return HttpResponseRedirect(reverse("instrument-list"))
+
         if not slot.is_available_for_booking():
             messages.error(request, "Sorry, This slot is not available anymore.")
             return HttpResponseRedirect(reverse("instrument-list"))

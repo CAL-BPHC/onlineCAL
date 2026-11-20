@@ -6,6 +6,7 @@ from django.utils.timezone import localdate
 
 from ..models.instrument import Instrument
 from ..models.slot import Slot
+from ..models.user import Student
 
 
 class SlotModelChoiceField(forms.ModelChoiceField):
@@ -22,8 +23,10 @@ class InstrumentList(forms.Form):
 
     instruments = forms.ModelChoiceField(queryset=Instrument.objects.all())
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, *kwargs)
+    def __init__(self, *args, student=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if student is not None:
+            self.fields["instruments"].queryset = student.instruments.all()
 
         self.helper = FormHelper(self)
         self.helper.form_show_labels = False
@@ -34,6 +37,47 @@ class InstrumentList(forms.Form):
                 Submit("proceed", value="Proceed", css_class="btn-primary btn-md")
             ),
         )
+
+
+class StudentSearchForm(forms.Form):
+    """Narrows the students on the lab assistant's instrument access page"""
+
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Names or emails, separated by commas",
+            }
+        ),
+    )
+    instrument = forms.ModelChoiceField(
+        queryset=Instrument.objects.all(),
+        required=False,
+        empty_label="Any instrument",
+        widget=forms.Select(attrs={"class": "custom-select"}),
+    )
+
+    def clean_q(self):
+        # several at once, so a group trained together can be ticked together
+        terms = (term.strip() for term in self.cleaned_data["q"].split(","))
+        return [term for term in terms if term]
+
+
+class InstrumentAccessForm(forms.Form):
+    """Assigns one instrument to a student, or revokes it"""
+
+    ASSIGN = "assign"
+    REVOKE = "revoke"
+
+    instrument = forms.ModelChoiceField(queryset=Instrument.objects.all())
+    action = forms.ChoiceField(choices=((ASSIGN, "Assign"), (REVOKE, "Revoke")))
+
+
+class BulkInstrumentAccessForm(InstrumentAccessForm):
+    """Assigns one instrument to several students at once, or revokes it"""
+
+    students = forms.ModelMultipleChoiceField(queryset=Student.objects.all())
 
 
 class SlotList(forms.Form):
