@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load query_utils %}
+
+{% block title %}Instrument Access{% endblock %}
+
+{% block content %}
+<div class="container pt-4">
+  <div class="card bg-light mb-3">
+    <div class="card-body">
+      <h2 class="card-title text-center">Instrument Access</h2>
+      <p class="text-center">
+        Students can book only the instruments assigned to them. Find a student
+        to assign an instrument once they are trained on it, or to revoke one.
+      </p>
+
+      <form method="get" class="form-row">
+        <div class="col-md-6 mb-2">{{ form.q }}</div>
+        <div class="col-md-4 mb-2">{{ form.instrument }}</div>
+        <div class="col-md-2 mb-2">
+          <button type="submit" class="btn btn-primary btn-block">Search</button>
+        </div>
+      </form>
+
+      <div class="table-responsive mt-2">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Student</th>
+              <th scope="col">Supervisor</th>
+              <th scope="col">Can book</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in page_obj %}
+              <tr>
+                <td>{{ student.name }}<br><small class="text-muted text-nowrap">{{ student.email }}</small></td>
+                <td>{{ student.supervisor.name }}</td>
+                <td>
+                  {% for instrument in student.instruments.all %}
+                    <span class="badge badge-secondary">{{ instrument }}</span>
+                  {% empty %}
+                    <span class="text-muted">Nothing yet</span>
+                  {% endfor %}
+                </td>
+                <td class="text-right">
+                  <a class="btn btn-outline-primary btn-sm" href="{% url 'lab_assistant_student_instruments' student.pk %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">Manage</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" class="text-center text-muted">No students found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if page_obj.has_other_pages %}
+        <nav aria-label="Page Navigation">
+          <ul class="pagination justify-content-center mb-0">
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+              <a class="page-link" href="{% if page_obj.has_previous %}?{% update_query_params page=page_obj.previous_page_number %}{% else %}#{% endif %}">Previous</a>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+              <a class="page-link" href="{% if page_obj.has_next %}?{% update_query_params page=page_obj.next_page_number %}{% else %}#{% endif %}">Next</a>
+            </li>
+          </ul>
+        </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

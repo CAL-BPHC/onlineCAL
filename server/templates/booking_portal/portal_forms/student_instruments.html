@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Instrument Access - {{ student.name }}{% endblock %}
+
+{% block content %}
+<div class="container pt-4" style="max-width: 720px;">
+  <a href="{% url 'lab_assistant_instrument_access' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">&larr; Back to students</a>
+  <div class="card bg-light mt-2 mb-3">
+    <div class="card-body">
+      <h3 class="card-title mb-1">{{ student.name }}</h3>
+      <p class="text-muted">{{ student.email }} &middot; Supervisor: {{ student.supervisor.name }}</p>
+
+      <h6 class="text-uppercase text-muted small font-weight-bold mt-4">Can book ({{ assigned|length }})</h6>
+      {% if assigned %}
+        <ul class="list-group">
+          {% for instrument in assigned %}
+            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+              {{ instrument }}
+              <form method="post" class="mb-0">
+                {% csrf_token %}
+                <input type="hidden" name="instrument" value="{{ instrument.pk }}">
+                <button type="submit" name="action" value="revoke" class="btn btn-outline-danger btn-sm">Revoke</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No instruments yet, so this student cannot book any.</p>
+      {% endif %}
+
+      <h6 class="text-uppercase text-muted small font-weight-bold mt-4">Assign after training</h6>
+      {% if unassigned %}
+        <form method="post" class="form-row">
+          {% csrf_token %}
+          <div class="col-sm-9 mb-2">
+            <select name="instrument" class="custom-select" required aria-label="Instrument to assign">
+              <option value="">Choose an instrument</option>
+              {% for instrument in unassigned %}
+                <option value="{{ instrument.pk }}">{{ instrument }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-3 mb-2">
+            <button type="submit" name="action" value="assign" class="btn btn-primary btn-block">Assign</button>
+          </div>
+        </form>
+      {% else %}
+        <p class="mb-0">Every instrument is already assigned.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

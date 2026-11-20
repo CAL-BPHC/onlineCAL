@@ -10,8 +10,10 @@ from .faculty import (
 from .lab_assistant import (
     lab_assistant_accept,
     lab_assistant_faculty_portal,
+    lab_assistant_instrument_access,
     lab_assistant_portal,
     lab_assistant_reject,
+    lab_assistant_student_instruments,
 )
 from .profile import user_profile
 from .student import book_machine, student_portal

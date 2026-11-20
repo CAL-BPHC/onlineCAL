@@ -5,7 +5,23 @@
 {% block card-title %}Choose an instrument{% endblock %}
 
 {% block cardcontent %}
-  <div class="panel-body mt-3 text-center">
-    {% crispy form %}
-  </div>
+  {% if student %}
+    <div class="alert alert-info small mt-3 mb-0" role="note">
+      <i class="fas fa-info-circle"></i>
+      {% if has_instruments %}
+        <strong>You can book only the instruments assigned to you.</strong>
+        A CIF lab assistant assigns an instrument once you are trained on it,
+        so contact them to arrange training for any other instrument.
+      {% else %}
+        <strong>No instruments are assigned to you yet.</strong>
+        A CIF lab assistant assigns an instrument once you are trained on it,
+        so contact them to arrange training.
+      {% endif %}
+    </div>
+  {% endif %}
+  {% if has_instruments %}
+    <div class="panel-body mt-3 text-center">
+      {% crispy form %}
+    </div>
+  {% endif %}
 {% endblock %}

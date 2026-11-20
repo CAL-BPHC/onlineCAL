@@ -22,8 +22,10 @@ class InstrumentList(forms.Form):
 
     instruments = forms.ModelChoiceField(queryset=Instrument.objects.all())
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, *kwargs)
+    def __init__(self, *args, student=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if student is not None:
+            self.fields["instruments"].queryset = student.instruments.all()
 
         self.helper = FormHelper(self)
         self.helper.form_show_labels = False
@@ -34,6 +36,33 @@ class InstrumentList(forms.Form):
                 Submit("proceed", value="Proceed", css_class="btn-primary btn-md")
             ),
         )
+
+
+class StudentSearchForm(forms.Form):
+    """Narrows the students on the lab assistant's instrument access page"""
+
+    q = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Student name or email"}
+        ),
+    )
+    instrument = forms.ModelChoiceField(
+        queryset=Instrument.objects.all(),
+        required=False,
+        empty_label="Any instrument",
+        widget=forms.Select(attrs={"class": "custom-select"}),
+    )
+
+
+class InstrumentAccessForm(forms.Form):
+    """Assigns one instrument to a student, or revokes it"""
+
+    ASSIGN = "assign"
+    REVOKE = "revoke"
+
+    instrument = forms.ModelChoiceField(queryset=Instrument.objects.all())
+    action = forms.ChoiceField(choices=((ASSIGN, "Assign"), (REVOKE, "Revoke")))
 
 
 class SlotList(forms.Form):

@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from ..forms.portal import InstrumentList, SlotList
-from ..models import StudentRequest
+from ..models import Student, StudentRequest
 from ..models.request import MAX_PENDING_REQUESTS_PER_INSTRUMENT
 from ..permissions import is_faculty, is_student
 
@@ -17,7 +17,10 @@ def slot_list(request):
         messages.error(request, "Bad Request")
         return HttpResponseRedirect(reverse("instrument-list"))
 
-    form = InstrumentList(request.POST)
+    # a student may only pick an instrument assigned to them
+    form = InstrumentList(
+        request.POST, student=Student.objects.filter(pk=request.user.pk).first()
+    )
     if not form.is_valid():
         messages.error(request, "Bad Request")
         return HttpResponseRedirect(reverse("instrument-list"))
@@ -28,13 +31,7 @@ def slot_list(request):
         messages.error(
             request, "Instrument unavailable due to technica/maintenance reasons."
         )
-        return render(
-            request,
-            "booking_portal/portal_forms/instrument_list.html",
-            {
-                "form": InstrumentList(),
-            },
-        )
+        return HttpResponseRedirect(reverse("instrument-list"))
     if StudentRequest.objects.has_student_reached_pending_request_limit(
         instr, request.user
     ):
@@ -43,13 +40,7 @@ def slot_list(request):
             f"You already have {MAX_PENDING_REQUESTS_PER_INSTRUMENT} pending "
             "requests for this instrument.",
         )
-        return render(
-            request,
-            "booking_portal/portal_forms/instrument_list.html",
-            {
-                "form": InstrumentList(),
-            },
-        )
+        return HttpResponseRedirect(reverse("instrument-list"))
 
     return render(
         request,

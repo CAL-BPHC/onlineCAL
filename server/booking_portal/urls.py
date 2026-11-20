@@ -23,6 +23,16 @@ urlpatterns = [
         views.lab_assistant_faculty_portal,
         name="lab_assistant_faculty_portal",
     ),
+    path(
+        "lab-assistant/instrument-access",
+        views.lab_assistant_instrument_access,
+        name="lab_assistant_instrument_access",
+    ),
+    path(
+        "lab-assistant/instrument-access/<int:student_id>",
+        views.lab_assistant_student_instruments,
+        name="lab_assistant_student_instruments",
+    ),
     path("student/", views.student_portal, name="student"),
     path("department/", views.department_portal, name="department_portal"),
     path(
