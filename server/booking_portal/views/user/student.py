@@ -74,6 +74,14 @@ def book_machine_student(request, form_class, form_model_class):
     slot, instr = cast(
         tuple[Slot, Instrument], Slot.objects.get_instr_from_slot_id(slot_id)
     )
+    if not instr or not slot:
+        messages.error(request, "Invalid slot or instrument.")
+        return HttpResponseRedirect(reverse("instrument-list"))
+
+    # the slot, not the URL, decides which instrument is booked
+    if not student.instruments.filter(pk=instr.pk).exists():
+        messages.error(request, f"{instr} is not assigned to you.")
+        return HttpResponseRedirect(reverse("instrument-list"))
 
     default_context = {
         "edit": True,
@@ -89,15 +97,6 @@ def book_machine_student(request, form_class, form_model_class):
     }
 
     if request.method == "GET":
-        if not instr or not slot:
-            messages.error(request, "Invalid slot or instrument.")
-            return HttpResponseRedirect(reverse("instrument-list"))
-
-        # the slot, not the URL, decides which instrument is booked
-        if not student.instruments.filter(pk=instr.pk).exists():
-            messages.error(request, f"{instr} is not assigned to you.")
-            return HttpResponseRedirect(reverse("instrument-list"))
-
         if not slot.is_available_for_booking():
             messages.error(request, "Sorry, This slot is not available anymore.")
             return HttpResponseRedirect(reverse("instrument-list"))

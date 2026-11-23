@@ -92,6 +92,17 @@ class StudentBookingTestCase(TestCase):
         )
         self.assertEqual(opened.status_code, 200)
 
+    def test_the_cost_of_an_unassigned_instrument_is_not_worked_out(self):
+        slot = open_slot(self.other)
+
+        response = self.client.post(
+            f"/book-machine/3?slots={slot.pk}", {"action": "calculate"}
+        )
+
+        self.assertRedirects(
+            response, "/instrument-list/", fetch_redirect_response=False
+        )
+
     def test_a_booking_of_an_unassigned_instrument_is_refused(self):
         slot = open_slot(self.other)
 
@@ -131,8 +142,9 @@ class InstrumentAccessPageTestCase(TestCase):
         return f"{ACCESS_URL}/{self.student.pk}"
 
     def test_portal_admins_are_shown_it(self):
-        for user in (portal_admin_lab_assistant(), CustomUserFaker()):
-            with self.subTest(is_lab_assistant=hasattr(user, "labassistant")):
+        superuser = LabAssistantFactory(is_superuser=True)  # role stays lab assistant
+        for user in (portal_admin_lab_assistant(), CustomUserFaker(), superuser):
+            with self.subTest(role=user.role, superuser=user.is_superuser):
                 self.client.force_login(user)
 
                 for url in (ACCESS_URL, self.url()):
@@ -151,6 +163,10 @@ class InstrumentAccessPageTestCase(TestCase):
                 assign = {"instrument": self.ftir.pk, "action": "assign"}
                 self.client.post(self.url(), assign)
                 self.client.post(ACCESS_URL, {**assign, "students": self.student.pk})
+
+        anonymous = Client()
+        for url in (ACCESS_URL, self.url()):
+            self.assertIn("/auth/login/", anonymous.get(url)["Location"])
 
         self.assertFalse(self.student.instruments.exists())
         self.client.force_login(lab_assistant)

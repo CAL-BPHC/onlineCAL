@@ -40,7 +40,7 @@ class InstrumentList(forms.Form):
 
 
 class StudentSearchForm(forms.Form):
-    """Narrows the students on the lab assistant's instrument access page"""
+    """Narrows the students on the portal admin's instrument access page"""
 
     q = forms.CharField(
         required=False,
