@@ -343,6 +343,7 @@ class FillInFormTestCase(TestCase):
         self.faculty.department = self.department
         self.faculty.save()
         self.instrument = InstrumentFactory(name="FTIR", pk=self.instrument_id)
+        self.student.instruments.add(self.instrument)
         self.slot = Slot.objects.create(
             instrument=self.instrument,
             date=timezone.localdate() + datetime.timedelta(days=3),
@@ -447,6 +448,18 @@ class FillInFormTestCase(TestCase):
         self.assertIsNone(request_obj.content_object.faculty_remarks)
         self.assertIsNone(request_obj.content_object.department_remarks)
         self.assertIsNone(request_obj.content_object.lab_assistant_remarks)
+
+    def test_an_instrument_revoked_while_filling_in_cannot_be_booked(self):
+        self.student.instruments.clear()
+
+        response = self.client.post(
+            self.url(), self.filled_in(action="submit", calculation_done="True")
+        )
+
+        self.assertRedirects(
+            response, "/instrument-list/", fetch_redirect_response=False
+        )
+        self.assertFalse(StudentRequest.objects.exists())
 
 
 class ApplicationAccessTestCase(ApplicationFixtureMixin, TestCase):

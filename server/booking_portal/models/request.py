@@ -30,6 +30,9 @@ class StudentRequestManager(models.Manager):
             if not slot.is_available_for_booking():
                 raise ValueError("Slot is not available for booking.")
 
+            if not student.instruments.filter(pk=instr.pk).exists():
+                raise ValueError("Instrument is not assigned to you.")
+
             if StudentRequest.objects.has_student_reached_pending_request_limit(
                 instr, student
             ):

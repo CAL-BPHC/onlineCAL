@@ -1,4 +1,11 @@
-from .admin import admin_portal, create_faculty, create_student, get_faculty
+from .admin import (
+    admin_portal,
+    create_faculty,
+    create_student,
+    get_faculty,
+    instrument_access,
+    student_instruments,
+)
 from .department import department_portal, department_usage_summary
 from .faculty import (
     faculty_portal,

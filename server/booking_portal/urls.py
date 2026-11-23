@@ -56,6 +56,16 @@ urlpatterns = [
     path("admin-portal/create/student", views.create_student, name="create_student"),
     path("admin-portal/create/faculty", views.create_faculty, name="create_faculty"),
     path("admin-portal/get/faculty", views.get_faculty, name="get_faculty"),
+    path(
+        "admin-portal/instrument-access",
+        views.instrument_access,
+        name="instrument_access",
+    ),
+    path(
+        "admin-portal/instrument-access/<int:student_id>",
+        views.student_instruments,
+        name="student_instruments",
+    ),
     path("about-us/", views.about_us, name="about_us"),
     path("guidelines/", views.guidelines, name="guidelines"),
     path("announcements/", views.announcements, name="announcements"),

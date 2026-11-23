@@ -15,8 +15,12 @@ Please read the following instructions so that you can familiarize yourselves
 with the portal:
 Please change your password as soon as possible.
 {% if user_type|lower == "student" %}
-    You can start booking slots right away! However, please note that you
-    can only have up to two active requests for the same machine at any given time.
+    Your account starts with no instruments assigned, and you can book only
+    the instruments assigned to you. An instrument is assigned once you are
+    trained on it, so contact the CIF lab to arrange training before you book.
+
+    Please note that you can only have up to two active requests for the same
+    machine at any given time.
     If this limit is reached, you must wait for one or more requests to either be
     completed (in the past) or rejected before making additional bookings. You can book
     slots for other machines while you may have pending requests.
