@@ -243,25 +243,47 @@ class InstrumentAccessPageTestCase(TestCase):
 class SeedFromBookingsTestCase(RequestBuilderMixin, TestCase):
     """Existing students keep the instruments they were approved for."""
 
-    def test_only_an_approved_request_assigns_an_instrument(self):
-        seed = importlib.import_module(
+    def seed(self):
+        importlib.import_module(
             "booking_portal.migrations.0094_seed_student_instruments"
-        )
+        ).assign_approved_instruments(apps, None)
+
+    def test_only_an_approved_request_assigns_an_instrument(self):
         self.build_portal_fixtures()
-        self.make_request(StudentRequest.APPROVED)
-        self.make_request(StudentRequest.APPROVED)
+        self.make_request(StudentRequest.APPROVED, date=timezone.localdate())
         for name, status in (
             ("NMR", StudentRequest.WAITING_FOR_FACULTY),
             ("XPS", StudentRequest.WAITING_FOR_LAB_ASST),
             ("BET", StudentRequest.REJECTED),
             ("AAS", StudentRequest.CANCELLED),
         ):
-            self.make_request(status, instrument=InstrumentFactory(name=name))
+            self.make_request(
+                status,
+                date=timezone.localdate(),
+                instrument=InstrumentFactory(name=name),
+            )
 
-        seed.assign_approved_instruments(apps, None)
-        seed.assign_approved_instruments(apps, None)
+        self.seed()
+        self.seed()
 
         self.assertCountEqual(self.student.instruments.all(), [self.instrument])
+
+    def test_a_single_booking_over_a_year_old_has_lapsed(self):
+        self.build_portal_fixtures()
+        long_ago = timezone.localdate() - datetime.timedelta(days=400)
+        lapsed, regular = InstrumentFactory(name="NMR"), InstrumentFactory(name="XPS")
+        self.make_request(StudentRequest.APPROVED, date=timezone.localdate())
+        self.make_request(StudentRequest.APPROVED, date=long_ago, instrument=lapsed)
+        for _ in range(2):
+            self.make_request(
+                StudentRequest.APPROVED, date=long_ago, instrument=regular
+            )
+
+        self.seed()
+
+        self.assertCountEqual(
+            self.student.instruments.all(), [self.instrument, regular]
+        )
 
 
 class NewStudentTestCase(TestCase):
