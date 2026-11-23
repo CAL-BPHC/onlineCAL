@@ -178,7 +178,7 @@ class InstrumentAccessPageTestCase(TestCase):
 
         by_name = self.client.get(ACCESS_URL, {"q": "asha"})
         by_email = self.client.get(ACCESS_URL, {"q": "ravi@"})
-        by_instrument = self.client.get(ACCESS_URL, {"instrument": self.nmr.pk})
+        by_instrument = self.client.get(ACCESS_URL, {"q": "nmr"})
 
         self.assertContains(by_name, "Asha Rao")
         self.assertNotContains(by_name, "Ravi Kumar")
@@ -186,6 +186,13 @@ class InstrumentAccessPageTestCase(TestCase):
         self.assertNotContains(by_email, "Asha Rao")
         self.assertContains(by_instrument, "Ravi Kumar")
         self.assertNotContains(by_instrument, "Asha Rao")
+
+    def test_a_student_matching_several_terms_is_listed_once(self):
+        self.student.instruments.add(self.ftir, self.nmr)
+
+        response = self.client.get(ACCESS_URL, {"q": "ftir, nmr, asha"})
+
+        self.assertContains(response, "Asha Rao", count=1)
 
     def test_several_students_are_found_at_once(self):
         StudentFactory(name="Ravi Kumar")

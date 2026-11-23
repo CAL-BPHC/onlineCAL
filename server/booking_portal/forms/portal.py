@@ -47,15 +47,9 @@ class StudentSearchForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Names or emails, separated by commas",
+                "placeholder": "Names, emails or instruments, separated by commas",
             }
         ),
-    )
-    instrument = forms.ModelChoiceField(
-        queryset=Instrument.objects.all(),
-        required=False,
-        empty_label="Any instrument",
-        widget=forms.Select(attrs={"class": "custom-select"}),
     )
 
     def clean_q(self):

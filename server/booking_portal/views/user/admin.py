@@ -211,12 +211,15 @@ def instrument_access(request):
         .order_by("name", "pk")
     )
     if form.is_valid():
+        # an instrument's name finds everyone who can book it
         match = Q()
         for term in form.cleaned_data["q"]:
-            match |= Q(name__icontains=term) | Q(email__icontains=term)
-        students = students.filter(match)
-        if form.cleaned_data["instrument"]:
-            students = students.filter(instruments=form.cleaned_data["instrument"])
+            match |= (
+                Q(name__icontains=term)
+                | Q(email__icontains=term)
+                | Q(instruments__name__icontains=term)
+            )
+        students = students.filter(match).distinct()
 
     return render(
         request,
